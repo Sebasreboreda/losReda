@@ -1,0 +1,765 @@
+[
+  {
+    "entidad": "Subraza",
+    "slug": "rock-gnome",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Gnomo de las rocas"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "rock-gnome",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Subraza gnoma ingeniosa, experta en artilugios y conocimientos tecnicos."
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "hill-dwarf",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Enano de las colinas"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "hill-dwarf",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Subraza enana resistente con gran aguante y tradicion ancestral."
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "high-elf",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Alto elfo"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "high-elf",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Subraza elfica refinada, con formacion arcana y gran disciplina."
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "lightfoot-halfling",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Mediano piesligeros"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "lightfoot-halfling",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Subraza mediana discreta, carismatica y de movimientos sigilosos."
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "mountain-dwarf",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Enano de la montana"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "mountain-dwarf",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Subraza enana resistente y orientada al combate."
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "wood-elf",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Elfo del bosque"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "wood-elf",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Elfo agil y con gran afinidad por la naturaleza."
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "forest-gnome",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Gnomo del bosque"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "forest-gnome",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Gnomo discreto y cercano a los bosques."
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "stout-halfling",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Mediano fornido"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "stout-halfling",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Mediano robusto y especialmente resistente."
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "human-standard",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Humano"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "human-standard",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Humano estandar con mejoras equilibradas en sus capacidades."
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "variant-human",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Humano variante"
+  },
+  {
+    "entidad": "Subraza",
+    "slug": "variant-human",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Variante humana con mayor flexibilidad inicial."
+  },
+  {
+    "entidad": "Raza",
+    "slug": "dragonborn",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Dracónido"
+  },
+  {
+    "entidad": "Raza",
+    "slug": "dragonborn",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Humanoides dracónicos de linaje orgulloso, con aliento elemental y gran resistencia."
+  },
+  {
+    "entidad": "Raza",
+    "slug": "dwarf",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Enano"
+  },
+  {
+    "entidad": "Raza",
+    "slug": "dwarf",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Pueblo robusto y resistente, famoso por su aguante, artesanía y tradición."
+  },
+  {
+    "entidad": "Raza",
+    "slug": "elf",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Elfo"
+  },
+  {
+    "entidad": "Raza",
+    "slug": "elf",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Pueblo elegante y longevo, de sentidos agudos y gran afinidad mágica."
+  },
+  {
+    "entidad": "Raza",
+    "slug": "gnome",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Gnomo"
+  },
+  {
+    "entidad": "Raza",
+    "slug": "gnome",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Pequeños curiosos e ingeniosos, conocidos por su creatividad y su inventiva."
+  },
+  {
+    "entidad": "Raza",
+    "slug": "half-elf",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Semielfo"
+  },
+  {
+    "entidad": "Raza",
+    "slug": "half-elf",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Personas versátiles de herencia mixta, puente entre humanos y elfos."
+  },
+  {
+    "entidad": "Raza",
+    "slug": "half-orc",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Semiorco"
+  },
+  {
+    "entidad": "Raza",
+    "slug": "half-orc",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Pueblo poderoso y decidido, con gran fuerza física y voluntad feroz."
+  },
+  {
+    "entidad": "Raza",
+    "slug": "halfling",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Mediano"
+  },
+  {
+    "entidad": "Raza",
+    "slug": "halfling",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Aventureros pequeños y ágiles, famosos por su valor, suerte y simpatía."
+  },
+  {
+    "entidad": "Raza",
+    "slug": "human",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Humano"
+  },
+  {
+    "entidad": "Raza",
+    "slug": "human",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Personas adaptables y ambiciosas, con gran diversidad de talentos y culturas."
+  },
+  {
+    "entidad": "Raza",
+    "slug": "tiefling",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Tiflin"
+  },
+  {
+    "entidad": "Raza",
+    "slug": "tiefling",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Personas con ascendencia infernal, marcadas por rasgos inusuales y magia innata."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "barbarian",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Bárbaro"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "barbarian",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Guerrero feroz que canaliza su furia primitiva en combate."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "bard",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Bardo"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "bard",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Artista inspirador y lanzador de conjuros que teje magia con música y actuación."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "cleric",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Clérigo"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "cleric",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Lanzador de conjuros divinos que sirve a una deidad y canaliza poder sagrado."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "druid",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Druida"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "druid",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Guardián de la naturaleza que domina magia primigenia y puede transformarse."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "fighter",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Guerrero"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "fighter",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Maestro del combate marcial, experto en armas y armaduras."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "monk",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Monje"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "monk",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Artista marcial disciplinado que aprovecha el ki para hazañas extraordinarias."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "paladin",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Paladín"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "paladin",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Guerrero sagrado ligado a un juramento, combina combate y magia divina."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "ranger",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Explorador"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "ranger",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Cazador y rastreador de la naturaleza con habilidad marcial y magia natural."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "rogue",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Pícaro"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "rogue",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Especialista en sigilo y precisión, experto en agilidad, trucos y táctica."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "sorcerer",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Hechicero"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "sorcerer",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Lanzador de conjuros cuya magia proviene de un linaje sobrenatural innato."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "warlock",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Brujo"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "warlock",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Usuario de poder arcano concedido por un pacto con una entidad sobrenatural."
+  },
+  {
+    "entidad": "Clase",
+    "slug": "wizard",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Mago"
+  },
+  {
+    "entidad": "Clase",
+    "slug": "wizard",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Lanzador de conjuros erudito que aprende y prepara magia mediante estudio."
+  },
+  {
+    "entidad": "Subclase",
+    "slug": "champion",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Campeón"
+  },
+  {
+    "entidad": "Subclase",
+    "slug": "evocation",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Tradición evocadora"
+  },
+  {
+    "entidad": "Subclase",
+    "slug": "life",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Dominio de la vida"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "acolyte",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Acólito"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "acolyte",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Servidor devoto de una fe o templo, formado en ritos y conocimiento religioso."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "charlatan",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Charlatán"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "charlatan",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Engañador profesional, hábil con el disfraz, la mentira y la estafa."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "criminal",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Criminal"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "criminal",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Acostumbrado al mundo del delito y a los bajos fondos."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "entertainer",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Artista"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "entertainer",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Intérprete que vive de sus actuaciones y su carisma."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "folk-hero",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Héroe del pueblo"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "folk-hero",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Persona común convertida en símbolo para su comunidad."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "guild-artisan",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Artesano de gremio"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "guild-artisan",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Artesano cualificado con formación y respaldo de su gremio."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "hermit",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Ermitaño"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "hermit",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Recluido que ha pasado años aislado buscando verdad o paz."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "noble",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Noble"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "noble",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Miembro de una familia influyente con educación y privilegios."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "outlander",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Forastero"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "outlander",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Superviviente acostumbrado a vivir lejos de la civilización."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "sage",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Sabio"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "sage",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Erudito que ha dedicado su vida al conocimiento y la investigación."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "sailor",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Marinero"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "sailor",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Navegante experimentado en viajes, tormentas y vida portuaria."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "soldier",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Soldado"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "soldier",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Veterano de campaña con disciplina militar y experiencia en combate."
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "urchin",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Huérfano callejero"
+  },
+  {
+    "entidad": "Trasfondo",
+    "slug": "urchin",
+    "campo": "descripcion",
+    "idioma": "es",
+    "texto": "Criado en las calles, experto en sobrevivir con pocos recursos."
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "acrobatics",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Acrobacias"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "animal-handling",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Trato con animales"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "arcana",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Arcano"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "athletics",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Atletismo"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "deception",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Engaño"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "history",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Historia"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "insight",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Perspicacia"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "intimidation",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Intimidación"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "investigation",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Investigación"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "medicine",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Medicina"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "nature",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Naturaleza"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "perception",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Percepción"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "performance",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Interpretación"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "persuasion",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Persuasión"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "religion",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Religión"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "sleight-of-hand",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Juego de manos"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "stealth",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Sigilo"
+  },
+  {
+    "entidad": "Competencia",
+    "slug": "survival",
+    "campo": "nombre",
+    "idioma": "es",
+    "texto": "Supervivencia"
+  }
+]

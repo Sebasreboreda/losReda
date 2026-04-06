@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body class="site">
+  <%- include('partials/header') %>
+
+  <main class="site-main">
+    <div class="content-shell">
+      <div class="page-heading">
+        <% const filasClase = (personaje.PersonajeClases || []).slice().sort((a, b) => (a.orden || 0) - (b.orden || 0)); %>
+        <% const nivelTotal = filasClase.length ? filasClase.reduce((s, f) => s + (Number(f.nivel) || 0), 0) : (personaje.nivelPersonaje || personaje.nivel || 1); %>
+        <h1 class="page-title"><%= personaje.nombre %></h1>
+        <p class="page-heading__meta" aria-label="Nivel, clase y linaje">
+          <% const niv = nivelTotal != null ? nivelTotal : '—'; %>
+          <span>Nivel <%= niv %></span>
+          <span aria-hidden="true">·</span>
+          <span><%- include('partials/personajeClaseEtiqueta', { personaje, filasClase }) %></span>
+          <span aria-hidden="true">·</span>
+          <span>
+            <% if (personaje.Subraza && personaje.Subraza.nombre) { %>
+              <%= personaje.Subraza.nombre %>
+            <% } else if (personaje.Raza && personaje.Raza.nombre) { %>
+              <%= personaje.Raza.nombre %>
+            <% } else { %>
+              —
+            <% } %>
+          </span>
+        </p>
+      </div>
+      <%- include('partials/mensajeSesionAlert', { mensajes }) %>
+      <div class="detail-grid">
+        <section class="detail-section detail-section--hero-stats">
+          <% const nivelPJ = nivelTotal || 1; %>
+          <% const bonusComp = calcularProficiencyBonus(nivelPJ); %>
+          <% const iniciativaTotal = calcularIniciativa(personaje.Atributo && personaje.Atributo.destreza, nivelPJ); %>
+          <div class="detail-hero-profile">
+            <div class="detail-hero-profile__img-wrap">
+              <% const srcImagen = (personaje.imagen && String(personaje.imagen).trim()) ? personaje.imagen : imagenPorDefectoUrl; %>
+              <img class="detail-hero-profile__img" src="<%= srcImagen %>" alt="Retrato de <%= personaje.nombre %>" width="160" height="160" />
+            </div>
+            <div class="detail-hero-profile__stats">
+              <h2>Atributos</h2>
+              <% if (personaje.Atributo) { %>
+                <% const etiquetasAtributo = { fuerza: 'Fuerza', destreza: 'Destreza', constitucion: 'Constitución', inteligencia: 'Inteligencia', sabiduria: 'Sabiduría', carisma: 'Carisma' }; %>
+                <% const camposAtributo = ['fuerza', 'destreza', 'constitucion', 'inteligencia', 'sabiduria', 'carisma']; %>
+                <div class="stat-cards-row">
+                  <% camposAtributo.forEach((campo) => { %>
+                    <% const valor = personaje.Atributo[campo]; %>
+                    <% const mod = calcularModificadorEstadistica(valor); %>
+                    <div class="stat-mini-card">
+                      <span><%= etiquetasAtributo[campo] %></span>
+                      <span><%= formatearModificadorEstadistica(mod) %></span>
+                      <span><%= valor != null && valor !== '' ? valor : '—' %></span>
+                    </div>
+                  <% }); %>
+                </div>
+              <% } else { %>
+                <p>Sin atributos</p>
+              <% } %>
+            </div>
+            <div class="detail-hero-separator" aria-hidden="true"></div>
+            <aside class="detail-combat-wrap" aria-label="Estadísticas de combate">
+              <h2>Estadísticas de combate</h2>
+              <div class="detail-combat-cards-row">
+                <div class="stat-mini-card">
+                  <span title="Clase de armadura">CA</span>
+                  <span><%= personaje.clase_armadura != null ? personaje.clase_armadura : '—' %></span>
+                  <span aria-hidden="true"> </span>
+                </div>
+                <div class="stat-mini-card">
+                  <span title="Velocidad de desplazamiento">Velocidad</span>
+                  <span><%= personaje.Raza && personaje.Raza.velocidad != null && personaje.Raza.velocidad !== '' ? personaje.Raza.velocidad : '—' %></span>
+                  <span aria-hidden="true"> </span>
+                </div>
+                <div class="stat-mini-card">
+                  <span title="Bonificación de competencia">Bonif. comp.</span>
+                  <span><%= formatearModificadorEstadistica(bonusComp) %></span>
+                  <span aria-hidden="true"> </span>
+                </div>
+                <div class="stat-mini-card">
+                  <span title="Iniciativa (modificador de Destreza + bonificación por competencia)">Iniciativa</span>
+                  <span><%= formatearModificadorEstadistica(iniciativaTotal) %></span>
+                  <span aria-hidden="true"> </span>
+                </div>
+                <div class="detail-vida-card-group">
+                  <div class="stat-mini-card stat-mini-card--vida">
+                    <span>Vida</span>
+                    <% if (typeof puedeEditarVida !== 'undefined' && puedeEditarVida) { %>
+                    <form id="form-vida-<%= personaje.id %>" class="detail-vida-form" method="post" action="/personajes/<%= personaje.id %>/vida">
+                      <div class="detail-vida-form__grid" role="group" aria-label="Puntos de vida máximos y actuales">
+                        <span>Máx.</span>
+                        <span aria-hidden="true"></span>
+                        <span>Actual</span>
+                        <span><%= personaje.vida_max != null ? personaje.vida_max : '—' %></span>
+                        <span>/</span>
+                        <input
+                          type="number"
+                          name="vida_actual"
+                          inputmode="numeric"
+                          value="<%= personaje.vida_actual != null ? personaje.vida_actual : '' %>"
+                          min="0"
+                          <% if (personaje.vida_max != null) { %>max="<%= personaje.vida_max %>"<% } %>
+                          aria-label="Puntos de vida actuales"
+                          required
+                        />
+                      </div>
+                    </form>
+                    <% } else { %>
+                    <div class="detail-vida-form">
+                      <div class="detail-vida-form__grid" role="group" aria-label="Puntos de vida máximos y actuales">
+                        <span>Máx.</span>
+                        <span aria-hidden="true"></span>
+                        <span>Actual</span>
+                        <span><%= personaje.vida_max != null ? personaje.vida_max : '—' %></span>
+                        <span>/</span>
+                        <span><%= personaje.vida_actual != null ? personaje.vida_actual : '—' %></span>
+                      </div>
+                    </div>
+                    <% } %>
+                    <span aria-hidden="true"> </span>
+                  </div>
+                  <% if (typeof puedeEditarVida !== 'undefined' && puedeEditarVida) { %>
+                  <button type="submit" class="detail-vida-form__btn detail-vida-form__btn--aside" form="form-vida-<%= personaje.id %>">Guardar</button>
+                  <% } %>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <% if (personaje.Atributo) { %>
+          <% const ab3 = { fuerza: 'FUE', destreza: 'DES', constitucion: 'CON', inteligencia: 'INT', sabiduria: 'SAB', carisma: 'CAR' }; %>
+          <% const ab3Largo = { fuerza: 'Fuerza', destreza: 'Destreza', constitucion: 'Constitución', inteligencia: 'Inteligencia', sabiduria: 'Sabiduría', carisma: 'Carisma' }; %>
+          <div class="detail-dnd-cluster">
+            <div class="detail-dnd-cluster__left">
+              <section class="detail-section">
+                <h2>Tiradas de salvación</h2>
+                <div class="detail-dnd-saves-table" role="table" aria-label="Tiradas de salvación por característica">
+                  <div class="detail-dnd-saves-head" role="row">
+                    <span role="columnheader" title="Competente en la salvación de esta característica">Comp.</span>
+                    <span role="columnheader" title="Atributo">Atr.</span>
+                    <span role="columnheader">Salvación</span>
+                    <span role="columnheader" title="Bonificador total a la tirada de salvación">Total</span>
+                  </div>
+                  <ul class="detail-dnd-saves-list" role="rowgroup">
+                    <% fichaDnd.salvaciones.forEach((s) => { %>
+                      <li class="detail-dnd-save-row" role="row">
+                        <span role="cell"><% if (s.proficiente) { %><span class="detail-dnd-dot" title="Competente en esta salvación"></span><% } else { %><span class="detail-dnd-dot detail-dnd-dot--empty" title="No competente"></span><% } %></span>
+                        <span role="cell" title="<%= ab3Largo[s.clave] %>"><%= ab3[s.clave] %></span>
+                        <span role="cell"><%= s.etiqueta %></span>
+                        <span role="cell"><%= formatearModificadorEstadistica(s.bonus) %></span>
+                      </li>
+                    <% }); %>
+                  </ul>
+                </div>
+              </section>
+              <section class="detail-section">
+                <h2>Sentidos pasivos</h2>
+                <ul class="detail-dnd-senses">
+                  <li class="detail-dnd-sense">
+                    <span>Percepción pasiva</span>
+                    <span><%= fichaDnd.sensosPasivos.percepcion %></span>
+                  </li>
+                  <li class="detail-dnd-sense">
+                    <span>Investigación pasiva</span>
+                    <span><%= fichaDnd.sensosPasivos.investigacion %></span>
+                  </li>
+                  <li class="detail-dnd-sense">
+                    <span>Perspicacia pasiva</span>
+                    <span><%= fichaDnd.sensosPasivos.perspicacia %></span>
+                  </li>
+                </ul>
+              </section>
+            </div>
+            <div class="detail-dnd-cluster__skills">
+              <section class="detail-section">
+                <h2>Habilidades</h2>
+                <div class="detail-dnd-skills-table" role="table" aria-label="Lista de habilidades">
+                  <div class="detail-dnd-skills-head" role="row">
+                    <span role="columnheader" title="Competente (o experto) en la habilidad">Comp.</span>
+                    <span role="columnheader" title="Atributo asociada a la habilidad">Atr.</span>
+                    <span role="columnheader">Habilidad</span>
+                    <span role="columnheader" title="Bonificador total a la tirada de habilidad">Total</span>
+                  </div>
+                  <ul class="detail-dnd-skills-list" role="rowgroup">
+                    <% fichaDnd.habilidades.forEach((h) => { %>
+                      <li class="detail-dnd-skills-row" role="row">
+                        <span role="cell">
+                          <% if (h.experto) { %>
+                            <span class="detail-dnd-dot" title="Experto"></span><span class="detail-dnd-dot" title="Experto"></span>
+                          <% } else if (h.competente) { %>
+                            <span class="detail-dnd-dot" title="Competente"></span>
+                          <% } else { %>
+                            <span class="detail-dnd-dot detail-dnd-dot--empty"></span>
+                          <% } %>
+                        </span>
+                        <span role="cell" title="<%= ab3Largo[h.atributo] || h.atributo %>"><%= ab3[h.atributo] || h.atributo %></span>
+                        <span role="cell"><%= h.nombre %></span>
+                        <span role="cell"><%= formatearModificadorEstadistica(h.bonus) %></span>
+                      </li>
+                    <% }); %>
+                  </ul>
+                </div>
+              </section>
+            </div>
+            <div class="detail-dnd-cluster__spacer" aria-hidden="true"></div>
+          </div>
+        <% } else { %>
+          <section class="detail-section detail-dnd-cluster detail-dnd-cluster--solo-msg">
+            <p>Sin atributos: no se pueden calcular habilidades ni salvaciones.</p>
+          </section>
+        <% } %>
+
+          <section class="detail-section">
+          <h2>Resumen</h2>
+          <p><strong>Nivel:</strong> <%= nivelTotal %></p>
+          <p><strong>Alineamiento:</strong> <%= personaje.alineamiento || '—' %></p>
+          <p><strong>Usuario:</strong> <%= personaje.Usuario ? personaje.Usuario.nombre : 'No asignado' %></p>
+          <p><strong>Trasfondo:</strong> <%= personaje.Trasfondo ? personaje.Trasfondo.nombre : 'No asignado' %></p>
+        </section>
+
+        <section class="detail-section">
+          <h2>Clases (multiclase)</h2>
+          <% if (filasClase.length > 0) { %>
+            <ul>
+              <% filasClase.forEach((fila) => { %>
+                <li>
+                  <strong><%= fila.Clase ? fila.Clase.nombre : 'Clase desconocida' %></strong>
+                  — Nivel <%= fila.nivel || 1 %>
+                  <% if (fila.Subclase && fila.Subclase.nombre) { %>
+                    (Subclase: <%= fila.Subclase.nombre %>)
+                  <% } %>
+                </li>
+              <% }); %>
+            </ul>
+          <% } else { %>
+            <p>Sin clase asignada</p>
+          <% } %>
+        </section>
+
+        <section class="detail-section">
+          <h2>Raza</h2>
+          <% if (personaje.Raza) { %>
+            <% const etiquetasRaza = { nombre: 'Nombre', slug: 'Identificador', tamano: 'Tamaño', velocidad: 'Velocidad' }; %>
+            <% const camposRaza = ['nombre', 'slug', 'tamano', 'velocidad']; %>
+            <% camposRaza.forEach((campo) => { %>
+              <% if (personaje.Raza[campo] != null && personaje.Raza[campo] !== '') { %>
+                <p><strong><%= etiquetasRaza[campo] %>:</strong> <%= personaje.Raza[campo] %></p>
+              <% } %>
+            <% }); %>
+          <% } else { %>
+            <p>Sin raza asignada</p>
+          <% } %>
+          <% if (mostrarSubraza) { %>
+            <h2>Subraza</h2>
+            <% if (personaje.Subraza) { %>
+              <% const etiquetasSubraza = { nombre: 'Nombre', slug: 'Identificador', descripcion: 'Descripción' }; %>
+              <% const camposSubraza = ['nombre', 'slug', 'descripcion']; %>
+              <% camposSubraza.forEach((campo) => { %>
+                <% if (personaje.Subraza[campo] != null && personaje.Subraza[campo] !== '') { %>
+                  <p><strong><%= etiquetasSubraza[campo] %>:</strong> <%= personaje.Subraza[campo] %></p>
+                <% } %>
+              <% }); %>
+            <% } else { %>
+              <p>Sin subraza asignada</p>
+            <% } %>
+          <% } %>
+        </section>
+
+      </div>
+
+      <a href="/" class="back-link">← Volver al inicio</a>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

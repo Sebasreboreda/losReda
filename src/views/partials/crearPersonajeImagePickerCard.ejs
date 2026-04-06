@@ -1,0 +1,28 @@
+<div class="crear-personaje-card crear-personaje-card--spaced">
+  <div class="avatar-picker">
+    <div class="avatar-picker__top">
+      <button type="button" class="avatar-picker__trigger" id="avatar-trigger" aria-expanded="false" aria-controls="avatar-dropdown">
+        <img id="avatar-selected-preview" class="avatar-picker__selected-preview" alt="" hidden />
+        <span class="avatar-picker__label">Haz click para elegir imagen</span>
+      </button>
+      <input type="hidden" id="personaje-imagen" name="imagen" />
+
+      <div class="form-group avatar-picker__name-field">
+        <label for="nombre-personaje">Nombre del personaje</label>
+        <input type="text" id="nombre-personaje" name="nombre" placeholder="Escribe el nombre..." maxlength="60" />
+      </div>
+    </div>
+
+    <div class="avatar-picker__dropdown" id="avatar-dropdown" hidden>
+      <span class="avatar-picker__label">Foto de personaje</span>
+      <button type="button" class="btn btn-secondary btn-sm avatar-picker__upload-btn" disabled>Subir foto propia (próximamente) Tamaño máximo 3MB.</button>
+      <div class="avatar-picker__grid">
+        <% imagenesDisponibles.forEach((imagen) => { %>
+          <button type="button" class="avatar-picker__item" data-image-url="<%= imagen.url %>" title="<%= imagen.nombre %>">
+            <img src="<%= imagen.url %>" alt="<%= imagen.nombre %>" loading="lazy" />
+          </button>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+</div>

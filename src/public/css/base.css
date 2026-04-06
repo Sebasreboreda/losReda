@@ -1,0 +1,310 @@
+:root {
+  --dnd-red: #8b1538;
+  --dnd-red-dark: #5c0e25;
+  --dnd-red-light: #b91c47;
+  --dnd-gold: #c9a227;
+  --dnd-cream: #ebe4d8;
+  --dnd-parchment: #f0ebe3;
+  --dnd-ink: #1a1512;
+  --dnd-muted: #5c5348;
+  --dnd-card: #faf7f2;
+  --dnd-border: rgba(139, 21, 56, 0.25);
+  --header-h: 4.25rem;
+  --font-display: "Cinzel", "Palatino Linotype", serif;
+  --font-body: "Source Sans 3", "Segoe UI", sans-serif;
+  --shadow-header: 0 2px 12px rgba(26, 21, 18, 0.12);
+  --radius: 10px;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --dnd-red-alpha-08: rgba(139, 21, 56, 0.08);
+  --dnd-red-alpha-12: rgba(139, 21, 56, 0.12);
+  --dnd-red-alpha-35: rgba(139, 21, 56, 0.35);
+  --dnd-red-alpha-38: rgba(139, 21, 56, 0.38);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body.site {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body);
+  color: var(--dnd-ink);
+  background: var(--dnd-parchment);
+  background-image: linear-gradient(160deg, #e8e0d4 0%, var(--dnd-parchment) 45%, #e5ddd2 100%);
+  line-height: 1.5;
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
+  background: linear-gradient(180deg, var(--dnd-red-dark) 0%, var(--dnd-red) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-header);
+  border-bottom: 2px solid var(--dnd-gold);
+}
+
+.site-header__brand {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.site-header__logo {
+  width: 6.35rem;
+  height: 6.35rem;
+  flex-shrink: 0;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.site-header__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.site-header__title span {
+  color: var(--dnd-gold);
+  font-weight: 600;
+}
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.site-header__user {
+  font-size: 0.875rem;
+  opacity: 0.95;
+  margin-right: 0.25rem;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .site-header__user {
+    max-width: 220px;
+  }
+}
+
+.site-main {
+  flex: 1 0 auto;
+  width: 100%;
+  padding-top: var(--header-h);
+  padding-bottom: 2rem;
+}
+
+.content-shell {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10%;
+  padding-right: 10%;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .content-shell {
+    padding-left: 6%;
+    padding-right: 6%;
+  }
+  .character-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+h1,
+h2,
+h3,
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--dnd-red-dark);
+  letter-spacing: 0.02em;
+}
+
+.page-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin: 0 0 1.25rem;
+}
+
+.page-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.85rem;
+  margin: 0 0 1.25rem;
+}
+
+.page-title,
+.page-heading {
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--dnd-border);
+}
+
+.page-heading .page-title {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.page-heading__meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  font-family: var(--font-body);
+  font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+  font-weight: 600;
+  color: var(--dnd-muted);
+  line-height: 1.35;
+  max-width: 100%;
+}
+
+.page-heading__meta > span[aria-hidden="true"] {
+  color: var(--dnd-border);
+  font-weight: 700;
+  user-select: none;
+}
+
+.page-heading__meta > span:not([aria-hidden="true"]) {
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .page-heading__meta > span:not([aria-hidden="true"]) {
+    white-space: normal;
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--dnd-red);
+  color: #fff;
+  border-color: var(--dnd-red-dark);
+}
+
+.btn-primary:hover {
+  background: var(--dnd-red-light);
+}
+
+.btn-outline-light {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.65);
+}
+
+.btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #fff;
+}
+
+.btn-secondary {
+  background: var(--dnd-card);
+  color: var(--dnd-red-dark);
+  border-color: var(--dnd-border);
+}
+
+.btn-secondary:hover {
+  background: #fff;
+  border-color: var(--dnd-red);
+}
+
+.btn-danger {
+  background: var(--dnd-red-dark);
+  color: #fff;
+  border-color: #3d0918;
+}
+
+.btn-danger:hover {
+  background: #a01838;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.site-header .btn {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+}
+
+.site-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: 1.25rem 10%;
+  background: linear-gradient(180deg, var(--dnd-red-dark) 0%, #3d0a18 100%);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.85rem;
+  text-align: center;
+  border-top: 2px solid var(--dnd-gold);
+}
+
+.site-footer p {
+  margin: 0;
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+}
+
+.site-footer a {
+  color: var(--dnd-gold);
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}

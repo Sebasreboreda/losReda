@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body class="site">
+  <%- include('partials/header') %>
+
+  <main class="site-main">
+    <div class="content-shell">
+      <%- include('partials/crearPersonajePageHeader', { activeStep: 2 }) %>
+
+      <div class="form-panel form-panel--wide form-panel--plain crear-personaje-panel--wide">
+        <%- include('partials/crearPersonajeImagePickerCard', { imagenesDisponibles }) %>
+
+        <div class="form-actions">
+          <a href="/personajes/crear/1" class="btn btn-secondary">Anterior</a>
+          <a href="/personajes/crear/3" class="btn btn-primary">Siguiente</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+  <%- include('partials/avatarPickerToggleScript') %>
+</body>
+</html>

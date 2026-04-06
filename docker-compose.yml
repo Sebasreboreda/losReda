@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    image: tfg-web:dev
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      NODE_ENV: development
+      DATABASE_PATH: /app/database.sqlite
+      SESSION_SECRET: ${SESSION_SECRET:-cambiar-en-produccion}
+    volumes:
+      - ./src:/app/src
+      - ./database.sqlite:/app/database.sqlite

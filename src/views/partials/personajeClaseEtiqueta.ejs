@@ -1,0 +1,14 @@
+<% if ((filasClase || []).length > 0) { %>
+  <% if (filasClase.length === 1) { %>
+    <% const fila = filasClase[0]; %>
+    <%= fila.Clase && fila.Clase.nombre ? fila.Clase.nombre : '—' %><% if (fila.Subclase && fila.Subclase.nombre) { %> / <%= fila.Subclase.nombre %><% } %>
+  <% } else { %>
+    <%= filasClase.map((f) => f.Clase && f.Clase.nombre).filter(Boolean).join('-') || '—' %>
+  <% } %>
+<% } else if (personaje && personaje.Clase) { %>
+  <%= personaje.Clase.nombre %><% if (personaje.Subclase && personaje.Subclase.nombre) { %> / <%= personaje.Subclase.nombre %><% } %>
+<% } else if (personaje && personaje.Subclase) { %>
+  <%= personaje.Subclase.nombre %>
+<% } else { %>
+  —
+<% } %>

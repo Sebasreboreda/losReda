@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body class="site">
+  <%- include('partials/header') %>
+
+  <main class="site-main">
+    <div class="content-shell">
+      <h1 class="page-title">Crear personaje</h1>
+      <div class="form-panel form-panel--wide">
+        <form action="/personajes/crear" method="post">
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" type="text" name="nombre" required />
+          </div>
+          <div class="form-group">
+            <label for="nivel">Nivel</label>
+            <select id="nivel" name="nivel" required>
+              <option value="" selected disabled>-- Selecciona nivel --</option>
+              <% for (let i = 1; i <= 20; i++) { %>
+                <option value="<%= i %>"><%= i %></option>
+              <% } %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="imagen">Imagen</label>
+            <select id="imagen" name="imagen">
+              <% imagenesDisponibles.forEach((imagen) => { %>
+                <option value="<%= imagen.url %>"><%= imagen.nombre %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="clase">Clase base</label>
+            <select id="clase" name="clase" required>
+              <option value="">-- Selecciona una clase --</option>
+              <% clases.forEach((clase) => { %>
+                <option value="<%= clase.slug %>"><%= clase.nombre %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="raza-select">Raza</label>
+            <select name="raza" id="raza-select" required>
+              <option value="">-- Selecciona una raza --</option>
+              <% razas.forEach((raza) => { %>
+                <option value="<%= raza.slug %>" data-raza-id="<%= raza.id %>"><%= raza.nombre %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="form-group" id="subraza-field-group" hidden>
+            <label for="subraza-select">Subraza</label>
+            <select name="subraza" id="subraza-select">
+              <option value="">-- Selecciona subraza --</option>
+              <% subrazas.forEach((subraza) => { %>
+                <option value="<%= subraza.slug %>" data-raza-id="<%= subraza.RazaId %>" hidden><%= subraza.nombre %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <p class="form-section-title">Estadísticas</p>
+            <div>
+              <% atributos.forEach((atributo) => { %>
+                <div class="form-group">
+                  <label for="stat-<%= atributo.campo %>"><%= atributo.nombre %></label>
+                  <select id="stat-<%= atributo.campo %>" name="<%= atributo.campo %>" class="stat-select" required>
+                    <option value="">-- Selecciona valor --</option>
+                    <option value="8">8</option>
+                    <option value="10">10</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                  </select>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="/" class="btn btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script>
+  (function () {
+    const razaSelect = document.getElementById('raza-select');
+    const subrazaSelect = document.getElementById('subraza-select');
+    const subrazaFieldGroup = document.getElementById('subraza-field-group');
+    const selects = document.querySelectorAll('.stat-select');
+    const subrazaOpciones = Array.from(subrazaSelect.options).filter((opt) => opt.value);
+
+    function actualizarSubrazasPorRaza() {
+      const razaIdSeleccionada = razaSelect.selectedOptions?.[0]?.dataset?.razaId || '';
+      let totalVisibles = 0;
+      subrazaOpciones.forEach((opt) => {
+        const coincide = razaIdSeleccionada && opt.dataset.razaId === razaIdSeleccionada;
+        opt.hidden = !coincide;
+        opt.disabled = !coincide;
+        if (coincide) totalVisibles++;
+      });
+      const subrazaActualVisible = subrazaSelect.selectedOptions?.[0] && !subrazaSelect.selectedOptions[0].hidden;
+      if (!subrazaActualVisible) subrazaSelect.value = '';
+      const mostrarSubraza = totalVisibles > 0;
+      subrazaSelect.required = mostrarSubraza;
+      if (subrazaFieldGroup) subrazaFieldGroup.hidden = !mostrarSubraza;
+    }
+
+    function actualizarOpciones() {
+      const usados = new Set();
+      selects.forEach((select) => { if (select.value) usados.add(select.value); });
+      selects.forEach((select) => {
+        Array.from(select.options).forEach((opt) => {
+          if (!opt.value) return;
+          const usadoEnOtro = usados.has(opt.value) && select.value !== opt.value;
+          opt.hidden = usadoEnOtro;
+          opt.disabled = usadoEnOtro;
+        });
+      });
+    }
+
+    selects.forEach((select) => select.addEventListener('change', actualizarOpciones));
+    razaSelect.addEventListener('change', actualizarSubrazasPorRaza);
+    actualizarOpciones();
+    actualizarSubrazasPorRaza();
+  })();
+  </script>
+</body>
+</html>

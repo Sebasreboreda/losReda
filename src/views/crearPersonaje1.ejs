@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body class="site">
+  <%- include('partials/header') %>
+
+  <main class="site-main">
+    <div class="content-shell">
+      <%- include('partials/crearPersonajePageHeader', { activeStep: 1 }) %>
+
+      <div class="form-panel form-panel--wide form-panel--plain crear-personaje-panel--wide">
+        <%- include('partials/crearPersonajeImagePickerCard', { imagenesDisponibles }) %>
+
+        <div class="crear-personaje-two-col-wrap crear-personaje-two-col--wide">
+          <aside id="panel-clase-seleccion" class="crear-personaje-side-panel crear-personaje-side-panel--left is-collapsed" aria-hidden="true">
+            <p class="crear-personaje-side-panel__title">Clase</p>
+            <p class="crear-personaje-side-panel__value" id="panel-clase-seleccion-value"></p>
+          </aside>
+
+          <div class="crear-personaje-two-col">
+            <section class="crear-personaje-card crear-personaje-card--plain">
+              <h2 class="form-section-title">Clase</h2>
+              <div class="crear-personaje-catalog-list" role="list">
+                <% clases.forEach((clase) => { %>
+                  <button
+                    type="button"
+                    class="crear-personaje-catalog-item"
+                    role="listitem"
+                    data-catalog-type="clase"
+                    data-catalog-slug="<%= clase.slug %>"
+                    aria-pressed="false"
+                  >
+                    <img class="crear-personaje-catalog-item__img" src="<%= clase.imagenUrl %>" alt="" loading="lazy" />
+                    <h3><%= clase.nombre %></h3>
+                  </button>
+                <% }); %>
+              </div>
+            </section>
+
+            <section class="crear-personaje-card crear-personaje-card--plain">
+              <h2 class="form-section-title">Raza</h2>
+              <div class="crear-personaje-catalog-list" role="list">
+                <% razas.forEach((raza) => { %>
+                  <button
+                    type="button"
+                    class="crear-personaje-catalog-item"
+                    role="listitem"
+                    data-catalog-type="raza"
+                  data-catalog-id="<%= raza.id %>"
+                    data-catalog-slug="<%= raza.slug %>"
+                    aria-pressed="false"
+                  >
+                    <img class="crear-personaje-catalog-item__img" src="<%= raza.imagenUrl %>" alt="" loading="lazy" />
+                    <h3><%= raza.nombre %></h3>
+                  </button>
+                <% }); %>
+              </div>
+            </section>
+          </div>
+
+          <aside id="panel-raza-seleccion" class="crear-personaje-side-panel crear-personaje-side-panel--right is-collapsed" aria-hidden="true">
+            <p class="crear-personaje-side-panel__title">Raza</p>
+            <p class="crear-personaje-side-panel__value" id="panel-raza-seleccion-value"></p>
+            <div id="panel-subraza-wrap" class="crear-personaje-subraza-wrap" hidden>
+              <p class="crear-personaje-side-panel__title crear-personaje-side-panel__title--sub">Subraza</p>
+              <div class="crear-personaje-subraza-list" role="list">
+                <% subrazas.forEach((subraza) => { %>
+                  <button
+                    type="button"
+                    class="crear-personaje-subraza-item"
+                    role="listitem"
+                    data-subraza-raza-id="<%= subraza.RazaId %>"
+                    data-subraza-slug="<%= subraza.slug %>"
+                    aria-pressed="false"
+                    hidden
+                  >
+                    <%= subraza.nombre %>
+                  </button>
+                <% }); %>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="form-actions">
+          <a href="/personajes/crear/2" class="btn btn-primary">Siguiente</a>
+          <a href="/" class="btn btn-secondary">Cancelar</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+  <%- include('partials/avatarPickerToggleScript') %>
+  <script>
+    (function () {
+      const STORAGE_KEY = 'crearPersonaje.seleccionPaso1';
+      const items = Array.from(document.querySelectorAll('.crear-personaje-catalog-item[data-catalog-type][data-catalog-slug]'));
+      const subrazaItems = Array.from(document.querySelectorAll('.crear-personaje-subraza-item[data-subraza-raza-id][data-subraza-slug]'));
+      if (!items.length) return;
+
+      let seleccion = {};
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        seleccion = raw ? JSON.parse(raw) : {};
+      } catch {
+        seleccion = {};
+      }
+
+      function render() {
+        const panelClase = document.getElementById('panel-clase-seleccion');
+        const panelRaza = document.getElementById('panel-raza-seleccion');
+        const panelClaseValue = document.getElementById('panel-clase-seleccion-value');
+        const panelRazaValue = document.getElementById('panel-raza-seleccion-value');
+        const panelSubrazaWrap = document.getElementById('panel-subraza-wrap');
+        let nombreClase = '';
+        let nombreRaza = '';
+        let razaIdSeleccionada = '';
+
+        items.forEach((item) => {
+          const type = item.dataset.catalogType;
+          const slug = item.dataset.catalogSlug;
+          const isActive = seleccion[type] === slug;
+          item.classList.toggle('is-active', isActive);
+          item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          if (isActive) {
+            const nombre = item.querySelector('h3')?.textContent?.trim() || '';
+            if (type === 'clase') nombreClase = nombre;
+            if (type === 'raza') {
+              nombreRaza = nombre;
+              razaIdSeleccionada = item.dataset.catalogId || '';
+            }
+          }
+        });
+
+        if (
+          seleccion.subraza &&
+          razaIdSeleccionada &&
+          !subrazaItems.some((item) =>
+            item.dataset.subrazaSlug === seleccion.subraza &&
+            item.dataset.subrazaRazaId === razaIdSeleccionada
+          )
+        ) {
+          delete seleccion.subraza;
+        }
+
+        if (panelClase && panelClaseValue) {
+          if (nombreClase) {
+            panelClaseValue.textContent = nombreClase;
+            panelClase.classList.remove('is-collapsed');
+            panelClase.setAttribute('aria-hidden', 'false');
+          } else {
+            panelClaseValue.textContent = '';
+            panelClase.classList.add('is-collapsed');
+            panelClase.setAttribute('aria-hidden', 'true');
+          }
+        }
+
+        if (panelRaza && panelRazaValue) {
+          if (nombreRaza) {
+            panelRazaValue.textContent = nombreRaza;
+            panelRaza.classList.remove('is-collapsed');
+            panelRaza.setAttribute('aria-hidden', 'false');
+          } else {
+            panelRazaValue.textContent = '';
+            panelRaza.classList.add('is-collapsed');
+            panelRaza.setAttribute('aria-hidden', 'true');
+          }
+        }
+
+        if (panelSubrazaWrap && razaIdSeleccionada) {
+          const haySubrazas = subrazaItems.some((item) => item.dataset.subrazaRazaId === razaIdSeleccionada);
+          panelSubrazaWrap.hidden = !haySubrazas;
+        } else if (panelSubrazaWrap) {
+          panelSubrazaWrap.hidden = true;
+        }
+
+        subrazaItems.forEach((item) => {
+          const visible = !!razaIdSeleccionada && item.dataset.subrazaRazaId === razaIdSeleccionada;
+          item.hidden = !visible;
+          const isActive = visible && seleccion.subraza === item.dataset.subrazaSlug;
+          item.classList.toggle('is-active', isActive);
+          item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(seleccion));
+      }
+
+      items.forEach((item) => {
+        item.addEventListener('click', () => {
+          const type = item.dataset.catalogType;
+          const slug = item.dataset.catalogSlug;
+          if (seleccion[type] === slug) {
+            delete seleccion[type];
+          } else {
+            seleccion[type] = slug;
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(seleccion));
+          render();
+        });
+      });
+
+      subrazaItems.forEach((item) => {
+        item.addEventListener('click', () => {
+          const slug = item.dataset.subrazaSlug;
+          if (seleccion.subraza === slug) {
+            delete seleccion.subraza;
+          } else {
+            seleccion.subraza = slug;
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(seleccion));
+          render();
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

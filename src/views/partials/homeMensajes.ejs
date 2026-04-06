@@ -1,0 +1,6 @@
+<% if (mensajes && mensajes.mensajeSesion) { %>
+  <p class="alert"><%= mensajes.mensajeSesion %></p>
+<% } %>
+<% if (typeof user !== 'undefined' && user && mensajes && mensajes.mensajeBienvenida) { %>
+  <p class="alert"><%= mensajes.mensajeBienvenida %></p>
+<% } %>

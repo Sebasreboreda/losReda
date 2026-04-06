@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body class="site">
+  <%- include('partials/header') %>
+
+  <main class="site-main">
+    <div class="content-shell">
+      <h1 class="page-title">Iniciar sesión</h1>
+      <div class="form-panel">
+        <%- include('partials/formError', { errorMessage: error }) %>
+        <form action="/auth/login" method="post">
+          <div class="form-group">
+            <label for="correo">Correo</label>
+            <input id="correo" type="email" name="correo" required autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="contrasena">Contraseña</label>
+            <input id="contrasena" type="password" name="contrasena" required autocomplete="current-password" />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Entrar</button>
+            <a href="/registro" class="btn btn-secondary">Crear cuenta</a>
+          </div>
+        </form>
+        <a href="/" class="back-link">← Volver al inicio</a>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

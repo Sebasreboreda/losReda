@@ -1,0 +1,95 @@
+<script>
+  (function () {
+    const trigger = document.getElementById('avatar-trigger');
+    const preview = document.getElementById('avatar-selected-preview');
+    const dropdown = document.getElementById('avatar-dropdown');
+    const nameInput = document.getElementById('nombre-personaje');
+    const imageInput = document.getElementById('personaje-imagen');
+    const label = trigger ? trigger.querySelector('.avatar-picker__label') : null;
+    const itemButtons = dropdown ? Array.from(dropdown.querySelectorAll('.avatar-picker__item[data-image-url]')) : [];
+    const STORAGE_NAME_KEY = 'crearPersonaje.nombre';
+    const STORAGE_IMAGE_KEY = 'crearPersonaje.imagen';
+    if (!trigger || !dropdown) return;
+
+    function clearDraft() {
+      localStorage.removeItem(STORAGE_NAME_KEY);
+      localStorage.removeItem(STORAGE_IMAGE_KEY);
+      if (nameInput) nameInput.value = '';
+      setPickerImage('');
+    }
+
+    function setPickerImage(imageUrl) {
+      if (imageUrl) {
+        trigger.classList.add('avatar-picker__trigger--selected');
+        if (preview) {
+          preview.src = imageUrl;
+          preview.hidden = false;
+        }
+        if (label) label.textContent = '';
+      } else {
+        trigger.classList.remove('avatar-picker__trigger--selected');
+        if (preview) {
+          preview.src = '';
+          preview.hidden = true;
+        }
+        if (label) label.textContent = 'Haz click para elegir imagen';
+      }
+
+      if (imageInput) imageInput.value = imageUrl || '';
+
+      itemButtons.forEach((btn) => {
+        const isSelected = btn.dataset.imageUrl === imageUrl;
+        btn.classList.toggle('is-selected', isSelected);
+        btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+      });
+    }
+
+    function toggleDropdown(show) {
+      const isHidden = dropdown.hasAttribute('hidden');
+      const shouldShow = typeof show === 'boolean' ? show : isHidden;
+      if (shouldShow) {
+        dropdown.removeAttribute('hidden');
+        trigger.setAttribute('aria-expanded', 'true');
+      } else {
+        dropdown.setAttribute('hidden', '');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    const isSameOriginReferrer =
+      document.referrer && new URL(document.referrer, window.location.origin).origin === window.location.origin;
+    const referrerPath = isSameOriginReferrer
+      ? new URL(document.referrer, window.location.origin).pathname
+      : '';
+    const cameFromCreateFlow = referrerPath.startsWith('/personajes/crear');
+
+    if (!cameFromCreateFlow) {
+      clearDraft();
+    }
+
+    const savedName = localStorage.getItem(STORAGE_NAME_KEY) || '';
+    const savedImage = localStorage.getItem(STORAGE_IMAGE_KEY) || '';
+
+    if (nameInput && savedName) nameInput.value = savedName;
+    if (savedImage) setPickerImage(savedImage);
+
+    trigger.addEventListener('click', () => {
+      toggleDropdown();
+    });
+
+    itemButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const imageUrl = btn.dataset.imageUrl || '';
+        setPickerImage(imageUrl);
+        localStorage.setItem(STORAGE_IMAGE_KEY, imageUrl);
+        toggleDropdown(false);
+      });
+    });
+
+    if (nameInput) {
+      nameInput.addEventListener('input', () => {
+        localStorage.setItem(STORAGE_NAME_KEY, nameInput.value || '');
+      });
+    }
+  })();
+</script>

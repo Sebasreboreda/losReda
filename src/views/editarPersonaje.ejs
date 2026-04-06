@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body class="site">
+  <%- include('partials/header') %>
+
+  <main class="site-main">
+    <div class="content-shell">
+      <h1 class="page-title">Editar personaje</h1>
+      <div class="form-panel form-panel--wide">
+        <% const filasClase = (personaje.PersonajeClases || []).slice().sort((a, b) => (a.orden || 0) - (b.orden || 0)); %>
+        <% const filaPrincipal = filasClase[0] || null; %>
+        <% const clasePrincipal = filaPrincipal ? filaPrincipal.Clase : personaje.Clase; %>
+        <% const nivelEditable = personaje.nivelPersonaje || personaje.nivel || (filaPrincipal ? filaPrincipal.nivel : 1); %>
+        <form action="/personajes/<%= personaje.id %>/editar" method="post">
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" type="text" name="nombre" value="<%= personaje.nombre %>" required />
+          </div>
+          <div class="form-group">
+            <label for="nivel">Nivel</label>
+            <input id="nivel" type="number" name="nivel" value="<%= nivelEditable %>" min="1" max="20" />
+          </div>
+          <div class="form-group">
+            <label for="imagen">Imagen</label>
+            <select id="imagen" name="imagen">
+              <% imagenesDisponibles.forEach((imagen) => { %>
+                <option value="<%= imagen.url %>" <%= personaje.imagen === imagen.url ? 'selected' : '' %>><%= imagen.nombre %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="clase">Clase base (multiclase se editará en el siguiente paso)</label>
+            <select id="clase" name="clase" required>
+              <% if (clasePrincipal) { %>
+                <option value="<%= clasePrincipal.id %>" selected><%= clasePrincipal.nombre %></option>
+              <% } else { %>
+                <option value="" selected disabled>-- Selecciona una clase --</option>
+              <% } %>
+              <% clases.filter((clase) => !clasePrincipal || clase.id !== clasePrincipal.id).forEach((clase) => { %>
+                <option value="<%= clase.id %>"><%= clase.nombre %></option>
+              <% }); %>
+            </select>
+            <% if (filasClase.length === 1 && filaPrincipal && filaPrincipal.Subclase && filaPrincipal.Subclase.nombre) { %>
+              <p class="form-hint">Subclase actual: <strong><%= filaPrincipal.Subclase.nombre %></strong></p>
+            <% } %>
+          </div>
+          <div class="form-group">
+            <label for="raza-select">Raza</label>
+            <select name="raza" id="raza-select" required>
+              <% if (personaje.Raza) { %>
+                <option value="<%= personaje.Raza.id %>" data-raza-id="<%= personaje.Raza.id %>" selected><%= personaje.Raza.nombre %></option>
+              <% } else { %>
+                <option value="" selected disabled>-- Selecciona una raza --</option>
+              <% } %>
+              <% razas.filter((raza) => !personaje.Raza || raza.id !== personaje.Raza.id).forEach((raza) => { %>
+                <option value="<%= raza.id %>" data-raza-id="<%= raza.id %>"><%= raza.nombre %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="subraza-select">Subraza</label>
+            <select name="subraza" id="subraza-select">
+              <option value="">-- Sin subraza --</option>
+              <% subrazas.forEach((subraza) => { %>
+                <option value="<%= subraza.id %>" data-raza-id="<%= subraza.RazaId %>" <%= personaje.Subraza && personaje.Subraza.id === subraza.id ? 'selected' : '' %>><%= subraza.nombre %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <p class="form-section-title">Estadísticas</p>
+            <div>
+              <% atributos.forEach((atributo) => {
+                const valorActual = personaje.Atributo ? personaje.Atributo[atributo.campo] : '';
+              %>
+                <div class="form-group">
+                  <label for="stat-<%= atributo.campo %>"><%= atributo.nombre %></label>
+                  <select id="stat-<%= atributo.campo %>" name="<%= atributo.campo %>" class="stat-select" required>
+                    <option value="" <%= !valorActual ? 'selected' : '' %>>-- Selecciona valor --</option>
+                    <option value="8" <%= valorActual === 8 ? 'selected' : '' %>>8</option>
+                    <option value="10" <%= valorActual === 10 ? 'selected' : '' %>>10</option>
+                    <option value="12" <%= valorActual === 12 ? 'selected' : '' %>>12</option>
+                    <option value="13" <%= valorActual === 13 ? 'selected' : '' %>>13</option>
+                    <option value="14" <%= valorActual === 14 ? 'selected' : '' %>>14</option>
+                    <option value="15" <%= valorActual === 15 ? 'selected' : '' %>>15</option>
+                  </select>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a href="/" class="btn btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    (function () {
+      const razaSelect = document.getElementById('raza-select');
+      const subrazaSelect = document.getElementById('subraza-select');
+      const selects = document.querySelectorAll('.stat-select');
+      const subrazaOpciones = Array.from(subrazaSelect.options).filter((opt) => opt.value);
+
+      function actualizarSubrazasPorRaza() {
+        const razaIdSeleccionada = razaSelect.selectedOptions?.[0]?.dataset?.razaId || '';
+        subrazaOpciones.forEach((opt) => {
+          const coincide = razaIdSeleccionada && opt.dataset.razaId === razaIdSeleccionada;
+          opt.hidden = !coincide;
+          opt.disabled = !coincide;
+        });
+        const subrazaActualVisible = subrazaSelect.selectedOptions?.[0] && !subrazaSelect.selectedOptions[0].hidden;
+        if (!subrazaActualVisible) subrazaSelect.value = '';
+      }
+
+      function actualizarOpciones() {
+        const usados = new Set();
+        selects.forEach((select) => { if (select.value) usados.add(select.value); });
+        selects.forEach((select) => {
+          Array.from(select.options).forEach((opt) => {
+            if (!opt.value) return;
+            const usadoEnOtro = usados.has(opt.value) && select.value !== opt.value;
+            opt.hidden = usadoEnOtro;
+            opt.disabled = usadoEnOtro;
+          });
+        });
+      }
+
+      selects.forEach((select) => select.addEventListener('change', actualizarOpciones));
+      razaSelect.addEventListener('change', actualizarSubrazasPorRaza);
+      actualizarOpciones();
+      actualizarSubrazasPorRaza();
+    })();
+  </script>
+</body>
+</html>

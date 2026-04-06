@@ -1,0 +1,18 @@
+<header class="site-header" role="banner">
+  <a href="/" class="site-header__brand" aria-label="Inicio">
+    <p class="site-header__title">Hoja de <span>aventura</span></p>
+    <% if (typeof siteLogoUrl !== 'undefined' && siteLogoUrl) { %>
+    <img class="site-header__logo" src="<%= siteLogoUrl %>" alt="" width="40" height="40" decoding="async" />
+    <% } %>
+  </a>
+  <nav class="site-header__nav" aria-label="Cuenta">
+    <% if (typeof user !== 'undefined' && user) { %>
+      <span class="site-header__user" title="<%= user.correo %>">Hola, <%= user.nombre %></span>
+      <form action="/auth/logout" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+      </form>
+    <% } else { %>
+      <a href="/auth/login" class="btn btn-outline-light btn-sm">Iniciar sesión</a>
+    <% } %>
+  </nav>
+</header>

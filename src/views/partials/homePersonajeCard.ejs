@@ -1,0 +1,39 @@
+<% const filasClase = (personaje.PersonajeClases || []).slice().sort((a, b) => (a.orden || 0) - (b.orden || 0)); %>
+<% const nivelTotal = filasClase.length ? filasClase.reduce((s, f) => s + (Number(f.nivel) || 0), 0) : (personaje.nivelPersonaje || personaje.nivel || 1); %>
+<article class="character-card">
+  <div>
+    <img src="<%= personaje.imagen || '/images/personajesDefecto/imagenPorDefecto.avif' %>" alt="" width="200" height="200" loading="lazy" />
+  </div>
+  <div>
+    <h2><%= personaje.nombre %></h2>
+    <dl>
+      <div>
+        <dt>Clase</dt>
+        <dd><%- include('personajeClaseEtiqueta', { personaje, filasClase }) %></dd>
+      </div>
+      <div>
+        <dt>Raza</dt>
+        <dd>
+          <% if (personaje.Subraza) { %>
+            <%= personaje.Subraza.nombre %>
+          <% } else if (personaje.Raza) { %>
+            <%= personaje.Raza.nombre %>
+          <% } else { %>
+            —
+          <% } %>
+        </dd>
+      </div>
+      <div>
+        <dt>Nivel</dt>
+        <dd><%= nivelTotal %></dd>
+      </div>
+    </dl>
+    <footer>
+      <a href="/personajes/<%= personaje.id %>" class="btn btn-secondary btn-sm">Ver</a>
+      <a href="/personajes/<%= personaje.id %>/editar" class="btn btn-secondary btn-sm">Editar</a>
+      <form action="/personajes/<%= personaje.id %>/borrar" method="post" onsubmit="return confirm('¿Seguro que quieres borrar este personaje?');">
+        <button type="submit" class="btn btn-danger btn-sm">Borrar</button>
+      </form>
+    </footer>
+  </div>
+</article>
