@@ -2,11 +2,13 @@
   "name": "tfg",
   "version": "1.0.0",
   "description": "",
+  "bin": "src/app.js",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/app.js",
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "build:exe": "pkg . --targets node18-win-x64 --output dist/tfg-app.exe"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,16 @@
   },
   "devDependencies": {
     "install": "^0.13.0",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "scripts": [
+      "src/**/*.js"
+    ],
+    "assets": [
+      "src/views/**/*",
+      "src/public/**/*"
+    ]
   }
 }
