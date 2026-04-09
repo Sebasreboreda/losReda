@@ -13,7 +13,21 @@ const storage = process.env.DATABASE_PATH
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage,
-  logging: false
+  logging: false,
+  retry: {
+    match: [/SQLITE_BUSY/i],
+    max: 10
+  },
+  dialectOptions: {
+    // Wait before failing when the SQLite file is temporarily locked.
+    busyTimeout: 10000
+  }
 }); 
  
+sequelize.addHook('afterConnect', async (connection) => {
+  if (!connection || typeof connection.run !== 'function') return;
+  await new Promise((resolve) => connection.run('PRAGMA journal_mode = WAL;', resolve));
+  await new Promise((resolve) => connection.run('PRAGMA busy_timeout = 10000;', resolve));
+});
+
 module.exports = sequelize;

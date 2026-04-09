@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/app.js",
     "start": "node src/app.js",
-    "build:exe": "pkg . --targets node18-win-x64 --output dist/tfg-app.exe"
+    "build:exe": "node scripts/build-exe.js"
   },
   "keywords": [],
   "author": "",

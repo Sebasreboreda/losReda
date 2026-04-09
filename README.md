@@ -10,7 +10,11 @@ Este proyecto se sube a GitHub con el codigo fuente. El ejecutable de Windows se
 npm run build:exe
 ```
 
-Se genera en `dist/tfg-app.exe`.
+Se generan:
+
+- `dist/tfg-app.exe`
+- `dist/node_sqlite3.node`
+- `dist/tfg-app-portable.zip` (recomendado para publicar)
 
 ### 2) Subir codigo al repo
 
@@ -23,7 +27,8 @@ Sube commits normalmente.
 2. Entra en **Releases** -> **Draft a new release**.
 3. Crea una etiqueta (ejemplo: `v1.0.0`).
 4. Titulo sugerido: `v1.0.0 - Windows`.
-5. Adjunta `dist/tfg-app.exe`.
+5. Adjunta `dist/tfg-app-portable.zip` (recomendado)  
+   o, si prefieres, adjunta **ambos**: `dist/tfg-app.exe` y `dist/node_sqlite3.node`.
 6. Publica el release.
 
 ### 4) Verificacion rapida
