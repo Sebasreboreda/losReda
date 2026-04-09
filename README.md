@@ -14,6 +14,7 @@ Se generan:
 
 - `dist/tfg-app.exe`
 - `dist/node_sqlite3.node`
+- `dist/database.sqlite` (base precargada para arranque rapido)
 - `dist/tfg-app-portable.zip` (recomendado para publicar)
 
 ### 2) Subir codigo al repo
@@ -28,7 +29,7 @@ Sube commits normalmente.
 3. Crea una etiqueta (ejemplo: `v1.0.0`).
 4. Titulo sugerido: `v1.0.0 - Windows`.
 5. Adjunta `dist/tfg-app-portable.zip` (recomendado)  
-   o, si prefieres, adjunta **ambos**: `dist/tfg-app.exe` y `dist/node_sqlite3.node`.
+   o, si prefieres, adjunta **estos tres**: `dist/tfg-app.exe`, `dist/node_sqlite3.node` y `dist/database.sqlite`.
 6. Publica el release.
 
 ### 4) Verificacion rapida

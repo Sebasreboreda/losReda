@@ -6,8 +6,10 @@ const projectRoot = path.resolve(__dirname, '..');
 const distDir = path.join(projectRoot, 'dist');
 const sqliteBindingJsPath = path.join(projectRoot, 'node_modules', 'sqlite3', 'lib', 'sqlite3-binding.js');
 const sqliteNativeBinaryPath = path.join(projectRoot, 'node_modules', 'sqlite3', 'build', 'Release', 'node_sqlite3.node');
+const sourceDatabasePath = path.join(projectRoot, 'database.sqlite');
 const exeOutputPath = path.join(distDir, 'tfg-app.exe');
 const sqliteBinaryDistPath = path.join(distDir, 'node_sqlite3.node');
+const databaseDistPath = path.join(distDir, 'database.sqlite');
 const portableZipPath = path.join(distDir, 'tfg-app-portable.zip');
 const ZIP_STORE_METHOD = 0;
 
@@ -54,6 +56,12 @@ function copySqliteBinary() {
   fs.copyFileSync(sqliteNativeBinaryPath, sqliteBinaryDistPath);
 }
 
+function copyPreloadedDatabase() {
+  ensureFileExists(sourceDatabasePath, 'preloaded database.sqlite');
+  fs.mkdirSync(distDir, { recursive: true });
+  fs.copyFileSync(sourceDatabasePath, databaseDistPath);
+}
+
 function getCrc32(buffer) {
   let crc = -1;
   for (const byte of buffer) {
@@ -83,7 +91,8 @@ function toDosDateTime() {
 function buildPortableZip() {
   const files = [
     { name: 'tfg-app.exe', path: exeOutputPath },
-    { name: 'node_sqlite3.node', path: sqliteBinaryDistPath }
+    { name: 'node_sqlite3.node', path: sqliteBinaryDistPath },
+    { name: 'database.sqlite', path: databaseDistPath }
   ];
 
   files.forEach((file) => ensureFileExists(file.path, file.name));
@@ -156,8 +165,9 @@ function main() {
   patchSqliteBindingLoader();
   buildExecutable();
   copySqliteBinary();
+  copyPreloadedDatabase();
   buildPortableZip();
-  console.log('Build complete: dist/tfg-app.exe + dist/node_sqlite3.node + dist/tfg-app-portable.zip');
+  console.log('Build complete: dist/tfg-app.exe + dist/node_sqlite3.node + dist/database.sqlite + dist/tfg-app-portable.zip');
 }
 
 main();
