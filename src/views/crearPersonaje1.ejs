@@ -12,7 +12,9 @@
 
       <div class="form-panel form-panel--wide form-panel--plain crear-personaje-panel--wide">
         <%- include('partials/crearPersonajeImagePickerCard', { imagenesDisponibles }) %>
+      </div>
 
+      <div class="crear-personaje-grid-shell">
         <div class="crear-personaje-two-col-wrap crear-personaje-two-col--wide">
           <aside id="panel-clase-seleccion" class="crear-personaje-side-panel crear-personaje-side-panel--left is-collapsed" aria-hidden="true">
             <p class="crear-personaje-side-panel__title">Clase</p>
@@ -48,7 +50,7 @@
                     class="crear-personaje-catalog-item"
                     role="listitem"
                     data-catalog-type="raza"
-                  data-catalog-id="<%= raza.id %>"
+                    data-catalog-id="<%= raza.id %>"
                     data-catalog-slug="<%= raza.slug %>"
                     aria-pressed="false"
                   >

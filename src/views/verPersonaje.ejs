@@ -90,11 +90,9 @@
                     <% if (typeof puedeEditarVida !== 'undefined' && puedeEditarVida) { %>
                     <form id="form-vida-<%= personaje.id %>" class="detail-vida-form" method="post" action="/personajes/<%= personaje.id %>/vida">
                       <div class="detail-vida-form__grid" role="group" aria-label="Puntos de vida máximos y actuales">
-                        <span>Máx.</span>
-                        <span aria-hidden="true"></span>
                         <span>Actual</span>
-                        <span><%= personaje.vida_max != null ? personaje.vida_max : '—' %></span>
-                        <span>/</span>
+                        <span aria-hidden="true"></span>
+                        <span>Máx.</span>
                         <input
                           type="number"
                           name="vida_actual"
@@ -105,17 +103,19 @@
                           aria-label="Puntos de vida actuales"
                           required
                         />
+                        <span>/</span>
+                        <span><%= personaje.vida_max != null ? personaje.vida_max : '—' %></span>
                       </div>
                     </form>
                     <% } else { %>
                     <div class="detail-vida-form">
                       <div class="detail-vida-form__grid" role="group" aria-label="Puntos de vida máximos y actuales">
-                        <span>Máx.</span>
-                        <span aria-hidden="true"></span>
                         <span>Actual</span>
-                        <span><%= personaje.vida_max != null ? personaje.vida_max : '—' %></span>
-                        <span>/</span>
+                        <span aria-hidden="true"></span>
+                        <span>Máx.</span>
                         <span><%= personaje.vida_actual != null ? personaje.vida_actual : '—' %></span>
+                        <span>/</span>
+                        <span><%= personaje.vida_max != null ? personaje.vida_max : '—' %></span>
                       </div>
                     </div>
                     <% } %>
@@ -140,7 +140,6 @@
                 <div class="detail-dnd-saves-table" role="table" aria-label="Tiradas de salvación por característica">
                   <div class="detail-dnd-saves-head" role="row">
                     <span role="columnheader" title="Competente en la salvación de esta característica">Comp.</span>
-                    <span role="columnheader" title="Atributo">Atr.</span>
                     <span role="columnheader">Salvación</span>
                     <span role="columnheader" title="Bonificador total a la tirada de salvación">Total</span>
                   </div>
@@ -148,7 +147,6 @@
                     <% fichaDnd.salvaciones.forEach((s) => { %>
                       <li class="detail-dnd-save-row" role="row">
                         <span role="cell"><% if (s.proficiente) { %><span class="detail-dnd-dot" title="Competente en esta salvación"></span><% } else { %><span class="detail-dnd-dot detail-dnd-dot--empty" title="No competente"></span><% } %></span>
-                        <span role="cell" title="<%= ab3Largo[s.clave] %>"><%= ab3[s.clave] %></span>
                         <span role="cell"><%= s.etiqueta %></span>
                         <span role="cell"><%= formatearModificadorEstadistica(s.bonus) %></span>
                       </li>
@@ -205,7 +203,14 @@
                 </div>
               </section>
             </div>
-            <div class="detail-dnd-cluster__spacer" aria-hidden="true"></div>
+            <div class="detail-dnd-cluster__inventory">
+              <section class="detail-section detail-inventory-card">
+                <h2>Inventario</h2>
+                <ul class="detail-inventory-list" aria-label="Objetos del inventario">
+                  <li class="detail-inventory-item">Sin objetos en inventario</li>
+                </ul>
+              </section>
+            </div>
           </div>
         <% } else { %>
           <section class="detail-section detail-dnd-cluster detail-dnd-cluster--solo-msg">
@@ -276,5 +281,25 @@
   </main>
 
   <%- include('partials/footer') %>
+  <script>
+    (function () {
+      const vidaGroups = document.querySelectorAll('.detail-vida-card-group');
+      if (!vidaGroups.length) return;
+
+      vidaGroups.forEach((group) => {
+        const input = group.querySelector('.detail-vida-form__grid input[type="number"][name="vida_actual"]');
+        if (!input) return;
+
+        group.addEventListener('focusin', () => {
+          group.classList.add('is-editing');
+        });
+
+        group.addEventListener('focusout', (event) => {
+          if (event.relatedTarget && group.contains(event.relatedTarget)) return;
+          group.classList.remove('is-editing');
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -60,7 +60,7 @@ function resolveSiteLogo() {
 const siteLogoAsset = resolveSiteLogo();
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number.parseInt(process.env.PORT, 10) || 4000;
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const CANTIDAD_SUBRAZAS_MIN = 8;
 const RECREAR_BD_AL_INICIAR = String(process.env.FORCE_DB_RESET || '').toLowerCase() === 'true';
