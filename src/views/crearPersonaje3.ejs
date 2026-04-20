@@ -13,9 +13,154 @@
       <div class="form-panel form-panel--wide form-panel--plain crear-personaje-panel--wide">
         <%- include('partials/crearPersonajeImagePickerCard', { imagenesDisponibles }) %>
 
+        <section class="crear-paso3-grid" aria-label="Atributos y trasfondo">
+          <article class="crear-paso3-card">
+            <h2 class="crear-paso3-card__title">Atributos</h2>
+            <div id="cp3-attr-methods" class="crear-paso3-methods" role="tablist" aria-label="Método de atributos">
+              <button type="button" class="crear-paso3-method-btn" data-method="standard">Método standard</button>
+              <button type="button" class="crear-paso3-method-btn" data-method="puntos">Método por puntos</button>
+            </div>
+            <p id="cp3-point-summary" class="crear-paso3-point-summary" hidden>Puntos restantes: 27 / 27</p>
+            <p id="cp3-racial-bonus-summary" class="crear-paso3-bonus-summary">Bonificadores raciales: —</p>
+            <div class="crear-paso3-bonus-head" aria-hidden="true">
+              <span class="crear-paso3-bonus-head__spacer"></span>
+              <span class="crear-paso3-bonus-head__spacer"></span>
+              <span class="crear-paso3-bonus-head__label">Bonificador racial</span>
+              <span class="crear-paso3-bonus-head__values">
+                <span class="crear-paso3-bonus-head__value">+2</span>
+                <span class="crear-paso3-bonus-head__value">+1</span>
+              </span>
+            </div>
+            <div id="cp3-attributes-list" class="crear-paso3-attributes-list"></div>
+          </article>
+
+          <article class="crear-paso3-card">
+            <h2 class="crear-paso3-card__title">Trasfondo</h2>
+            <div class="crear-paso3-field">
+              <label for="cp3-background-select">Selecciona trasfondo</label>
+              <select id="cp3-background-select" class="crear-paso3-select" aria-label="Seleccionar trasfondo">
+                <option value="">Selecciona trasfondo</option>
+                <% trasfondos.forEach((trasfondo) => { %>
+                  <option value="<%= trasfondo.slug %>"><%= trasfondo.nombre %></option>
+                <% }) %>
+              </select>
+            </div>
+            <p id="cp3-background-description" class="crear-paso3-background-desc">Elige un trasfondo para ver su descripción.</p>
+            <div id="cp3-background-details" class="crear-personaje-side-panel__meta"></div>
+          </article>
+        </section>
+
+        <section class="crear-paso3-extra-grid" aria-label="Detalles adicionales del personaje">
+          <article class="crear-paso3-card crear-paso3-card--equal">
+            <button type="button" class="crear-paso3-drawer__toggle" aria-expanded="false">
+              <span class="crear-paso3-card__title">Detalles del personaje</span>
+            </button>
+            <div class="crear-paso3-drawer__body" hidden>
+              <div class="crear-paso3-input-grid crear-paso3-field--grow">
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-detalle-alineamiento">Alineamiento</label>
+                  <textarea id="cp3-detalle-alineamiento" class="crear-paso3-textarea crear-paso3-textarea--auto" data-cp3-text="alineamiento"></textarea>
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-detalle-fe">Fe</label>
+                  <textarea id="cp3-detalle-fe" class="crear-paso3-textarea crear-paso3-textarea--auto" data-cp3-text="fe"></textarea>
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-detalle-estilo-vida">Estilo de vida</label>
+                  <textarea id="cp3-detalle-estilo-vida" class="crear-paso3-textarea crear-paso3-textarea--auto" data-cp3-text="estiloVida"></textarea>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="crear-paso3-card crear-paso3-card--equal">
+            <button type="button" class="crear-paso3-drawer__toggle" aria-expanded="false">
+              <span class="crear-paso3-card__title">Características físicas y personales</span>
+            </button>
+            <div class="crear-paso3-drawer__body" hidden>
+              <div class="crear-paso3-input-grid crear-paso3-field--grow">
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-fisico-pelo">Pelo</label>
+                  <input id="cp3-fisico-pelo" class="crear-paso3-input" type="text" data-cp3-text="pelo" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-fisico-piel">Piel</label>
+                  <input id="cp3-fisico-piel" class="crear-paso3-input" type="text" data-cp3-text="piel" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-fisico-ojos">Ojos</label>
+                  <input id="cp3-fisico-ojos" class="crear-paso3-input" type="text" data-cp3-text="ojos" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-fisico-altura">Altura</label>
+                  <input id="cp3-fisico-altura" class="crear-paso3-input" type="text" data-cp3-text="altura" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-fisico-peso">Peso</label>
+                  <input id="cp3-fisico-peso" class="crear-paso3-input" type="text" data-cp3-text="peso" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-fisico-edad">Edad</label>
+                  <input id="cp3-fisico-edad" class="crear-paso3-input" type="text" data-cp3-text="edad" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-fisico-genero">Género</label>
+                  <input id="cp3-fisico-genero" class="crear-paso3-input" type="text" data-cp3-text="genero" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-personal-personalidad">Personalidad</label>
+                  <input id="cp3-personal-personalidad" class="crear-paso3-input" type="text" data-cp3-text="personalidad" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-personal-ideales">Ideales</label>
+                  <input id="cp3-personal-ideales" class="crear-paso3-input" type="text" data-cp3-text="ideales" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-personal-vinculos">Vínculos</label>
+                  <input id="cp3-personal-vinculos" class="crear-paso3-input" type="text" data-cp3-text="vinculos" />
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-personal-defectos">Defectos</label>
+                  <input id="cp3-personal-defectos" class="crear-paso3-input" type="text" data-cp3-text="defectos" />
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="crear-paso3-card crear-paso3-card--equal">
+            <button type="button" class="crear-paso3-drawer__toggle" aria-expanded="false">
+              <span class="crear-paso3-card__title">Notas</span>
+            </button>
+            <div class="crear-paso3-drawer__body" hidden>
+              <div class="crear-paso3-input-grid crear-paso3-field--grow">
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-notas-organizaciones">Organizaciones</label>
+                  <textarea id="cp3-notas-organizaciones" class="crear-paso3-textarea crear-paso3-textarea--auto" data-cp3-text="organizaciones"></textarea>
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-notas-aliados">Aliados</label>
+                  <textarea id="cp3-notas-aliados" class="crear-paso3-textarea crear-paso3-textarea--auto" data-cp3-text="aliados"></textarea>
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-notas-enemigos">Enemigos</label>
+                  <textarea id="cp3-notas-enemigos" class="crear-paso3-textarea crear-paso3-textarea--auto" data-cp3-text="enemigos"></textarea>
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-notas-historia">Historia</label>
+                  <textarea id="cp3-notas-historia" class="crear-paso3-textarea crear-paso3-textarea--auto" data-cp3-text="historia"></textarea>
+                </div>
+                <div class="crear-paso3-field crear-paso3-field--compact">
+                  <label for="cp3-notas-otras">Otras notas</label>
+                  <textarea id="cp3-notas-otras" class="crear-paso3-textarea crear-paso3-textarea--auto" data-cp3-text="otrasNotas"></textarea>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
         <div class="form-actions">
           <a href="/personajes/crear/2" class="btn btn-secondary">Anterior</a>
-          <a href="/" class="btn btn-primary">Finalizar</a>
+          <a href="/personajes/crear/4" class="btn btn-primary">Siguiente</a>
         </div>
       </div>
     </div>
@@ -23,5 +168,1230 @@
 
   <%- include('partials/footer') %>
   <%- include('partials/avatarPickerToggleScript') %>
+  <script id="cp3-razas-data" type="application/json"><%- JSON.stringify(razas).replace(/</g, '\\u003c') %></script>
+  <script id="cp3-subrazas-data" type="application/json"><%- JSON.stringify(subrazas).replace(/</g, '\\u003c') %></script>
+  <script id="cp3-trasfondos-data" type="application/json"><%- JSON.stringify(trasfondos).replace(/</g, '\\u003c') %></script>
+  <script id="cp3-idiomas-data" type="application/json"><%- JSON.stringify(idiomasCatalogo || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp3-atributos-data" type="application/json"><%- JSON.stringify(atributos).replace(/</g, '\\u003c') %></script>
+  <script id="cp3-textos-directos-data" type="application/json"><%- JSON.stringify(textosDirectos || {}).replace(/</g, '\\u003c') %></script>
+  <script>
+    (function () {
+      const STORAGE_SELECTION_KEY = 'crearPersonaje.seleccionPaso1';
+      const STORAGE_ATTRS_KEY = 'crearPersonaje.atributosPaso3';
+      const STORAGE_BG_KEY = 'crearPersonaje.trasfondoPaso3';
+      const STORAGE_BONUS_ASSIGN_KEY = 'crearPersonaje.bonosAsignadosPaso3';
+      const STORAGE_TEXTS_KEY = 'crearPersonaje.textosPaso3';
+      const STORAGE_BG_LANG_KEY = 'crearPersonaje.idiomasTrasfondoPaso3';
+      const STORAGE_KNOWN_LANG_KEY = 'crearPersonaje.idiomasConocidosPaso2';
+      const STORAGE_ATTR_METHOD_KEY = 'crearPersonaje.metodoAtributosPaso3';
+      const STORAGE_DRAWERS_KEY = 'crearPersonaje.drawersPaso3';
+      const storage = window.sessionStorage;
+      const SCORE_ORDER = [8, 10, 12, 13, 14, 15];
+      const ATTR_MIN = 8;
+      const ATTR_MAX = 15;
+      const POINT_BUY_TOTAL = 27;
+      const POINT_BUY_COST = {
+        8: 0,
+        9: 1,
+        10: 2,
+        11: 3,
+        12: 4,
+        13: 5,
+        14: 7,
+        15: 9
+      };
+
+      function parseJsonScript(id) {
+        const el = document.getElementById(id);
+        if (!el) return [];
+        try {
+          return JSON.parse(el.textContent || '[]');
+        } catch {
+          return [];
+        }
+      }
+
+      function parsearJsonFlexible(valor, fallback) {
+        if (valor == null) return fallback;
+        if (typeof valor === 'string') {
+          const s = valor.trim();
+          if (!s) return fallback;
+          if ((s.startsWith('[') && s.endsWith(']')) || (s.startsWith('{') && s.endsWith('}'))) {
+            try {
+              return JSON.parse(s);
+            } catch {
+              return fallback;
+            }
+          }
+          return fallback;
+        }
+        return valor;
+      }
+
+      const razas = parseJsonScript('cp3-razas-data');
+      const subrazas = parseJsonScript('cp3-subrazas-data');
+      const trasfondos = parseJsonScript('cp3-trasfondos-data');
+      const idiomasCatalogo = parseJsonScript('cp3-idiomas-data');
+      const atributos = parseJsonScript('cp3-atributos-data');
+      const textosDirectos = parseJsonScript('cp3-textos-directos-data');
+      const ATTRIBUTE_FIELDS = atributos.map((a) => String(a?.campo || '').trim()).filter(Boolean);
+      const razaBySlug = new Map(razas.map((r) => [r.slug, r]));
+      const subrazaBySlug = new Map(subrazas.map((s) => [s.slug, s]));
+      const trasfondoBySlug = new Map(trasfondos.map((t) => [t.slug, t]));
+      const listEl = document.getElementById('cp3-attributes-list');
+      const bgSelect = document.getElementById('cp3-background-select');
+      const bgDesc = document.getElementById('cp3-background-description');
+      const bgDetails = document.getElementById('cp3-background-details');
+      const bonusSummary = document.getElementById('cp3-racial-bonus-summary');
+      const pointSummary = document.getElementById('cp3-point-summary');
+      const methodButtons = Array.from(document.querySelectorAll('.crear-paso3-method-btn'));
+      const textInputs = Array.from(document.querySelectorAll('[data-cp3-text]'));
+      const drawerToggles = Array.from(document.querySelectorAll('.crear-paso3-drawer__toggle'));
+      const autoTextareas = Array.from(document.querySelectorAll('.crear-paso3-textarea--auto[data-cp3-text]'));
+      if (!listEl || !bgSelect || !bgDesc || !bgDetails || !bonusSummary || !pointSummary || methodButtons.length === 0) return;
+
+      function normalizarAbility(valor = '') {
+        const key = String(valor || '')
+          .trim()
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+        const aliases = {
+          str: 'fuerza',
+          strength: 'fuerza',
+          fuerza: 'fuerza',
+          dex: 'destreza',
+          dexterity: 'destreza',
+          destreza: 'destreza',
+          con: 'constitucion',
+          constitution: 'constitucion',
+          constitucion: 'constitucion',
+          int: 'inteligencia',
+          intelligence: 'inteligencia',
+          inteligencia: 'inteligencia',
+          wis: 'sabiduria',
+          wisdom: 'sabiduria',
+          sabiduria: 'sabiduria',
+          cha: 'carisma',
+          charisma: 'carisma',
+          carisma: 'carisma',
+          choice: 'choice'
+        };
+        return aliases[key] || '';
+      }
+
+      function obtenerFeatsSeleccionadosDesdeSeleccion() {
+        const candidatos = [
+          seleccion?.feats,
+          seleccion?.feats_elegidos,
+          seleccion?.featsElegidos,
+          seleccion?.feats_seleccionados,
+          seleccion?.personaje_feats
+        ];
+        const lista = [];
+        const vistos = new Set();
+        function pushFeat(feat) {
+          if (!feat || typeof feat !== 'object') return;
+          const slug = String(feat?.slug || feat?.index || feat?.id || '').trim().toLowerCase();
+          if (!slug || vistos.has(slug)) return;
+          vistos.add(slug);
+          lista.push(feat);
+        }
+        candidatos.forEach((valor) => {
+          if (!Array.isArray(valor)) return;
+          valor.forEach((item) => {
+            const parsed = parsearJsonFlexible(item, item);
+            if (!parsed) return;
+            if (Array.isArray(parsed)) {
+              parsed.forEach((sub) => {
+                pushFeat(sub);
+              });
+              return;
+            }
+            pushFeat(parsed);
+          });
+        });
+        return lista;
+      }
+
+      let seleccion = {};
+      try {
+        const raw = storage.getItem(STORAGE_SELECTION_KEY);
+        seleccion = raw ? JSON.parse(raw) : {};
+      } catch {
+        seleccion = {};
+      }
+
+      let baseScores = {};
+      try {
+        const raw = storage.getItem(STORAGE_ATTRS_KEY);
+        baseScores = raw ? JSON.parse(raw) : {};
+      } catch {
+        baseScores = {};
+      }
+      atributos.forEach((a) => {
+        const key = String(a?.campo || '').trim();
+        if (!key) return;
+        const value = Number(baseScores[key]);
+        baseScores[key] = SCORE_ORDER.includes(value) ? value : 8;
+      });
+
+      let metodoAtributos = String(storage.getItem(STORAGE_ATTR_METHOD_KEY) || 'standard').trim().toLowerCase();
+      if (!['standard', 'puntos'].includes(metodoAtributos)) {
+        metodoAtributos = 'standard';
+      }
+
+      let bonusState = { contextKey: '', assignments: {} };
+      try {
+        const raw = storage.getItem(STORAGE_BONUS_ASSIGN_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (parsed && typeof parsed === 'object') {
+          bonusState = {
+            contextKey: String(parsed.contextKey || ''),
+            assignments: parsed.assignments && typeof parsed.assignments === 'object' ? parsed.assignments : {}
+          };
+        }
+      } catch {
+        bonusState = { contextKey: '', assignments: {} };
+      }
+
+      let textState = {};
+      try {
+        const raw = storage.getItem(STORAGE_TEXTS_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (parsed && typeof parsed === 'object') {
+          textState = { ...parsed };
+        }
+      } catch {
+        textState = {};
+      }
+
+      let drawerState = {};
+      try {
+        const raw = storage.getItem(STORAGE_DRAWERS_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        drawerState = parsed && typeof parsed === 'object' ? parsed : {};
+      } catch {
+        drawerState = {};
+      }
+
+      let idiomasTrasfondoState = [];
+      try {
+        const raw = storage.getItem(STORAGE_BG_LANG_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        idiomasTrasfondoState = Array.isArray(parsed) ? parsed.map((v) => String(v || '').trim()) : [];
+      } catch {
+        idiomasTrasfondoState = [];
+      }
+
+      function guardarBaseScores() {
+        storage.setItem(STORAGE_ATTRS_KEY, JSON.stringify(baseScores));
+      }
+
+      function guardarSeleccionPaso1() {
+        storage.setItem(STORAGE_SELECTION_KEY, JSON.stringify(seleccion));
+      }
+
+      function guardarMetodoAtributos() {
+        storage.setItem(STORAGE_ATTR_METHOD_KEY, metodoAtributos);
+      }
+
+      function guardarBonusState() {
+        storage.setItem(STORAGE_BONUS_ASSIGN_KEY, JSON.stringify(bonusState));
+      }
+
+      function guardarTextos() {
+        storage.setItem(STORAGE_TEXTS_KEY, JSON.stringify(textState));
+      }
+
+      function guardarDrawers() {
+        storage.setItem(STORAGE_DRAWERS_KEY, JSON.stringify(drawerState));
+      }
+
+      function guardarIdiomasTrasfondo() {
+        storage.setItem(STORAGE_BG_LANG_KEY, JSON.stringify(idiomasTrasfondoState));
+      }
+
+      function normalizarBaseScoresSegunMetodo() {
+        let changed = false;
+        ATTRIBUTE_FIELDS.forEach((field) => {
+          const raw = Number(baseScores[field]);
+          const normalizado = Math.max(ATTR_MIN, Math.min(ATTR_MAX, Number.isFinite(raw) ? raw : ATTR_MIN));
+          if (Number(baseScores[field]) !== normalizado) {
+            baseScores[field] = normalizado;
+            changed = true;
+          }
+        });
+
+        if (metodoAtributos !== 'standard') {
+          if (changed) guardarBaseScores();
+          return;
+        }
+
+        const disponibles = SCORE_ORDER.slice().sort((a, b) => b - a);
+        const fieldsOrdenados = ATTRIBUTE_FIELDS
+          .map((field, idx) => ({ field, idx, value: Number(baseScores[field]) || ATTR_MIN }))
+          .sort((a, b) => (b.value - a.value) || (a.idx - b.idx));
+
+        fieldsOrdenados.forEach((item, idx) => {
+          const objetivo = disponibles[idx] ?? ATTR_MIN;
+          if (Number(baseScores[item.field]) !== objetivo) {
+            baseScores[item.field] = objetivo;
+            changed = true;
+          }
+        });
+
+        if (changed) guardarBaseScores();
+      }
+
+      function isUsedByOther(targetField, value) {
+        return atributos.some((attr) => {
+          const field = attr.campo;
+          if (field === targetField) return false;
+          return Number(baseScores[field]) === value;
+        });
+      }
+
+      function costePuntosPara(valor) {
+        const n = Math.max(ATTR_MIN, Math.min(ATTR_MAX, Number(valor) || ATTR_MIN));
+        return Number(POINT_BUY_COST[n] || 0);
+      }
+
+      function puntosGastados() {
+        return atributos.reduce((acc, attr) => {
+          const field = String(attr?.campo || '').trim();
+          if (!field) return acc;
+          return acc + costePuntosPara(baseScores[field]);
+        }, 0);
+      }
+
+      function puntosRestantes() {
+        return POINT_BUY_TOTAL - puntosGastados();
+      }
+
+      function nextValueFor(field) {
+        const current = Number(baseScores[field]) || 8;
+        if (metodoAtributos === 'puntos') {
+          const value = current + 1;
+          if (value > ATTR_MAX) return null;
+          const delta = costePuntosPara(value) - costePuntosPara(current);
+          return puntosRestantes() >= delta ? value : null;
+        }
+        const candidates = SCORE_ORDER.filter((v) => v > current);
+        for (const value of candidates) {
+          if (value === 8 || !isUsedByOther(field, value)) return value;
+        }
+        return null;
+      }
+
+      function prevValueFor(field) {
+        const current = Number(baseScores[field]) || 8;
+        if (metodoAtributos === 'puntos') {
+          const value = current - 1;
+          return value >= ATTR_MIN ? value : null;
+        }
+        const candidates = SCORE_ORDER.filter((v) => v < current).sort((a, b) => b - a);
+        for (const value of candidates) {
+          if (value === 8 || !isUsedByOther(field, value)) return value;
+        }
+        return null;
+      }
+
+      function actualizarBotonesMetodo() {
+        methodButtons.forEach((btn) => {
+          const method = String(btn.dataset.method || '').trim();
+          const active = method === metodoAtributos;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+      }
+
+      function crearContextoBonos() {
+        const slugRaza = String(seleccion?.raza || '').trim();
+        const slugSubraza = String(seleccion?.subraza || '').trim();
+        const raza = razaBySlug.get(slugRaza);
+        const subraza = subrazaBySlug.get(slugSubraza);
+        const featsSeleccionados = obtenerFeatsSeleccionadosDesdeSeleccion();
+        const featsKey = featsSeleccionados
+          .map((feat) => String(feat?.slug || feat?.id || feat?.nombre || feat?.name || '').trim())
+          .filter(Boolean)
+          .join(',');
+        const contextKey = `${slugRaza}|${slugSubraza}|${featsKey}`;
+        const bonusSelectKey = slugSubraza
+          ? `subraza:${String(slugSubraza || '').trim().toLowerCase()}:nivel:1`
+          : `raza:${String(slugRaza || '').trim().toLowerCase()}:nivel:1`;
+        const fixedMap = new Map();
+        const fixedMapRacial = new Map();
+        const fixedMapAsi = new Map();
+        const fixedMapFeat = new Map();
+        const slots = [];
+        const requiereUnoEnAtributosDistintos = slugRaza === 'human' && slugSubraza === 'variant-human';
+
+        function agregarFijo(field, bonus, source = 'racial') {
+          const f = String(field || '').trim().toLowerCase();
+          const val = Number(bonus) || 0;
+          if (!f || !val) return;
+          if (!ATTRIBUTE_FIELDS.includes(f)) return;
+          let incremento = val;
+          if (source === 'feat') {
+            const base = Number(baseScores[f]) || 8;
+            const totalActual = base + (Number(fixedMap.get(f)) || 0);
+            if (totalActual >= 20) return;
+            incremento = Math.min(val, 20 - totalActual);
+          }
+          if (!incremento) return;
+          fixedMap.set(f, (fixedMap.get(f) || 0) + incremento);
+          if (source === 'feat') {
+            fixedMapFeat.set(f, (fixedMapFeat.get(f) || 0) + incremento);
+          } else if (source === 'asi') {
+            fixedMapAsi.set(f, (fixedMapAsi.get(f) || 0) + incremento);
+          } else {
+            fixedMapRacial.set(f, (fixedMapRacial.get(f) || 0) + incremento);
+          }
+        }
+
+        function agregarSlot(bonus, allowedFields, source = 'racial') {
+          const val = Number(bonus) || 0;
+          if (val <= 0) return;
+          const permitidos = Array.isArray(allowedFields) && allowedFields.length
+            ? allowedFields.filter((f) => ATTRIBUTE_FIELDS.includes(f))
+            : ATTRIBUTE_FIELDS.slice();
+          const cleanAllowed = Array.from(new Set(permitidos));
+          if (!cleanAllowed.length) return;
+          slots.push({
+            id: `s${slots.length + 1}`,
+            bonus: val,
+            allowedFields: cleanAllowed,
+            source
+          });
+        }
+
+        function aplicarAsiSeleccionadas() {
+          const asiRaw = seleccion?.asi_mejoras;
+          const entradas = asiRaw && typeof asiRaw === 'object'
+            ? (Array.isArray(asiRaw) ? asiRaw : Object.values(asiRaw))
+            : [];
+          entradas.forEach((asi) => {
+            if (!asi || typeof asi !== 'object') return;
+            const modo = String(asi?.modo || '').trim().toLowerCase();
+            if (modo !== 'atributos') return;
+
+            const attrs = Array.isArray(asi?.atributos) ? asi.atributos : [];
+            const a0 = String(attrs?.[0] || '').trim().toLowerCase();
+            const a1 = String(attrs?.[1] || '').trim().toLowerCase();
+            function agregarAsiConLimite(field, bonus) {
+              const f = String(field || '').trim().toLowerCase();
+              const val = Number(bonus) || 0;
+              if (!f || !val || !ATTRIBUTE_FIELDS.includes(f)) return;
+              const base = Number(baseScores[f]) || 8;
+              const actualConFijos = base + (Number(fixedMap.get(f)) || 0);
+              if (actualConFijos >= 20) return;
+              const permitido = Math.min(val, 20 - actualConFijos);
+              if (permitido > 0) agregarFijo(f, permitido, 'asi');
+            }
+
+            // Solo existe la opción +1 y +1; ahora puede repetirse el mismo atributo.
+            if (a0) agregarAsiConLimite(a0, 1);
+            if (a1) agregarAsiConLimite(a1, 1);
+          });
+        }
+
+        aplicarAsiSeleccionadas();
+
+        function extraerCamposPermitidos(lista) {
+          const items = Array.isArray(lista) ? lista : [];
+          const fields = items
+            .map((item) => normalizarAbility(item?.ability_score?.index || item?.ability_score?.name || item?.ability_score))
+            .filter((field) => field && field !== 'choice' && ATTRIBUTE_FIELDS.includes(field));
+          return Array.from(new Set(fields));
+        }
+
+        function procesarTexto(texto, source = 'racial') {
+          const str = String(texto || '').trim();
+          if (!str) return;
+          const regex = /(fuerza|destreza|constituci[oó]n|inteligencia|sabidur[ií]a|carisma|str|dex|con|int|wis|cha)\s*([+\-]\s*\d+)/gi;
+          let match = regex.exec(str);
+          while (match) {
+            const field = normalizarAbility(match[1]);
+            const bonus = Number(String(match[2] || '').replace(/\s+/g, ''));
+            if (field && field !== 'choice') agregarFijo(field, bonus, source);
+            match = regex.exec(str);
+          }
+        }
+
+        function procesarValor(valor, source = 'racial') {
+          if (valor == null) return;
+          if (Array.isArray(valor)) {
+            valor.forEach((item) => procesarValor(item, source));
+            return;
+          }
+          if (typeof valor === 'string') {
+            const parsed = parsearJsonFlexible(valor, null);
+            if (parsed != null && parsed !== valor) {
+              procesarValor(parsed, source);
+              return;
+            }
+            procesarTexto(valor, source);
+            return;
+          }
+          if (typeof valor !== 'object') return;
+
+          if ('ability_score' in valor && 'bonus' in valor) {
+            const field = normalizarAbility(valor?.ability_score?.index || valor?.ability_score?.name || valor?.ability_score);
+            if (field && field !== 'choice') {
+              agregarFijo(field, valor?.bonus, source);
+            } else {
+              agregarSlot(valor?.bonus, ATTRIBUTE_FIELDS, source);
+            }
+            return;
+          }
+
+          if ('choose' in valor && Array.isArray(valor.from)) {
+            const choose = Math.max(1, Number(valor.choose) || 1);
+            const allowedFields = extraerCamposPermitidos(valor.from);
+            const bonusBase = Number(valor?.bonus) || Number(valor.from?.[0]?.bonus) || 1;
+            for (let i = 0; i < choose; i += 1) {
+              agregarSlot(bonusBase, allowedFields.length ? allowedFields : ATTRIBUTE_FIELDS, source);
+            }
+            return;
+          }
+
+          if (Array.isArray(valor.from)) procesarValor(valor.from, source);
+          if (Array.isArray(valor.options)) procesarValor(valor.options, source);
+          if (Array.isArray(valor.bonuses)) procesarValor(valor.bonuses, source);
+        }
+
+        const esHumano = slugRaza === 'human';
+        if (!esHumano) procesarValor(raza?.bonuses, 'racial');
+        procesarValor(subraza?.bonuses, 'racial');
+        featsSeleccionados.forEach((feat) => {
+          if (!feat || typeof feat !== 'object') return;
+          if (feat?.bonuses != null) procesarValor(feat.bonuses, 'feat');
+          else if (feat?.ability_bonuses != null) procesarValor(feat.ability_bonuses, 'feat');
+          if (feat?.modificadores != null) procesarValor(feat.modificadores, 'feat');
+        });
+
+        if (bonusState.contextKey !== contextKey) {
+          bonusState = { contextKey, assignments: {} };
+        }
+
+        const slotById = new Map(slots.map((slot) => [slot.id, slot]));
+        const saneAssignments = {};
+        Object.entries(bonusState.assignments || {}).forEach(([slotId, field]) => {
+          const slot = slotById.get(slotId);
+          const fieldClean = String(field || '').trim();
+          if (!slot) return;
+          if (!slot.allowedFields.includes(fieldClean)) return;
+          saneAssignments[slotId] = fieldClean;
+        });
+        if (requiereUnoEnAtributosDistintos) {
+          const usados = new Set();
+          Object.keys(saneAssignments).forEach((slotId) => {
+            const slot = slotById.get(slotId);
+            if (!slot || Number(slot.bonus) !== 1 || slot.source !== 'racial') return;
+            const field = String(saneAssignments[slotId] || '').trim();
+            if (!field) return;
+            if (usados.has(field)) {
+              delete saneAssignments[slotId];
+            } else {
+              usados.add(field);
+            }
+          });
+        }
+        bonusState.assignments = saneAssignments;
+
+        const bonusElegidosPaso2 = seleccion?.bonificadores_raciales_elegidos && typeof seleccion.bonificadores_raciales_elegidos === 'object'
+          ? seleccion.bonificadores_raciales_elegidos
+          : {};
+        const previosPaso2 = Array.isArray(bonusElegidosPaso2[bonusSelectKey]) ? bonusElegidosPaso2[bonusSelectKey] : [];
+        if (previosPaso2.length) {
+          const usadosUno = new Set();
+          slots.filter((slot) => String(slot?.source || '') === 'racial').forEach((slot, idx) => {
+            const elegido = normalizarAbility(previosPaso2[idx]);
+            if (!elegido || !slot.allowedFields.includes(elegido)) return;
+            if (requiereUnoEnAtributosDistintos && Number(slot.bonus) === 1 && slot.source === 'racial') {
+              if (usadosUno.has(elegido)) return;
+              usadosUno.add(elegido);
+            }
+            bonusState.assignments[slot.id] = elegido;
+          });
+        }
+
+        guardarBonusState();
+
+        const featsActivos = metodoAtributos !== 'puntos' || puntosRestantes() <= 0;
+        const slotsActivos = slots.filter((slot) => featsActivos || slot.source !== 'feat');
+        const totalMap = new Map(fixedMap);
+        slotsActivos.forEach((slot) => {
+          const field = String(bonusState.assignments[slot.id] || '').trim();
+          if (!field) return;
+          const bonusActual = Number(totalMap.get(field) || 0);
+          const base = Number(baseScores[field]) || 8;
+          const incremento = Number(slot.bonus || 0);
+          if ((base + bonusActual + incremento) > 20) return;
+          totalMap.set(field, bonusActual + incremento);
+        });
+
+        return {
+          fixedMap,
+          fixedMapRacial,
+          fixedMapAsi,
+          fixedMapFeat,
+          slots: slotsActivos,
+          totalMap,
+          bonusSelectKey,
+          featsBloqueadosPorPuntos: !featsActivos && slots.some((slot) => slot.source === 'feat'),
+          requiereUnoEnAtributosDistintos
+        };
+      }
+
+      function sincronizarBonificadoresConPaso2(ctx) {
+        if (!ctx || !ctx.bonusSelectKey) return;
+        if (!seleccion.bonificadores_raciales_elegidos || typeof seleccion.bonificadores_raciales_elegidos !== 'object') {
+          seleccion.bonificadores_raciales_elegidos = {};
+        }
+        const slotsRaciales = Array.isArray(ctx.slots)
+          ? ctx.slots.filter((slot) => String(slot?.source || '') === 'racial')
+          : [];
+
+        if (!slotsRaciales.length) {
+          delete seleccion.bonificadores_raciales_elegidos[ctx.bonusSelectKey];
+          guardarSeleccionPaso1();
+          return;
+        }
+
+        const valores = slotsRaciales.map((slot) => String(bonusState.assignments[slot.id] || '').trim());
+        const hayAlguno = valores.some(Boolean);
+        if (hayAlguno) {
+          seleccion.bonificadores_raciales_elegidos[ctx.bonusSelectKey] = valores;
+        } else {
+          delete seleccion.bonificadores_raciales_elegidos[ctx.bonusSelectKey];
+        }
+        guardarSeleccionPaso1();
+      }
+
+      function idsAsignados(ctx, bonus, field, source = null) {
+        return ctx.slots
+          .filter((slot) => Number(slot.bonus) === Number(bonus))
+          .filter((slot) => !source || String(slot.source || '') === String(source))
+          .filter((slot) => String(bonusState.assignments[slot.id] || '') === field)
+          .map((slot) => slot.id);
+      }
+
+      function idsDisponibles(ctx, bonus, field, source = null) {
+        const base = Number(baseScores[field]) || 8;
+        const fijo = Number(ctx?.fixedMap?.get(field) || 0);
+        const variableActual = Array.isArray(ctx?.slots)
+          ? ctx.slots.reduce((acc, slot) => {
+              if (!slot) return acc;
+              if (source && String(slot.source || '') !== String(source)) return acc;
+              const asignado = String(bonusState.assignments[slot.id] || '').trim();
+              if (asignado !== field) return acc;
+              return acc + (Number(slot.bonus) || 0);
+            }, 0)
+          : 0;
+        const totalActual = base + fijo + variableActual;
+        return ctx.slots
+          .filter((slot) => Number(slot.bonus) === Number(bonus))
+          .filter((slot) => !source || String(slot.source || '') === String(source))
+          .filter((slot) => !bonusState.assignments[slot.id])
+          .filter((slot) => slot.allowedFields.includes(field))
+          .filter((slot) => (totalActual + (Number(slot.bonus) || 0)) <= 20)
+          .map((slot) => slot.id);
+      }
+
+      function toggleBonusUno(ctx, field) {
+        const asignados = idsAsignados(ctx, 1, field, 'racial');
+        if (asignados.length) {
+          delete bonusState.assignments[asignados[asignados.length - 1]];
+          guardarBonusState();
+          sincronizarBonificadoresConPaso2(ctx);
+          renderAtributos();
+          return;
+        }
+        if (ctx?.requiereUnoEnAtributosDistintos) {
+          const yaElegidoEnOtro = ctx.slots
+            .filter((slot) => Number(slot.bonus) === 1 && slot.source === 'racial')
+            .some((slot) => String(bonusState.assignments[slot.id] || '').trim() === field);
+          if (yaElegidoEnOtro) return;
+        }
+        const disponibles = idsDisponibles(ctx, 1, field, 'racial');
+        if (!disponibles.length) return;
+        bonusState.assignments[disponibles[0]] = field;
+        guardarBonusState();
+        sincronizarBonificadoresConPaso2(ctx);
+        renderAtributos();
+      }
+
+      function toggleBonusDos(ctx, field) {
+        const asignadosDos = idsAsignados(ctx, 2, field, 'racial');
+        if (asignadosDos.length) {
+          delete bonusState.assignments[asignadosDos[asignadosDos.length - 1]];
+          guardarBonusState();
+          sincronizarBonificadoresConPaso2(ctx);
+          renderAtributos();
+          return;
+        }
+
+        const asignadosUno = idsAsignados(ctx, 1, field, 'racial');
+        if (asignadosUno.length >= 2) {
+          delete bonusState.assignments[asignadosUno[asignadosUno.length - 1]];
+          delete bonusState.assignments[asignadosUno[asignadosUno.length - 2]];
+          guardarBonusState();
+          sincronizarBonificadoresConPaso2(ctx);
+          renderAtributos();
+          return;
+        }
+
+        if (asignadosUno.length === 1) {
+          asignadosUno.forEach((slotId) => {
+            delete bonusState.assignments[slotId];
+          });
+        }
+
+        const disponiblesDos = idsDisponibles(ctx, 2, field, 'racial');
+        if (disponiblesDos.length) {
+          bonusState.assignments[disponiblesDos[0]] = field;
+          guardarBonusState();
+          sincronizarBonificadoresConPaso2(ctx);
+          renderAtributos();
+        }
+      }
+
+      function renderBonusSummary(ctx) {
+        const partesRaza = [];
+        const partesFeat = [];
+        ATTRIBUTE_FIELDS.forEach((field) => {
+          const abrev = textosDirectos && textosDirectos[`${field}_abrev`] ? textosDirectos[`${field}_abrev`] : field;
+          const bonusRaza = Number(ctx.fixedMapRacial?.get(field) || 0);
+          const bonusAsi = Number(ctx.fixedMapAsi?.get(field) || 0);
+          const bonusFeatDirecto = Number(ctx.fixedMapFeat?.get(field) || 0);
+          const bonusFeat = bonusAsi + bonusFeatDirecto;
+          if (bonusRaza) partesRaza.push(`${abrev} ${bonusRaza >= 0 ? '+' : ''}${bonusRaza}`);
+          if (bonusFeat) partesFeat.push(`${abrev} ${bonusFeat >= 0 ? '+' : ''}${bonusFeat}`);
+        });
+
+        const slotsRazaUno = ctx.slots.filter((s) => s.source !== 'feat' && Number(s.bonus) === 1).length;
+        const slotsRazaDos = ctx.slots.filter((s) => s.source !== 'feat' && Number(s.bonus) === 2).length;
+        const slotsFeatUno = ctx.slots.filter((s) => s.source === 'feat' && Number(s.bonus) === 1).length;
+        const slotsFeatDos = ctx.slots.filter((s) => s.source === 'feat' && Number(s.bonus) === 2).length;
+        const elegiblesRaza = [];
+        const elegiblesFeat = [];
+        if (slotsRazaDos) elegiblesRaza.push(`${slotsRazaDos} x +2`);
+        if (slotsRazaUno) elegiblesRaza.push(`${slotsRazaUno} x +1`);
+        if (slotsFeatDos) elegiblesFeat.push(`${slotsFeatDos} x +2`);
+        if (slotsFeatUno) elegiblesFeat.push(`${slotsFeatUno} x +1`);
+
+        if (!partesRaza.length && !partesFeat.length && !elegiblesRaza.length && !elegiblesFeat.length) {
+          bonusSummary.textContent = 'Bonificadores de raza: sin bonificadores.';
+          return;
+        }
+
+        const textoRazaFijo = partesRaza.length ? `Bonificadores de raza: ${partesRaza.join(', ')}` : 'Bonificadores de raza: sin fijos.';
+        const textoRazaElegibles = elegiblesRaza.length
+          ? ` Puedes asignar: ${elegiblesRaza.join(' y ')}.`
+          : '';
+        const textoFeatFijo = partesFeat.length ? `Modificadores de feat: ${partesFeat.join(', ')}` : '';
+        const textoFeatElegibles = elegiblesFeat.length
+          ? ` Puedes asignar: ${elegiblesFeat.join(' y ')}.`
+          : '';
+        const textoFeatBloqueado = ctx?.featsBloqueadosPorPuntos
+          ? ' Las mejoras de atributos por feat se aplican al gastar todos los puntos base.'
+          : '';
+        const lineaFeat = textoFeatFijo || textoFeatElegibles || textoFeatBloqueado
+          ? `\n${textoFeatFijo}${textoFeatElegibles}${textoFeatBloqueado}`.trimEnd()
+          : '';
+        bonusSummary.textContent = `${textoRazaFijo}${textoRazaElegibles}${lineaFeat}`;
+      }
+
+      function renderAtributos() {
+        const bonusCtx = crearContextoBonos();
+        renderBonusSummary(bonusCtx);
+        actualizarBotonesMetodo();
+        if (metodoAtributos === 'puntos') {
+          const remaining = puntosRestantes();
+          pointSummary.hidden = false;
+          pointSummary.textContent = `Puntos restantes: ${remaining} / ${POINT_BUY_TOTAL}`;
+        } else {
+          pointSummary.hidden = true;
+        }
+        listEl.innerHTML = '';
+
+        atributos.forEach((attr) => {
+          const field = attr.campo;
+          const base = Number(baseScores[field]) || 8;
+          const bonus = Number(bonusCtx.totalMap.get(field) || 0);
+          const total = base + bonus;
+          const next = nextValueFor(field);
+          const prev = prevValueFor(field);
+
+          const row = document.createElement('div');
+          row.className = 'crear-paso3-attr-row';
+
+          const nameEl = document.createElement('p');
+          nameEl.className = 'crear-paso3-attr-row__name';
+          nameEl.textContent = attr.nombre;
+
+          const controls = document.createElement('div');
+          controls.className = 'crear-paso3-attr-row__controls';
+
+          const lessBtn = document.createElement('button');
+          lessBtn.type = 'button';
+          lessBtn.className = 'crear-paso3-attr-btn';
+          lessBtn.textContent = '-';
+          lessBtn.disabled = prev == null;
+          lessBtn.addEventListener('click', () => {
+            const value = prevValueFor(field);
+            if (value == null) return;
+            baseScores[field] = value;
+            guardarBaseScores();
+            renderAtributos();
+          });
+
+          const valueEl = document.createElement('div');
+          valueEl.className = 'crear-paso3-attr-values';
+          valueEl.innerHTML = `
+            <span class="crear-paso3-attr-values__base">${base}</span>
+            <span class="crear-paso3-attr-values__bonus">${bonus >= 0 ? '+' : ''}${bonus}</span>
+            <span class="crear-paso3-attr-values__total">${total}</span>
+          `;
+
+          const plusBtn = document.createElement('button');
+          plusBtn.type = 'button';
+          plusBtn.className = 'crear-paso3-attr-btn';
+          plusBtn.textContent = '+';
+          plusBtn.disabled = next == null;
+          plusBtn.addEventListener('click', () => {
+            const value = nextValueFor(field);
+            if (value == null) return;
+            baseScores[field] = value;
+            guardarBaseScores();
+            renderAtributos();
+          });
+
+          controls.appendChild(lessBtn);
+          controls.appendChild(valueEl);
+          controls.appendChild(plusBtn);
+
+          const selects = document.createElement('div');
+          selects.className = 'crear-paso3-bonus-selectors';
+
+          const bonusFijo = Number(bonusCtx.fixedMapRacial.get(field) || 0);
+          const fijosDos = Math.floor(Math.max(0, bonusFijo) / 2);
+          const fijosUno = Math.max(0, bonusFijo) % 2;
+          const asignadosUno = idsAsignados(bonusCtx, 1, field, 'racial').length;
+          const asignadosDos = idsAsignados(bonusCtx, 2, field, 'racial').length;
+          const marcadoDos = fijosDos > 0 || asignadosDos > 0;
+          const marcadoUno = fijosUno > 0 || asignadosUno > 0;
+          const slotsRaciales = bonusCtx.slots.filter((slot) => String(slot?.source || '') === 'racial');
+          const puedeAny = slotsRaciales.length > 0;
+          const puedeSumarUno = idsDisponibles(bonusCtx, 1, field, 'racial').length > 0;
+          const puedeSumarDosDirecto = bonusCtx.slots
+            .filter((slot) => Number(slot.bonus) === 2)
+            .filter((slot) => String(slot?.source || '') === 'racial')
+            .some((slot) => slot.allowedFields.includes(field));
+          const puedeSumarDos = puedeSumarDosDirecto;
+
+          const boxDos = document.createElement('button');
+          boxDos.type = 'button';
+          boxDos.className = `crear-paso3-bonus-box ${marcadoDos ? 'is-checked' : ''}`;
+          boxDos.setAttribute('aria-label', `Asignar +2 a ${attr.nombre}`);
+          boxDos.setAttribute('aria-pressed', marcadoDos ? 'true' : 'false');
+          boxDos.disabled = fijosDos > 0 || !puedeAny || (!marcadoDos && !puedeSumarDos);
+          boxDos.addEventListener('click', () => toggleBonusDos(bonusCtx, field));
+
+          const boxUno = document.createElement('button');
+          boxUno.type = 'button';
+          boxUno.className = `crear-paso3-bonus-box ${marcadoUno ? 'is-checked' : ''}`;
+          boxUno.setAttribute('aria-label', `Asignar +1 a ${attr.nombre}`);
+          boxUno.setAttribute('aria-pressed', marcadoUno ? 'true' : 'false');
+          boxUno.disabled = fijosUno > 0 || !puedeAny || (!marcadoUno && !puedeSumarUno);
+          boxUno.addEventListener('click', () => toggleBonusUno(bonusCtx, field));
+
+          selects.appendChild(boxDos);
+          selects.appendChild(boxUno);
+
+          row.appendChild(nameEl);
+          row.appendChild(controls);
+          row.appendChild(selects);
+          listEl.appendChild(row);
+        });
+      }
+
+      function renderTrasfondo() {
+        const saved = String(storage.getItem(STORAGE_BG_KEY) || '').trim();
+        bgSelect.value = saved;
+        const trasfondo = trasfondoBySlug.get(saved);
+        bgDesc.textContent = String(trasfondo?.descripcion || 'Elige un trasfondo para ver su descripción.');
+        renderDetallesTrasfondo(trasfondo);
+      }
+
+      function traducirNombreDato(raw = '') {
+        const txt = String(raw || '').trim();
+        return (textosDirectos && textosDirectos[txt]) || txt || '—';
+      }
+
+      function formatearListaTexto(lista = []) {
+        const valores = Array.isArray(lista) ? lista : [];
+        return valores.map((v) => traducirNombreDato(v)).filter(Boolean).join(', ') || '—';
+      }
+
+      function normalizarBloqueEleccion(valor) {
+        const data = parsearJsonFlexible(valor, valor);
+        if (Array.isArray(data)) {
+          return { fixed: data.map((v) => String(v || '').trim()).filter(Boolean), choose: 0, options: [] };
+        }
+        if (!data || typeof data !== 'object') {
+          return { fixed: [], choose: 0, options: [] };
+        }
+        return {
+          fixed: Array.isArray(data.fixed) ? data.fixed : [],
+          choose: Math.max(0, Number(data.choose) || 0),
+          options: Array.isArray(data.options) ? data.options : []
+        };
+      }
+
+      function normalizarCompetencias(valor) {
+        const data = parsearJsonFlexible(valor, valor);
+        const salida = {
+          skills: { fixed: [], choose: 0, options: [] },
+          tools: [],
+          rawList: []
+        };
+        if (!data) return salida;
+        if (Array.isArray(data)) {
+          salida.rawList = data.map((item) => {
+            if (typeof item === 'string') return item;
+            return String(item?.name || item?.index || '').trim();
+          }).filter(Boolean);
+          return salida;
+        }
+        if (typeof data !== 'object') return salida;
+        if (Array.isArray(data.proficiencies)) {
+          salida.rawList = data.proficiencies.map((p) => String(p?.name || p?.index || '').trim()).filter(Boolean);
+        }
+        salida.skills = normalizarBloqueEleccion(data.skills || data.skill_proficiencies || {});
+        salida.tools = Array.isArray(data.tools || data.tool_proficiencies)
+          ? (data.tools || data.tool_proficiencies)
+          : [];
+        return salida;
+      }
+
+      function renderBotonesInfo(container, items = []) {
+        const row = document.createElement('div');
+        row.className = 'crear-personaje-side-panel__meta-row crear-personaje-side-panel__meta-row--traits';
+        const list = document.createElement('div');
+        list.className = 'crear-personaje-trait-list';
+        const detail = document.createElement('div');
+        detail.className = 'crear-personaje-trait-detail';
+        detail.hidden = true;
+
+        const opciones = Array.isArray(items) ? items.filter((i) => i && i.nombre) : [];
+        opciones.forEach((opcion) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'crear-personaje-trait-item';
+          btn.textContent = String(opcion.nombre || '');
+          btn.addEventListener('click', () => {
+            const active = btn.classList.contains('is-active');
+            Array.from(list.querySelectorAll('.crear-personaje-trait-item')).forEach((b) => b.classList.remove('is-active'));
+            if (active) {
+              detail.hidden = true;
+              detail.textContent = '';
+              return;
+            }
+            btn.classList.add('is-active');
+            detail.hidden = false;
+            if (typeof opcion.descripcionHtml === 'string') {
+              detail.innerHTML = opcion.descripcionHtml;
+              return;
+            }
+            if (typeof opcion.descripcionRender === 'function') {
+              detail.innerHTML = '';
+              opcion.descripcionRender(detail);
+              return;
+            }
+            detail.textContent = String(opcion.descripcion || 'Sin detalle.');
+          });
+          list.appendChild(btn);
+        });
+
+        row.appendChild(list);
+        row.appendChild(detail);
+        container.appendChild(row);
+      }
+
+      function textoNormalizado(s = '') {
+        return String(s || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '')
+          .trim();
+      }
+
+      function filtrarIdiomasPorOpciones(opciones = []) {
+        const opts = Array.isArray(opciones) ? opciones.map((o) => String(o || '').trim()).filter(Boolean) : [];
+        if (!opts.length) return Array.isArray(idiomasCatalogo) ? idiomasCatalogo : [];
+        return (Array.isArray(idiomasCatalogo) ? idiomasCatalogo : []).filter((idioma) => {
+          const nom = textoNormalizado(idioma?.nombre);
+          const slug = textoNormalizado(idioma?.slug);
+          return opts.some((op) => {
+            const t = textoNormalizado(op);
+            return t === nom || t === slug;
+          });
+        });
+      }
+
+      function obtenerIdiomasConocidos() {
+        try {
+          const raw = storage.getItem(STORAGE_KNOWN_LANG_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          const lista = Array.isArray(parsed) ? parsed : [];
+          return new Set(lista.map((v) => String(v || '').trim().toLowerCase()).filter(Boolean));
+        } catch {
+          return new Set();
+        }
+      }
+
+      function construirOpcionesSelectIdiomas(disponibles, seleccionActual, idx, knownSet) {
+        const selectedOther = new Set(
+          idiomasTrasfondoState
+            .map((v, i) => (i === idx ? '' : String(v || '').trim().toLowerCase()))
+            .filter(Boolean)
+        );
+        return disponibles.filter((idioma) => {
+          const slug = String(idioma?.slug || '').trim().toLowerCase();
+          if (!slug) return false;
+          if (slug === 'common') return false;
+          if (knownSet.has(slug) && slug !== seleccionActual) return false;
+          if (selectedOther.has(slug) && slug !== seleccionActual) return false;
+          return true;
+        });
+      }
+
+      function renderSelectoresIdiomas(detailEl, cantidad, opciones = []) {
+        const total = Math.max(0, Number(cantidad) || 0);
+        const disponibles = filtrarIdiomasPorOpciones(opciones);
+        const knownSet = obtenerIdiomasConocidos();
+        if (total <= 0) {
+          detailEl.textContent = 'Sin idiomas a elegir.';
+          return;
+        }
+
+        idiomasTrasfondoState = idiomasTrasfondoState.slice(0, total);
+        while (idiomasTrasfondoState.length < total) idiomasTrasfondoState.push('');
+        guardarIdiomasTrasfondo();
+
+        const intro = document.createElement('p');
+        intro.className = 'crear-personaje-side-panel__meta-row';
+        intro.textContent = `Elige ${total} idioma${total > 1 ? 's' : ''}:`;
+        detailEl.appendChild(intro);
+
+        const selects = [];
+        function refrescarOpciones() {
+          selects.forEach((select, idx) => {
+            const current = String(idiomasTrasfondoState[idx] || '').trim().toLowerCase();
+            const opcionesFiltradas = construirOpcionesSelectIdiomas(disponibles, current, idx, knownSet);
+            select.innerHTML = '';
+            const firstOpt = document.createElement('option');
+            firstOpt.value = '';
+            firstOpt.textContent = 'Selecciona idioma';
+            select.appendChild(firstOpt);
+            opcionesFiltradas.forEach((idioma) => {
+              const opt = document.createElement('option');
+              opt.value = String(idioma?.slug || '');
+              const cat = String(idioma?.categoria || '').trim();
+              const tag = cat ? ` (${cat})` : '';
+              opt.textContent = `${String(idioma?.nombre || idioma?.slug || '')}${tag}`;
+              if (String(opt.value).toLowerCase() === current) {
+                opt.selected = true;
+              }
+              select.appendChild(opt);
+            });
+            const existeActual = opcionesFiltradas.some((idioma) => String(idioma?.slug || '').toLowerCase() === current);
+            if (current && !existeActual) {
+              idiomasTrasfondoState[idx] = '';
+            }
+          });
+          guardarIdiomasTrasfondo();
+        }
+
+        for (let i = 0; i < total; i += 1) {
+          const wrap = document.createElement('div');
+          wrap.className = 'crear-paso3-field';
+          const label = document.createElement('label');
+          label.textContent = `Idioma ${i + 1}`;
+          const select = document.createElement('select');
+          select.className = 'crear-paso3-select';
+          selects.push(select);
+
+          select.addEventListener('change', () => {
+            idiomasTrasfondoState[i] = String(select.value || '');
+            guardarIdiomasTrasfondo();
+            refrescarOpciones();
+          });
+
+          wrap.appendChild(label);
+          wrap.appendChild(select);
+          detailEl.appendChild(wrap);
+        }
+        refrescarOpciones();
+      }
+
+      function renderDetallesTrasfondo(trasfondo) {
+        bgDetails.innerHTML = '';
+        if (!trasfondo) return;
+
+        const competencias = normalizarCompetencias(trasfondo.competencias);
+        const idiomas = normalizarBloqueEleccion(trasfondo.idiomas_opciones);
+        const rasgo = parsearJsonFlexible(trasfondo.rasgo, trasfondo.rasgo) || {};
+        const opciones = [];
+        const descripcionTrasfondo = String(trasfondo?.descripcion || '').trim();
+        if (descripcionTrasfondo) {
+          opciones.push({
+            nombre: 'Descripción',
+            descripcion: descripcionTrasfondo
+          });
+        }
+
+        if (competencias.rawList.length) {
+          opciones.push({
+            nombre: 'Competencias',
+            descripcion: formatearListaTexto(competencias.rawList)
+          });
+        } else {
+          const partesComp = [];
+          const compFijas = formatearListaTexto(competencias.skills.fixed);
+          if (compFijas !== '—') partesComp.push(`Fijas: ${compFijas}`);
+          if (Number(competencias.skills.choose) > 0) {
+            const opcionesSkills = formatearListaTexto(competencias.skills.options);
+            partesComp.push(`A elegir: ${Number(competencias.skills.choose)}${opcionesSkills !== '—' ? ` (${opcionesSkills})` : ''}`);
+          }
+          opciones.push({
+            nombre: 'Competencias',
+            descripcion: partesComp.length ? partesComp.join(' | ') : 'Sin competencias.'
+          });
+        }
+
+        const idiomasTieneFijos = Array.isArray(idiomas.fixed) && idiomas.fixed.length > 0;
+        const idiomasElige = Number(idiomas.choose) || 0;
+        if (idiomasTieneFijos || idiomasElige > 0) {
+          opciones.push({
+            nombre: 'Idiomas',
+            descripcionRender: (detail) => {
+              if (idiomasTieneFijos) {
+                const fijos = document.createElement('p');
+                fijos.className = 'crear-personaje-side-panel__meta-row';
+                fijos.textContent = `Fijos: ${formatearListaTexto(idiomas.fixed)}`;
+                detail.appendChild(fijos);
+              }
+              if (idiomasElige > 0) {
+                renderSelectoresIdiomas(detail, idiomasElige, idiomas.options);
+              }
+            }
+          });
+        }
+
+        const herramientasTexto = formatearListaTexto(competencias.tools);
+        if (herramientasTexto !== '—') {
+          opciones.push({
+            nombre: 'Herramientas',
+            descripcion: herramientasTexto
+          });
+        }
+
+        const rasgoNombre = String(rasgo?.name || '').trim();
+        const rasgoDesc = String(rasgo?.description || '').trim();
+        if (rasgoNombre || rasgoDesc) {
+          opciones.push({
+            nombre: rasgoNombre || 'Rasgo',
+            descripcion: rasgoDesc || 'Sin detalle.'
+          });
+        }
+
+        renderBotonesInfo(bgDetails, opciones);
+      }
+
+      function renderTextos() {
+        textInputs.forEach((input) => {
+          const key = String(input.dataset.cp3Text || '').trim();
+          if (!key) return;
+          input.value = String(textState[key] || '');
+        });
+        autoTextareas.forEach((ta) => {
+          ta.style.height = 'auto';
+          ta.style.height = `${Math.max(70, ta.scrollHeight)}px`;
+        });
+      }
+
+      bgSelect.addEventListener('change', () => {
+        const slug = String(bgSelect.value || '').trim();
+        storage.setItem(STORAGE_BG_KEY, slug);
+        idiomasTrasfondoState = [];
+        guardarIdiomasTrasfondo();
+        const trasfondo = trasfondoBySlug.get(slug);
+        bgDesc.textContent = String(trasfondo?.descripcion || 'Elige un trasfondo para ver su descripción.');
+        renderDetallesTrasfondo(trasfondo);
+      });
+
+      textInputs.forEach((input) => {
+        input.addEventListener('input', () => {
+          const key = String(input.dataset.cp3Text || '').trim();
+          if (!key) return;
+          textState[key] = String(input.value || '');
+          guardarTextos();
+          if (input.tagName === 'TEXTAREA' && input.classList.contains('crear-paso3-textarea--auto')) {
+            input.style.height = 'auto';
+            input.style.height = `${Math.max(70, input.scrollHeight)}px`;
+          }
+        });
+      });
+
+      drawerToggles.forEach((btn) => {
+        const titleEl = btn.querySelector('.crear-paso3-card__title');
+        const drawerKey = String(titleEl?.textContent || '').trim().toLowerCase().replace(/\s+/g, '_');
+        const body = btn.nextElementSibling;
+        if (body && drawerKey && drawerState[drawerKey] === true) {
+          btn.setAttribute('aria-expanded', 'true');
+          body.hidden = false;
+        }
+        btn.addEventListener('click', () => {
+          const body = btn.nextElementSibling;
+          if (!body) return;
+          const expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+          body.hidden = expanded;
+          if (drawerKey) {
+            drawerState[drawerKey] = !expanded;
+            guardarDrawers();
+          }
+          if (!expanded) {
+            body.querySelectorAll('.crear-paso3-textarea--auto').forEach((ta) => {
+              ta.style.height = 'auto';
+              ta.style.height = `${Math.max(70, ta.scrollHeight)}px`;
+            });
+          }
+        });
+      });
+
+      methodButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const method = String(btn.dataset.method || '').trim().toLowerCase();
+          if (!['standard', 'puntos'].includes(method)) return;
+          if (method === metodoAtributos) return;
+          metodoAtributos = method;
+          normalizarBaseScoresSegunMetodo();
+          guardarMetodoAtributos();
+          renderAtributos();
+        });
+      });
+
+      normalizarBaseScoresSegunMetodo();
+      renderAtributos();
+      renderTrasfondo();
+      renderTextos();
+    })();
+  </script>
 </body>
 </html>

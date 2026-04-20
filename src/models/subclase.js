@@ -2,16 +2,16 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
 const Subclase = sequelize.define("Subclase", {
-    nombre: { 
-        type: DataTypes.STRING, 
-        allowNull: false 
+    nombre: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    slug: { 
-        type: DataTypes.STRING, 
-        unique: true 
+    slug: {
+        type: DataTypes.STRING,
+        unique: true
     },
-    descripcion: { 
-        type: DataTypes.TEXT 
+    descripcion: {
+        type: DataTypes.TEXT
     },
     tipo_subclase: {
         type: DataTypes.STRING,

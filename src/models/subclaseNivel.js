@@ -30,4 +30,3 @@ const SubclaseNivel = sequelize.define('SubclaseNivel', {
 });
 
 module.exports = SubclaseNivel;
-

@@ -1,3 +1,16 @@
+:root {
+  --separator-line-thin: 1px solid var(--dnd-border);
+  --separator-line-thick: 2px solid var(--dnd-border);
+}
+
+.separator-thin {
+  border-bottom: var(--separator-line-thin);
+}
+
+.separator-thick {
+  border-bottom: var(--separator-line-thick);
+}
+
 .home-intro {
   margin-bottom: 1.5rem;
 }
@@ -98,7 +111,7 @@
 }
 
 .character-card > div:last-of-type > h2 {
-  font-family: var(--font-display);
+  font-family: var(--cinzel-decorative-font);
   font-size: clamp(1rem, 2.2vw, 1.2rem);
   font-weight: 700;
   color: var(--dnd-red-dark);
@@ -140,7 +153,7 @@
   gap: 0.5rem;
   margin-top: auto;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--dnd-border);
+  border-top: var(--separator-line-thin);
 }
 
 .character-card footer form {
@@ -336,7 +349,14 @@
 }
 
 .detail-vida-form__grid > span:nth-child(4),
-.detail-vida-form__grid > span:nth-child(6),
+.detail-vida-form__grid > span:nth-child(6) {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--dnd-red-dark);
+  line-height: 1.1;
+}
+
 .stat-mini-card:not(.stat-mini-card--vida) > span:nth-child(2) {
   font-family: var(--font-display);
   font-size: 1.45rem;
@@ -683,6 +703,7 @@
 }
 
 .stat-mini-card:not(.stat-mini-card--vida) > span:nth-child(3):not([aria-hidden="true"]) {
+  font-family: var(--font-display);
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--dnd-ink);
@@ -811,11 +832,10 @@
 
 .detail-inventory-item {
   padding: 0.42rem 0;
-  border-bottom: 1px solid var(--dnd-border);
   color: var(--dnd-ink);
 }
 
-.detail-inventory-item:last-child {
+.detail-inventory-list > .separator-thin:last-child {
   border-bottom: none;
 }
 
@@ -863,7 +883,6 @@
 .detail-dnd-skills-head {
   padding: 0 0 0.4rem;
   margin-bottom: 0;
-  border-bottom: 2px solid var(--dnd-border);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--dnd-muted);
@@ -916,7 +935,6 @@
   min-height: 2.3rem;
   padding: 0.28rem 0;
   font-size: 0.82rem;
-  border-bottom: 1px solid var(--dnd-border);
 }
 
 .detail-dnd-save-row {
@@ -925,11 +943,13 @@
   column-gap: 0.22rem;
   row-gap: 0;
   align-items: center;
+  min-height: 2.7rem;
+  padding: 0.45rem 0;
 }
 
-.detail-dnd-saves-list .detail-dnd-save-row:last-child,
-.detail-dnd-sense:last-child,
-.detail-dnd-skills-row:last-child {
+.detail-dnd-saves-list > .separator-thin:last-child,
+.detail-dnd-senses > .separator-thin:last-child,
+.detail-dnd-skills-list > .separator-thin:last-child {
   border-bottom: none;
 }
 
@@ -989,8 +1009,8 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 0.75rem;
+  min-height: 2.7rem;
   padding: 0.45rem 0;
-  border-bottom: 1px solid var(--dnd-border);
   font-size: 0.88rem;
 }
 
@@ -1009,6 +1029,45 @@
   color: var(--dnd-red-dark);
   text-align: right;
   min-width: 1.75rem;
+}
+
+.grouped-lines {
+  margin-top: 0.2rem;
+}
+
+.grouped-lines__group {
+  border-top: var(--separator-line-thin);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.grouped-lines__group:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.section-with-groups h2 {
+  font-size: 1.02rem;
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.15rem;
+}
+
+.grouped-lines__group h3 {
+  margin: 0 0 0.2rem;
+  font-size: 0.84rem;
+  color: var(--dnd-red);
+  text-transform: uppercase;
+}
+
+.grouped-lines__group p,
+.grouped-lines__group ul {
+  margin: 0;
+}
+
+.grouped-lines__group li,
+.grouped-lines__group p {
+  font-size: 0.83rem;
 }
 
 .detail-dnd-skills-table {
@@ -1040,6 +1099,8 @@
   grid-template-columns: 2.2rem 2.2rem minmax(7.2rem, 1fr) 2.35rem;
   gap: 0 0.5rem;
   align-items: center;
+  min-height: 2.7rem;
+  padding: 0.45rem 0;
 }
 
 .detail-dnd-skills-row > [role="cell"]:nth-child(1) {
@@ -1093,7 +1154,7 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 0.75rem;
-  border-bottom: 2px solid var(--dnd-border);
+  border-bottom: var(--separator-line-thick);
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
 }
@@ -1104,6 +1165,10 @@
   margin: 0;
   padding: 0;
   border: 0;
+}
+
+.cinzel-decorative-font {
+  font-family: "Cinzel Decorative", "Cinzel", "Palatino Linotype", serif;
 }
 
 @media (max-width: 900px) {
@@ -1336,8 +1401,8 @@
   --cp-gap: 1rem;
   --cp-col: calc((100% - var(--cp-gap)) / 2);
   display: grid;
-  /* Big side columns + stable center column */
-  grid-template-columns: minmax(0, 1fr) minmax(34rem, 46rem) minmax(0, 1fr);
+  /* Side columns + fluid center column (responsive) */
+  grid-template-columns: minmax(0, 1fr) minmax(0, clamp(22rem, 62vw, 55%)) minmax(0, 1fr);
   column-gap: var(--cp-gap);
   align-items: start;
   width: 100%;
@@ -1352,6 +1417,7 @@
 .crear-personaje-side-panel {
   position: static;
   width: 100%;
+  max-width: 100%;
   min-height: 6rem;
   padding: 0.9rem 1rem;
   background: #fff;
@@ -1359,6 +1425,7 @@
   border-radius: var(--radius);
   box-shadow: 0 4px 12px rgba(26, 21, 18, 0.08);
   box-sizing: border-box;
+  justify-self: stretch;
 }
 
 .crear-personaje-side-panel--left {
@@ -1376,7 +1443,8 @@
 .crear-personaje-side-panel__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
+  font-weight: 800;
   color: var(--dnd-red-dark);
 }
 
@@ -1384,11 +1452,39 @@
   margin-top: 0.7rem;
 }
 
+.crear-personaje-inline-panel {
+  margin-top: 0.5rem;
+}
+
 .crear-personaje-side-panel__value {
   margin: 0.3rem 0 0;
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--dnd-ink);
+}
+
+.crear-personaje-side-panel__meta {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.crear-personaje-side-panel__meta-row {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: var(--dnd-ink);
+  word-break: break-word;
+}
+
+.crear-personaje-side-panel__meta-row--subtitle {
+  margin-top: 0.25rem;
+}
+
+.crear-personaje-side-panel__subtitle-label {
+  display: inline-block;
+  font-size: 0.95rem;
+  color: var(--dnd-red-dark);
 }
 
 .crear-personaje-subraza-wrap[hidden] {
@@ -1404,16 +1500,17 @@
 
 .crear-personaje-subraza-item {
   width: auto;
-  min-width: 75%;
-  max-width: 95%;
-  text-align: left;
-  padding: 0.6rem 0.7rem;
-  min-height: 2.5rem;
+  min-width: 4.2rem;
+  max-width: 100%;
+  text-align: center;
+  padding: 0.3rem 0.45rem;
+  min-height: auto;
   border: 1px solid var(--dnd-red-alpha-35);
   border-radius: var(--radius-sm);
   background: var(--dnd-parchment);
   color: var(--dnd-ink);
-  font-size: 0.96rem;
+  font-size: 0.76rem;
+  line-height: 1.15;
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
@@ -1432,6 +1529,60 @@
   color: #fff;
 }
 
+.crear-personaje-side-panel__meta-row--traits {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.crear-personaje-trait-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+
+.crear-personaje-trait-item {
+  width: auto;
+  min-width: 4.2rem;
+  text-align: center;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: var(--dnd-parchment);
+  color: var(--dnd-ink);
+  font-size: 0.76rem;
+  line-height: 1.15;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.crear-personaje-trait-item:hover {
+  border-color: var(--dnd-red);
+}
+
+.crear-personaje-trait-item.is-active {
+  background: var(--dnd-red);
+  border-color: var(--dnd-red-dark);
+  color: #fff;
+}
+
+.crear-personaje-trait-detail {
+  margin-top: 0.1rem;
+  border: 1px solid var(--dnd-red-alpha-25);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.65);
+  padding: 0.35rem 0.45rem;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.crear-personaje-trait-detail[hidden] {
+  display: none;
+}
+
 .crear-personaje-two-col {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1442,13 +1593,22 @@
 
 @media (max-width: 1280px) {
   .crear-personaje-two-col {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .crear-personaje-steps-nav__item {
+    font-size: 0.9rem;
+    padding: 0.35rem 0.75rem;
+  }
+
+  .crear-personaje-catalog-item h3 {
+    margin-left: 1rem;
+    font-size: 1.05rem;
   }
 }
 
 @media (max-width: 1520px) {
   .crear-personaje-side-panel {
-    width: clamp(10.5rem, 14vw, 13rem);
     padding: 0.7rem 0.75rem;
   }
 
@@ -1461,19 +1621,1131 @@
   }
 
   .crear-personaje-subraza-item {
-    padding: 0.5rem 0.6rem;
-    font-size: 0.9rem;
+    font-size: 0.72rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .crear-personaje-trait-item {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.4rem;
   }
 }
 
-@media (max-width: 900px) {
-  .crear-personaje-side-panel {
+@media (max-width: 1200px) {
+  .crear-personaje-panel--wide {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .crear-personaje-two-col-wrap {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 0.85rem;
+    align-items: start;
+  }
+
+  .crear-personaje-two-col {
+    display: contents;
+  }
+
+  .crear-personaje-two-col > .crear-personaje-card:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .crear-personaje-two-col > .crear-personaje-card:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .crear-personaje-side-panel--left {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .crear-personaje-side-panel--right {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 750px) {
+  .crear-personaje-two-col-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .crear-personaje-two-col {
+    display: contents;
+  }
+
+  .crear-personaje-two-col > .crear-personaje-card:nth-child(1) {
+    order: 1;
+    width: 100%;
+  }
+
+  .crear-personaje-side-panel--left {
     display: none;
+  }
+
+  .crear-personaje-two-col > .crear-personaje-card:nth-child(2) {
+    order: 3;
+    width: 100%;
+  }
+
+  .crear-personaje-side-panel--right {
+    order: 4;
+    width: 100%;
+  }
+
+  .crear-personaje-side-panel {
+    display: block;
+    width: 100%;
   }
 
   .crear-personaje-panel--wide {
     width: 100%;
     max-width: 100%;
+  }
+}
+
+.crear-paso2-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  width: 100%;
+  margin-bottom: 0.8rem;
+}
+
+.crear-paso2-panel {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+
+.crear-paso2-panel__title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso2-panel__header {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.crear-paso2-panel__title-row {
+  display: flex;
+  align-items: end;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.crear-paso2-panel__title-control {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.crear-paso2-panel__title-control--nivel {
+  max-width: 6.5rem;
+}
+
+.crear-paso2-panel__sub-control {
+  margin-top: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.crear-paso2-panel__sub-control[hidden] {
+  display: none;
+}
+
+.crear-paso2-panel__label {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso2-panel__value {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--dnd-ink);
+}
+
+.crear-paso2-panel__actions {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.crear-paso2-panel__actions .btn {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+}
+
+.crear-paso2-summary {
+  margin-top: 0.35rem;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.crear-paso2-overview {
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.crear-paso2-overview__level {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  color: var(--dnd-ink);
+}
+
+.crear-paso2-overview__level strong {
+  font-size: 0.82rem;
+}
+
+.crear-paso2-overview__level #cp2-total-level {
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso2-vitals-card {
+  min-width: 12rem;
+  max-width: 18rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 0.4rem 0.55rem;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.crear-paso2-summary__item {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--dnd-ink);
+}
+
+.crear-paso2-multiclass-list {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.crear-paso2-multiclass-item {
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  padding: 0.35rem 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.4rem;
+}
+
+.crear-paso2-multiclass-item.is-active {
+  border-color: var(--dnd-red-alpha-35);
+  background: #fff;
+}
+
+.crear-paso2-multiclass-item__name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: default;
+  color: var(--dnd-ink);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.crear-paso2-multiclass-item__img {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--dnd-red-alpha-25);
+  object-fit: cover;
+}
+
+.crear-paso2-multiclass-item__level {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+}
+
+.crear-paso2-multiclass-item__level label {
+  font-size: 0.75rem;
+  color: var(--dnd-red-dark);
+  font-weight: 700;
+}
+
+.crear-paso2-multiclass-item__level select {
+  min-width: 4.2rem;
+  min-height: 1.8rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-xs);
+  background: #fff;
+  font-size: 0.78rem;
+}
+
+.crear-paso2-multiclass-item__level-select {
+  padding: 0.2rem 1.5rem 0.2rem 0.45rem;
+  color: var(--dnd-ink);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.crear-paso2-multiclass-item__level-select:focus {
+  outline: none;
+  border-color: var(--dnd-red);
+  box-shadow: 0 0 0 2px var(--dnd-red-alpha-15);
+}
+
+.crear-paso2-multiclass-item__delete {
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid var(--dnd-red-dark);
+  border-radius: 999px;
+  background: var(--dnd-red);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.crear-paso2-multiclass-item__delete:hover {
+  border-color: var(--dnd-red-dark);
+  background: var(--dnd-red-dark);
+}
+
+.crear-paso2-class-section {
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  padding: 0.45rem;
+}
+
+.crear-paso2-class-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.crear-paso2-class-section__title {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso2-class-section__controls {
+  display: flex;
+  align-items: end;
+  gap: 0.45rem;
+}
+
+.crear-paso2-class-section__level {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.crear-paso2-class-section__level label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.crear-paso2-class-section__level select {
+  min-width: 4.2rem;
+  min-height: 1.75rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-xs);
+  background: #fff;
+  font-size: 0.78rem;
+}
+
+.crear-paso2-class-section__toggle {
+  padding: 0.28rem 0.55rem;
+  font-size: 0.74rem;
+}
+
+.crear-paso2-class-section .crear-paso2-card-list {
+  margin-top: 0.45rem;
+}
+
+.crear-paso2-panel__actions .btn.is-active {
+  background: var(--dnd-red);
+  border-color: var(--dnd-red-dark);
+  color: #fff;
+}
+
+.crear-paso2-panel__bottom-actions {
+  margin-top: 0.55rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.crear-paso2-panel__bottom-actions .btn {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+}
+
+.crear-paso2-panel__title-select {
+  width: auto;
+  min-width: 10rem;
+  max-width: 17rem;
+  min-height: 2.1rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--dnd-ink);
+  font-size: 0.84rem;
+}
+
+.crear-paso2-native-select {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.crear-paso2-class-picker {
+  margin-top: 0.5rem;
+  margin-bottom: 0.2rem;
+  padding: 0.55rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.crear-paso2-class-picker__list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.crear-paso2-dropdown {
+  position: relative;
+}
+
+.crear-paso2-dropdown__trigger {
+  width: auto;
+  min-width: 12rem;
+  max-width: 18rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--dnd-ink);
+  display: grid;
+  grid-template-columns: 1.65rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.crear-paso2-panel__sub-control .crear-paso2-panel__title-select {
+  min-width: 12rem;
+  max-width: 18rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0.3rem 0.45rem;
+  box-sizing: border-box;
+}
+
+.crear-paso2-dropdown__trigger[aria-expanded='true'] {
+  border-color: var(--dnd-red);
+  box-shadow: 0 2px 8px rgba(26, 21, 18, 0.1);
+}
+
+.crear-paso2-dropdown__img {
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: var(--radius-xs);
+  object-fit: cover;
+  border: 1px solid var(--dnd-red-alpha-25);
+}
+
+.crear-paso2-dropdown__text {
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.crear-paso2-dropdown__menu {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 40;
+  width: min(20rem, 85vw);
+  max-height: 16rem;
+  overflow-y: auto;
+  padding: 0.35rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(26, 21, 18, 0.15);
+}
+
+.crear-paso2-dropdown__option {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: #fff;
+  padding: 0.28rem 0.3rem;
+  display: grid;
+  grid-template-columns: 1.55rem minmax(0, 1fr);
+  gap: 0.42rem;
+  align-items: center;
+  cursor: pointer;
+  text-align: left;
+}
+
+.crear-paso2-dropdown__option:hover {
+  border-color: var(--dnd-red-alpha-35);
+  background: rgba(151, 18, 62, 0.05);
+}
+
+.crear-paso2-dropdown__option-img {
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: var(--radius-xs);
+  object-fit: cover;
+  border: 1px solid var(--dnd-red-alpha-25);
+}
+
+.crear-paso2-dropdown__option-text {
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.crear-paso2-card-list {
+  margin-top: 0.6rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.crear-paso2-card-list[hidden] {
+  display: none;
+}
+
+.crear-paso2-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  padding: 0.45rem 0.55rem;
+  display: grid;
+  gap: 0.22rem;
+  color: var(--dnd-ink);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.crear-paso2-card:hover {
+  border-color: var(--dnd-red);
+}
+
+.crear-paso2-card.is-open {
+  background: #fff;
+  border-color: var(--dnd-red);
+  box-shadow: 0 2px 9px rgba(26, 21, 18, 0.09);
+}
+
+.crear-paso2-card__title {
+  font-weight: 700;
+  font-size: 0.84rem;
+  line-height: 1.2;
+}
+
+.crear-paso2-drawer__toggle {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  cursor: pointer;
+}
+
+.crear-paso2-drawer__toggle::after {
+  content: "v";
+  font-size: 0.86rem;
+  color: var(--dnd-red-dark);
+  transition: transform 0.15s ease;
+}
+
+.crear-paso2-drawer__toggle[aria-expanded="true"]::after {
+  transform: rotate(180deg);
+}
+
+.crear-paso2-card__pending {
+  color: #c21f2f;
+  font-weight: 900;
+}
+
+.crear-paso2-card.is-pending {
+  border-color: rgba(194, 31, 47, 0.65);
+}
+
+.crear-paso2-card__detail {
+  font-size: 0.79rem;
+  line-height: 1.35;
+  white-space: pre-line;
+}
+
+.crear-paso2-card__detail.is-html {
+  white-space: normal;
+}
+
+
+.crear-paso2-card__detail p:last-child {
+  margin-bottom: 0;
+}
+
+.crear-paso2-ancestor-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.45rem 0;
+  font-size: 0.76rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+}
+
+.crear-paso2-ancestor-table th,
+.crear-paso2-ancestor-table td {
+  border: 1px solid var(--dnd-red-alpha-25);
+  padding: 0.3rem 0.35rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.crear-paso2-ancestor-table th {
+  background: rgba(170, 30, 30, 0.08);
+  color: var(--dnd-red-dark);
+  font-weight: 700;
+}
+
+.crear-paso2-ancestor-table tbody tr:nth-child(odd) {
+  background: rgba(170, 30, 30, 0.05);
+}
+
+.crear-paso2-ancestor-table tbody tr:nth-child(even) {
+  background: #fff;
+}
+
+.crear-paso2-ancestor-label {
+  display: block;
+  margin: 0.08rem 0 0.05rem;
+  font-weight: 700;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso2-ancestor-choice-row {
+  display: grid;
+  gap: 0.06rem;
+  margin: 0 0 0.16rem;
+}
+
+.crear-paso2-ancestor-choice-row:last-child {
+  margin-bottom: 0;
+}
+
+.crear-paso2-card__detail .crear-paso2-panel__title-select {
+  max-width: 15rem;
+  min-height: 1.8rem;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+}
+
+.crear-paso2-empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #5a4c45;
+}
+
+@media (max-width: 900px) {
+  .crear-paso2-overview {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .crear-paso2-vitals-card {
+    max-width: 100%;
+  }
+
+  .crear-paso2-dropdown__trigger {
+    min-width: 10rem;
+    max-width: 100%;
+  }
+
+  .crear-paso2-dropdown__menu {
+    width: min(19rem, 92vw);
+  }
+
+  .crear-paso2-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.crear-paso3-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.85rem;
+}
+
+.crear-paso4-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.crear-paso4-card {
+  min-height: 15rem;
+}
+
+.crear-paso4-card__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso4-card__body {
+  display: grid;
+  gap: 0.34rem;
+}
+
+.crear-paso4-line {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--dnd-ink);
+}
+
+.crear-paso4-attr-list {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.crear-paso4-attr-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.16rem 0;
+  border-bottom: 1px solid var(--dnd-red-alpha-12);
+  font-size: 0.88rem;
+}
+
+.crear-paso4-attr-item strong {
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso4-muted {
+  margin: 0;
+  color: var(--dnd-muted);
+  font-size: 0.85rem;
+}
+
+.crear-paso4-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.crear-paso4-table th,
+.crear-paso4-table td {
+  padding: 0.28rem 0.32rem;
+  border-bottom: 1px solid var(--dnd-red-alpha-12);
+  vertical-align: top;
+  text-align: left;
+}
+
+.crear-paso4-table th {
+  width: 28%;
+  color: var(--dnd-red-dark);
+  font-weight: 700;
+}
+
+.crear-paso3-card {
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.75rem;
+}
+
+.crear-paso3-card__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso3-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.5rem;
+}
+
+.crear-paso3-method-btn {
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--dnd-ink);
+  font: inherit;
+  font-size: 0.8rem;
+  line-height: 1.1;
+  padding: 0.35rem 0.58rem;
+  cursor: pointer;
+}
+
+.crear-paso3-method-btn.is-active {
+  border-color: var(--dnd-red-dark);
+  color: var(--dnd-red-dark);
+  background: rgba(170, 30, 30, 0.08);
+}
+
+.crear-paso3-point-summary {
+  margin: 0 0 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso3-bonus-summary {
+  margin: 0 0 0.55rem;
+  font-size: 0.8rem;
+  color: var(--dnd-ink);
+  white-space: pre-line;
+}
+
+.crear-paso3-bonus-head {
+  margin: 0 0 0.35rem;
+  border: 1px solid transparent;
+  padding: 0.35rem 0.45rem;
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) auto 1.8rem 1.5rem;
+  grid-template-rows: auto auto;
+  align-items: end;
+  column-gap: 0.6rem;
+  row-gap: 0.1rem;
+}
+
+.crear-paso3-bonus-head__spacer {
+  display: block;
+  grid-row: 1 / span 2;
+}
+
+.crear-paso3-bonus-head__label {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: center;
+  font-size: 0.78rem;
+  color: var(--dnd-ink);
+}
+
+.crear-paso3-bonus-head__values {
+  grid-column: 3;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: 1.8rem 1.8rem;
+  gap: 0.45rem;
+}
+
+.crear-paso3-bonus-head__value {
+  justify-self: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso3-attributes-list {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.crear-paso3-attr-row {
+  border: 1px solid var(--dnd-red-alpha-25);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.45rem;
+  display: grid;
+  grid-template-columns: minmax(6rem, 1fr) 12rem auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.crear-paso3-attr-row__name {
+  margin: 0;
+  font-weight: 700;
+  color: var(--dnd-ink);
+}
+
+.crear-paso3-attr-row__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  justify-self: end;
+}
+
+.crear-paso3-attr-btn {
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--dnd-red-dark);
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.crear-paso3-attr-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.crear-paso3-attr-values {
+  min-width: 7.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.32rem;
+  font-size: 0.83rem;
+}
+
+.crear-paso3-attr-values__base {
+  font-weight: 700;
+}
+
+.crear-paso3-attr-values__bonus {
+  color: var(--dnd-red-dark);
+  font-weight: 700;
+}
+
+.crear-paso3-attr-values__total {
+  min-width: 1.7rem;
+  text-align: right;
+  font-weight: 800;
+}
+
+.crear-paso3-bonus-selectors {
+  display: grid;
+  grid-template-columns: 1.8rem 1.8rem;
+  gap: 0.45rem;
+  justify-items: center;
+}
+
+.crear-paso3-bonus-box {
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: 2px;
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+}
+
+.crear-paso3-bonus-box.is-checked::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: var(--dnd-red-dark);
+}
+
+.crear-paso3-bonus-box:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.crear-paso3-field {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.crear-paso3-field label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--dnd-red-dark);
+}
+
+.crear-paso3-select {
+  width: 100%;
+  min-height: 2.1rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--dnd-ink);
+  padding: 0.35rem 0.5rem;
+  font: inherit;
+  line-height: 1.2;
+}
+
+.crear-paso3-select:focus-visible {
+  outline: 2px solid var(--dnd-red-alpha-35);
+  outline-offset: 1px;
+}
+
+.crear-personaje-trait-detail .crear-paso3-field {
+  margin-top: 0.35rem;
+}
+
+.crear-personaje-trait-detail .crear-paso3-field label {
+  font-size: 0.76rem;
+  color: var(--dnd-red-dark);
+}
+
+.crear-personaje-trait-detail .crear-paso3-select {
+  min-height: 1.95rem;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.crear-paso3-background-desc {
+  margin: 0.55rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--dnd-ink);
+}
+
+.crear-paso3-extra-grid {
+  margin-top: 0.85rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.crear-paso3-card--equal {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  gap: 0.45rem;
+}
+
+.crear-paso3-field--grow {
+  flex: 1;
+}
+
+.crear-paso3-drawer__toggle {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  cursor: pointer;
+}
+
+.crear-paso3-drawer__toggle::after {
+  content: "v";
+  font-size: 0.9rem;
+  color: var(--dnd-red-dark);
+  transition: transform 0.15s ease;
+}
+
+.crear-paso3-drawer__toggle[aria-expanded="true"]::after {
+  transform: rotate(180deg);
+}
+
+.crear-paso3-drawer__body {
+  margin-top: 0.15rem;
+}
+
+.crear-paso3-input-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
+}
+
+.crear-paso3-field--compact {
+  gap: 0.16rem;
+}
+
+.crear-paso3-textarea {
+  width: 100%;
+  min-height: 5.6rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--dnd-ink);
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+  resize: vertical;
+}
+
+.crear-paso3-textarea--auto {
+  min-height: 4.4rem;
+  resize: none;
+  overflow: hidden;
+}
+
+.crear-paso3-card--equal .crear-paso3-field--grow .crear-paso3-textarea {
+  height: calc(100% - 1.45rem);
+}
+
+.crear-paso3-input {
+  width: 100%;
+  min-height: 2rem;
+  border: 1px solid var(--dnd-red-alpha-35);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--dnd-ink);
+  padding: 0.35rem 0.5rem;
+  font: inherit;
+}
+
+@media (max-width: 900px) {
+  .crear-paso3-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .crear-paso4-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .crear-paso3-bonus-head {
+    grid-template-columns: minmax(5rem, 1fr) 12rem auto;
+  }
+
+  .crear-paso3-extra-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1541,4 +2813,94 @@
   margin: 0.15rem 0 0;
   font-size: 0.85rem;
   color: var(--dnd-muted);
+}
+
+@media (min-width: 2048px) {
+  .form-panel {
+    max-width: 40rem;
+    padding: 2.1rem;
+  }
+
+  .form-panel--wide {
+    max-width: 52rem;
+  }
+
+  .crear-personaje-panel--wide {
+    width: 72%;
+    max-width: 90rem;
+  }
+
+  .crear-personaje-card,
+  .crear-paso3-card {
+    padding: 1.35rem 1.5rem;
+  }
+
+  .crear-personaje-page-header .page-title {
+    font-size: 2.15rem;
+  }
+
+  .crear-personaje-steps-nav__item {
+    font-size: 1.02rem;
+    padding: 0.5rem 1.05rem;
+  }
+
+  /* En 2K+, mantenemos tamaños base en la tarjeta de atributos
+     para que no se rompa la alineación de números (+2/+1 y valores). */
+  .crear-paso3-bonus-head__label {
+    font-size: 0.78rem;
+  }
+
+  .crear-paso3-bonus-head__value {
+    font-size: 0.76rem;
+  }
+
+  .crear-paso3-attr-values {
+    font-size: 0.83rem;
+  }
+
+  .crear-paso3-bonus-selectors,
+  .crear-paso3-bonus-head__values {
+    grid-template-columns: 1.8rem 1.8rem;
+    gap: 0.45rem;
+  }
+
+  .crear-paso3-bonus-box {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .character-grid {
+    gap: 1.65rem;
+  }
+
+  .character-card {
+    min-height: 210px;
+  }
+
+  .character-card > div:first-of-type {
+    max-width: 180px;
+    min-width: 130px;
+  }
+
+  .character-card > div:first-of-type img {
+    min-height: 180px;
+  }
+
+  .character-card > div:last-of-type {
+    padding: 1rem 1.15rem 0.95rem;
+  }
+
+  .character-card > div:last-of-type > h2 {
+    font-size: clamp(1.2rem, 1.6vw, 1.5rem);
+  }
+
+  .character-card dl {
+    font-size: 0.95rem;
+    gap: 0.35rem 0.65rem;
+  }
+
+  .character-card footer {
+    gap: 0.65rem;
+    padding-top: 0.9rem;
+  }
 }

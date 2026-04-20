@@ -27,6 +27,10 @@ const Personaje = sequelize.define('Personaje', {
     type: DataTypes.STRING,
     defaultValue: '/images/personajesDefecto/imagenPorDefecto.avif'
   },
+  ascendencia_draconida: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   RazaId: {
     type: DataTypes.INTEGER,
     references: { model: 'Raza', key: 'id' }
@@ -61,7 +65,8 @@ const Personaje = sequelize.define('Personaje', {
         'Atributo',
         'Feats',
         'Hechizos',
-        'Competencia'
+        'Competencia',
+        'Objetos'
       ]
     }
   }

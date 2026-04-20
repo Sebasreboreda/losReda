@@ -28,6 +28,10 @@ const Competencia = sequelize.define("Competencia", {
 
     atributo: {
         type: DataTypes.STRING
+    },
+
+    categoria: {
+        type: DataTypes.STRING
     }
     /*
     Solo para habilidades:

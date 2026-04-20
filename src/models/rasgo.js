@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
-const Subraza = sequelize.define('Subraza', {
+const Rasgo = sequelize.define('Rasgo', {
   nombre: {
     type: DataTypes.STRING,
     allowNull: false
@@ -14,24 +14,16 @@ const Subraza = sequelize.define('Subraza', {
   descripcion: {
     type: DataTypes.TEXT
   },
-  bonuses: {
+  modificadores: {
     type: DataTypes.JSON
   },
-  rasgos: {
-    type: DataTypes.JSON
-  },
-  idiomas: {
-    type: DataTypes.JSON
-  },
-  RazaId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: { model: 'Raza', key: 'id' }
+  url_api: {
+    type: DataTypes.STRING
   }
 }, {
-  tableName: 'Subraza',
+  tableName: 'Rasgo',
   freezeTableName: true,
   timestamps: false
 });
 
-module.exports = Subraza;
+module.exports = Rasgo;

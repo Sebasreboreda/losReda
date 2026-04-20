@@ -10,8 +10,9 @@
   --dnd-card: #faf7f2;
   --dnd-border: rgba(139, 21, 56, 0.25);
   --header-h: 4.25rem;
-  --font-display: "Cinzel", "Palatino Linotype", serif;
-  --font-body: "Source Sans 3", "Segoe UI", sans-serif;
+  --font-display: "Cinzel", "Cinzel", "Palatino Linotype", serif;
+  --cinzel-decorative-font: "Cinzel Decorative", "Cinzel", "Palatino Linotype", serif;
+  --font-body: "Questrial", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --shadow-header: 0 2px 12px rgba(26, 21, 18, 0.12);
   --radius: 10px;
   --radius-sm: calc(var(--radius) - 4px);
@@ -69,11 +70,12 @@ body.site {
   gap: 0.65rem;
   text-decoration: none;
   color: inherit;
+  max-height: 100%;
 }
 
 .site-header__logo {
+  height: 100%;
   width: 6.35rem;
-  height: 6.35rem;
   flex-shrink: 0;
   display: block;
   object-fit: contain;
@@ -81,7 +83,7 @@ body.site {
 }
 
 .site-header__title {
-  font-family: var(--font-display);
+  font-family: var(--cinzel-decorative-font);
   font-weight: 700;
   font-size: clamp(1rem, 2.5vw, 1.35rem);
   letter-spacing: 0.04em;
@@ -136,6 +138,22 @@ body.site {
   max-width: 100%;
 }
 
+@media (min-width: 2048px) {
+  html {
+    font-size: 20px;
+  }
+
+  .site-main {
+    padding-bottom: 3rem;
+  }
+
+  .content-shell {
+    max-width: 2200px;
+    padding-left: 7%;
+    padding-right: 7%;
+  }
+}
+
 @media (max-width: 640px) {
   .content-shell {
     padding-left: 6%;
@@ -149,6 +167,9 @@ body.site {
 h1,
 h2,
 h3,
+h4,
+h5,
+h6,
 .page-title {
   font-family: var(--font-display);
   font-weight: 600;

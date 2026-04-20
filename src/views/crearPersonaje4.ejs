@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body class="site">
+  <%- include('partials/header') %>
+
+  <main class="site-main">
+    <div class="content-shell">
+      <%- include('partials/crearPersonajePageHeader', { activeStep: 4 }) %>
+
+      <div class="form-panel form-panel--wide form-panel--plain crear-personaje-panel--wide">
+        <%- include('partials/crearPersonajeImagePickerCard', { imagenesDisponibles }) %>
+
+        <section class="crear-paso4-grid" aria-label="Resumen final del personaje">
+          <article class="crear-personaje-card crear-paso4-card">
+            <h2 class="crear-paso4-card__title">Clase, subclase y linaje</h2>
+            <div id="cp4-resumen-identidad" class="crear-paso4-card__body"></div>
+          </article>
+
+          <article class="crear-personaje-card crear-paso4-card">
+            <h2 class="crear-paso4-card__title">Atributos</h2>
+            <div id="cp4-resumen-atributos" class="crear-paso4-card__body"></div>
+          </article>
+
+          <article class="crear-personaje-card crear-paso4-card">
+            <h2 class="crear-paso4-card__title">Trasfondo y detalles</h2>
+            <div id="cp4-resumen-detalles" class="crear-paso4-card__body"></div>
+          </article>
+
+          <article class="crear-personaje-card crear-paso4-card">
+            <h2 class="crear-paso4-card__title">Competencias</h2>
+            <div id="cp4-resumen-competencias" class="crear-paso4-card__body"></div>
+          </article>
+        </section>
+
+        <div class="form-actions">
+          <a href="/personajes/crear/3" class="btn btn-secondary">Anterior</a>
+          <a href="/personajes/crear/finalizar" class="btn btn-primary">Finalizar</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+  <%- include('partials/avatarPickerToggleScript') %>
+  <script id="cp4-clases-data" type="application/json"><%- JSON.stringify(clases || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp4-razas-data" type="application/json"><%- JSON.stringify(razas || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp4-subrazas-data" type="application/json"><%- JSON.stringify(subrazas || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp4-subclases-data" type="application/json"><%- JSON.stringify(subclases || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp4-trasfondos-data" type="application/json"><%- JSON.stringify(trasfondos || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp4-atributos-data" type="application/json"><%- JSON.stringify(atributos || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp4-competencias-catalogo-data" type="application/json"><%- JSON.stringify(competenciasCatalogo || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp4-textos-directos-data" type="application/json"><%- JSON.stringify(textosDirectos || {}).replace(/</g, '\\u003c') %></script>
+  <script>
+    (function () {
+      const storage = window.sessionStorage;
+      const STORAGE_SELECTION_KEY = 'crearPersonaje.seleccionPaso1';
+      const STORAGE_ATTRS_KEY = 'crearPersonaje.atributosPaso3';
+      const STORAGE_BG_KEY = 'crearPersonaje.trasfondoPaso3';
+      const STORAGE_TEXTS_KEY = 'crearPersonaje.textosPaso3';
+      const STORAGE_KNOWN_LANG_KEY = 'crearPersonaje.idiomasConocidosPaso2';
+      const STORAGE_BG_LANG_KEY = 'crearPersonaje.idiomasTrasfondoPaso3';
+
+      function parseJsonScript(id) {
+        const el = document.getElementById(id);
+        if (!el) return [];
+        try {
+          return JSON.parse(el.textContent || '[]');
+        } catch {
+          return [];
+        }
+      }
+
+      function leerStorageJson(key, fallback) {
+        try {
+          const raw = storage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function esc(txt = '') {
+        return String(txt || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function tituloDesdeSlug(slug = '') {
+        return String(slug || '')
+          .replace(/[-_]+/g, ' ')
+          .replace(/\b\w/g, (m) => m.toUpperCase())
+          .trim();
+      }
+
+      function parsearJsonFlexible(valor, fallback) {
+        if (valor == null) return fallback;
+        if (typeof valor === 'string') {
+          const s = valor.trim();
+          if (!s) return fallback;
+          if ((s.startsWith('[') && s.endsWith(']')) || (s.startsWith('{') && s.endsWith('}'))) {
+            try {
+              return JSON.parse(s);
+            } catch {
+              return fallback;
+            }
+          }
+          return fallback;
+        }
+        return valor;
+      }
+
+      function normalizarRef(item) {
+        if (!item) return '';
+        if (typeof item === 'string') return item.trim();
+        return String(item?.name || item?.nombre || item?.index || item?.slug || '').trim();
+      }
+
+      function traducirNombreProficiencia(name = '') {
+        const keyRaw = String(name || '').trim();
+        if (!keyRaw) return '';
+        const sinPrefijo = keyRaw.replace(/^(skill|saving throw|saving throws|tool|tools|instrument|instruments|language|languages|weapon|weapons|armor|armour)\s*:\s*/i, '').trim();
+        const keyLower = keyRaw.toLowerCase();
+        const sinPrefijoLower = sinPrefijo.toLowerCase();
+        const keySlug = keyLower.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const sinPrefijoSlug = sinPrefijoLower.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const fromCatalogo =
+          competenciaBySlug.get(keySlug) ||
+          competenciaBySlug.get(sinPrefijoSlug) ||
+          competenciaByNombre.get(keyLower) ||
+          competenciaByNombre.get(sinPrefijoLower);
+        if (fromCatalogo?.nombre) return String(fromCatalogo.nombre).trim();
+        const traducido =
+          (textosDirectos && (
+            textosDirectos[keyRaw] ||
+            textosDirectos[sinPrefijo] ||
+            textosDirectos[keyLower] ||
+            textosDirectos[sinPrefijoLower] ||
+            textosDirectos[keySlug] ||
+            textosDirectos[sinPrefijoSlug]
+          )) ||
+          '';
+        return String(traducido || sinPrefijo || keyRaw).trim();
+      }
+
+      function categorizarCompetencia(valor = '') {
+        const t = String(valor || '').toLowerCase();
+        if (!t) return 'otros';
+        if (t.includes('saving throw') || t.includes('saving-throw') || t.includes('salvacion') || t.includes('salvación')) return 'salvacion';
+        if (t.includes('skill') || t.includes('acrobacias') || t.includes('arcana') || t.includes('persuasion') || t.includes('persuasión')) return 'habilidad';
+        if (t.includes('armor') || t.includes('armour') || t.includes('armadura') || t.includes('shield') || t.includes('escudo')) return 'armadura';
+        if (t.includes('weapon') || t.includes('arma')) return 'arma';
+        if (t.includes('language') || t.includes('idioma')) return 'idioma';
+        if (t.includes('tool') || t.includes('kit') || t.includes('instrument') || t.includes('herramient')) return 'herramienta';
+        return 'otros';
+      }
+
+      const clases = parseJsonScript('cp4-clases-data');
+      const razas = parseJsonScript('cp4-razas-data');
+      const subrazas = parseJsonScript('cp4-subrazas-data');
+      const subclases = parseJsonScript('cp4-subclases-data');
+      const trasfondos = parseJsonScript('cp4-trasfondos-data');
+      const atributosDef = parseJsonScript('cp4-atributos-data');
+      const competenciasCatalogo = parseJsonScript('cp4-competencias-catalogo-data');
+      const textosDirectos = parseJsonScript('cp4-textos-directos-data');
+
+      const claseBySlug = new Map(clases.map((c) => [String(c?.slug || '').trim(), c]));
+      const razaBySlug = new Map(razas.map((r) => [String(r?.slug || '').trim(), r]));
+      const subrazaBySlug = new Map(subrazas.map((s) => [String(s?.slug || '').trim(), s]));
+      const subclaseBySlug = new Map(subclases.map((s) => [String(s?.slug || '').trim(), s]));
+      const trasfondoBySlug = new Map(trasfondos.map((t) => [String(t?.slug || '').trim(), t]));
+      const competenciaBySlug = new Map(
+        (Array.isArray(competenciasCatalogo) ? competenciasCatalogo : [])
+          .map((c) => [String(c?.slug || '').trim().toLowerCase(), c])
+      );
+      const competenciaByNombre = new Map(
+        (Array.isArray(competenciasCatalogo) ? competenciasCatalogo : [])
+          .map((c) => [String(c?.nombre || '').trim().toLowerCase(), c])
+      );
+
+      const seleccion = leerStorageJson(STORAGE_SELECTION_KEY, {});
+      const attrs = leerStorageJson(STORAGE_ATTRS_KEY, {});
+      const textos = leerStorageJson(STORAGE_TEXTS_KEY, {});
+      const idiomasConocidos = leerStorageJson(STORAGE_KNOWN_LANG_KEY, []);
+      const idiomasTrasfondo = leerStorageJson(STORAGE_BG_LANG_KEY, []);
+      const trasfondoSlug = String(storage.getItem(STORAGE_BG_KEY) || '').trim();
+
+      const identidadEl = document.getElementById('cp4-resumen-identidad');
+      const atributosEl = document.getElementById('cp4-resumen-atributos');
+      const detallesEl = document.getElementById('cp4-resumen-detalles');
+      const competenciasEl = document.getElementById('cp4-resumen-competencias');
+      if (!identidadEl || !atributosEl || !detallesEl || !competenciasEl) return;
+
+      const claseSlug = String(seleccion?.clase || '').trim();
+      const razaSlug = String(seleccion?.raza || '').trim();
+      const subrazaSlug = String(seleccion?.subraza || '').trim();
+      const filasClase = Array.isArray(seleccion?.multiclases) ? seleccion.multiclases : [];
+      const filaPrincipal = filasClase.find((f) => String(f?.slug || '') === claseSlug) || filasClase[0] || null;
+      const subclaseSlug = String(filaPrincipal?.subclase || '').trim();
+      const nivelTotal = filasClase.length
+        ? filasClase.reduce((acc, f) => acc + (Number(f?.nivel) || 0), 0)
+        : (Number(seleccion?.nivel) || 1);
+
+      const clase = claseBySlug.get(claseSlug);
+      const raza = razaBySlug.get(razaSlug);
+      const subraza = subrazaBySlug.get(subrazaSlug);
+      const subclase = subclaseBySlug.get(subclaseSlug);
+      const trasfondo = trasfondoBySlug.get(trasfondoSlug);
+
+      const nombreClase = String(clase?.nombre || tituloDesdeSlug(claseSlug) || '—').trim();
+      const nombreSubclase = String(subclase?.nombre || tituloDesdeSlug(subclaseSlug) || '').trim();
+      const nombreRaza = String(raza?.nombre || tituloDesdeSlug(razaSlug) || '—').trim();
+      const nombreSubraza = String(subraza?.nombre || tituloDesdeSlug(subrazaSlug) || '').trim();
+
+      identidadEl.innerHTML = `
+        <p class="crear-paso4-line"><strong>Nivel:</strong> ${esc(String(nivelTotal || 1))}</p>
+        <p class="crear-paso4-line"><strong>Clase:</strong> ${esc(nombreClase)}</p>
+        <p class="crear-paso4-line"><strong>Subclase:</strong> ${esc(nombreSubclase || 'Sin subclase')}</p>
+        <p class="crear-paso4-line"><strong>Raza:</strong> ${esc(nombreRaza)}</p>
+        <p class="crear-paso4-line"><strong>Subraza:</strong> ${esc(nombreSubraza || 'Sin subraza')}</p>
+      `;
+
+      const filasAtributos = (Array.isArray(atributosDef) ? atributosDef : []).map((a) => {
+        const campo = String(a?.campo || '').trim();
+        if (!campo) return '';
+        const nombre = String(a?.nombre || campo).trim();
+        const valor = Number(attrs?.[campo]);
+        const valorTxt = Number.isFinite(valor) ? String(valor) : '—';
+        return `<div class="crear-paso4-attr-item"><span>${esc(nombre)}</span><strong>${esc(valorTxt)}</strong></div>`;
+      }).filter(Boolean);
+      atributosEl.innerHTML = filasAtributos.length
+        ? `<div class="crear-paso4-attr-list">${filasAtributos.join('')}</div>`
+        : '<p class="crear-paso4-muted">Sin atributos definidos.</p>';
+
+      const bloquesTexto = [
+        ['Trasfondo', trasfondo?.nombre || '—'],
+        ['Alineamiento', textos?.alineamiento || '—'],
+        ['Fe', textos?.fe || '—'],
+        ['Estilo de vida', textos?.estiloVida || '—']
+      ];
+      detallesEl.innerHTML = bloquesTexto
+        .map(([k, v]) => `<p class="crear-paso4-line"><strong>${esc(k)}:</strong> ${esc(v || '—')}</p>`)
+        .join('');
+
+      const competenciasPorTipo = {
+        salvacion: new Set(),
+        habilidad: new Set(),
+        arma: new Set(),
+        armadura: new Set(),
+        herramienta: new Set(),
+        idioma: new Set(),
+        otros: new Set()
+      };
+
+      function agregarCompetencia(raw) {
+        const base = normalizarRef(raw);
+        if (!base) return;
+        const baseLower = String(base).toLowerCase();
+        if (
+          baseLower.includes('choose ') ||
+          baseLower.includes('(choose') ||
+          baseLower.includes('a elegir') ||
+          baseLower.includes('elige ')
+        ) return;
+        const nombre = traducirNombreProficiencia(base);
+        if (!nombre) return;
+        const slug = baseLower.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const fromCatalogo =
+          competenciaBySlug.get(slug) ||
+          competenciaByNombre.get(baseLower) ||
+          competenciaByNombre.get(String(nombre || '').toLowerCase());
+        const tipo = fromCatalogo?.tipo ? String(fromCatalogo.tipo).toLowerCase() : categorizarCompetencia(base);
+        if (!competenciasPorTipo[tipo]) competenciasPorTipo.otros.add(nombre);
+        else competenciasPorTipo[tipo].add(nombre);
+      }
+
+      const claseFijas = Array.isArray(clase?.competencia?.proficiencies) ? clase.competencia.proficiencies : [];
+      claseFijas.forEach(agregarCompetencia);
+
+      const elegidasClase = seleccion?.competencias_clase_elegidas && typeof seleccion.competencias_clase_elegidas === 'object'
+        ? Object.values(seleccion.competencias_clase_elegidas)
+        : [];
+      const elegidasRaza = seleccion?.competencias_raciales_elegidas && typeof seleccion.competencias_raciales_elegidas === 'object'
+        ? Object.values(seleccion.competencias_raciales_elegidas)
+        : [];
+      [...elegidasClase, ...elegidasRaza].forEach((v) => {
+        if (Array.isArray(v)) v.forEach(agregarCompetencia);
+        else agregarCompetencia(v);
+      });
+
+      const compTrasfondoRaw = parsearJsonFlexible(trasfondo?.competencias, {});
+      if (Array.isArray(compTrasfondoRaw)) compTrasfondoRaw.forEach(agregarCompetencia);
+      if (compTrasfondoRaw && typeof compTrasfondoRaw === 'object') {
+        const skillsFijas = Array.isArray(compTrasfondoRaw?.skills?.fixed) ? compTrasfondoRaw.skills.fixed : [];
+        const tools = Array.isArray(compTrasfondoRaw?.tools || compTrasfondoRaw?.tool_proficiencies)
+          ? (compTrasfondoRaw.tools || compTrasfondoRaw.tool_proficiencies)
+          : [];
+        skillsFijas.forEach(agregarCompetencia);
+        tools.forEach(agregarCompetencia);
+      }
+
+      if (Array.isArray(idiomasConocidos)) idiomasConocidos.forEach((i) => competenciasPorTipo.idioma.add(traducirNombreProficiencia(normalizarRef(i))));
+      if (Array.isArray(idiomasTrasfondo)) idiomasTrasfondo.forEach((i) => competenciasPorTipo.idioma.add(traducirNombreProficiencia(normalizarRef(i))));
+
+      const filasCompetencias = [
+        ['Tiradas de salvación', [...competenciasPorTipo.salvacion]],
+        ['Habilidades', [...competenciasPorTipo.habilidad]],
+        ['Armas', [...competenciasPorTipo.arma]],
+        ['Armaduras', [...competenciasPorTipo.armadura]],
+        ['Herramientas', [...competenciasPorTipo.herramienta]],
+        ['Idiomas', [...competenciasPorTipo.idioma]],
+        ['Otros', [...competenciasPorTipo.otros]]
+      ];
+
+      const filasHtml = filasCompetencias
+        .filter(([, items]) => items.length > 0)
+        .map(([tipo, items]) => `
+          <tr>
+            <th scope="row">${esc(tipo)}</th>
+            <td>${esc(items
+              .map((i) => String(i || '').trim())
+              .filter(Boolean)
+              .sort((a, b) => a.localeCompare(b, 'es'))
+              .join(', '))}</td>
+          </tr>
+        `)
+        .join('');
+
+      competenciasEl.innerHTML = filasHtml
+        ? `<table class="crear-paso4-table"><tbody>${filasHtml}</tbody></table>`
+        : '<p class="crear-paso4-muted">Sin competencias registradas.</p>';
+    })();
+  </script>
+</body>
+</html>

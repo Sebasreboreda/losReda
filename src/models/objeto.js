@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
-const Subraza = sequelize.define('Subraza', {
+const Objeto = sequelize.define('Objeto', {
   nombre: {
     type: DataTypes.STRING,
     allowNull: false
@@ -11,27 +11,21 @@ const Subraza = sequelize.define('Subraza', {
     allowNull: false,
     unique: true
   },
+  tipo: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'otro'
+  },
   descripcion: {
     type: DataTypes.TEXT
   },
-  bonuses: {
+  estadisticas: {
     type: DataTypes.JSON
-  },
-  rasgos: {
-    type: DataTypes.JSON
-  },
-  idiomas: {
-    type: DataTypes.JSON
-  },
-  RazaId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: { model: 'Raza', key: 'id' }
   }
 }, {
-  tableName: 'Subraza',
+  tableName: 'Objeto',
   freezeTableName: true,
   timestamps: false
 });
 
-module.exports = Subraza;
+module.exports = Objeto;

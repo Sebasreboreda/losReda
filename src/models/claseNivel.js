@@ -9,12 +9,6 @@ const ClaseNivel = sequelize.define('ClaseNivel', {
   bonus_competencia: {
     type: DataTypes.INTEGER
   },
-  mejora_puntuacion: {
-    type: DataTypes.INTEGER
-  },
-  rasgos: {
-    type: DataTypes.JSON
-  },
   lanzamiento_hechizo: {
     type: DataTypes.JSON
   },
@@ -36,4 +30,3 @@ const ClaseNivel = sequelize.define('ClaseNivel', {
 });
 
 module.exports = ClaseNivel;
-

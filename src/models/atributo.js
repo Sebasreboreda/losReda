@@ -29,6 +29,7 @@ const Atributo = sequelize.define("Atributo", {
     PersonajeId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        unique: true,
         references: { model: 'Personaje', key: 'id' }
     }
 },{

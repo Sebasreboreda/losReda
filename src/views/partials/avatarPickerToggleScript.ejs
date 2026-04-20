@@ -11,12 +11,7 @@
     const STORAGE_IMAGE_KEY = 'crearPersonaje.imagen';
     if (!trigger || !dropdown) return;
 
-    function clearDraft() {
-      localStorage.removeItem(STORAGE_NAME_KEY);
-      localStorage.removeItem(STORAGE_IMAGE_KEY);
-      if (nameInput) nameInput.value = '';
-      setPickerImage('');
-    }
+    const storage = window.sessionStorage;
 
     function setPickerImage(imageUrl) {
       if (imageUrl) {
@@ -56,19 +51,8 @@
       }
     }
 
-    const isSameOriginReferrer =
-      document.referrer && new URL(document.referrer, window.location.origin).origin === window.location.origin;
-    const referrerPath = isSameOriginReferrer
-      ? new URL(document.referrer, window.location.origin).pathname
-      : '';
-    const cameFromCreateFlow = referrerPath.startsWith('/personajes/crear');
-
-    if (!cameFromCreateFlow) {
-      clearDraft();
-    }
-
-    const savedName = localStorage.getItem(STORAGE_NAME_KEY) || '';
-    const savedImage = localStorage.getItem(STORAGE_IMAGE_KEY) || '';
+    const savedName = storage.getItem(STORAGE_NAME_KEY) || '';
+    const savedImage = storage.getItem(STORAGE_IMAGE_KEY) || '';
 
     if (nameInput && savedName) nameInput.value = savedName;
     if (savedImage) setPickerImage(savedImage);
@@ -81,14 +65,14 @@
       btn.addEventListener('click', () => {
         const imageUrl = btn.dataset.imageUrl || '';
         setPickerImage(imageUrl);
-        localStorage.setItem(STORAGE_IMAGE_KEY, imageUrl);
+        storage.setItem(STORAGE_IMAGE_KEY, imageUrl);
         toggleDropdown(false);
       });
     });
 
     if (nameInput) {
       nameInput.addEventListener('input', () => {
-        localStorage.setItem(STORAGE_NAME_KEY, nameInput.value || '');
+        storage.setItem(STORAGE_NAME_KEY, nameInput.value || '');
       });
     }
   })();

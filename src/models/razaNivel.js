@@ -37,4 +37,3 @@ const RazaNivel = sequelize.define('RazaNivel', {
 });
 
 module.exports = RazaNivel;
-

@@ -15,7 +15,13 @@ const ClaseCompetencia = sequelize.define('ClaseCompetencia', {
 }, { 
   tableName: 'ClaseCompetencia', 
   freezeTableName: true, 
-  timestamps: false
+  timestamps: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['ClaseId', 'CompetenciaId']
+    }
+  ]
 }); 
  
 module.exports = ClaseCompetencia;

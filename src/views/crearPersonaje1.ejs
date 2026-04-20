@@ -17,8 +17,8 @@
       <div class="crear-personaje-grid-shell">
         <div class="crear-personaje-two-col-wrap crear-personaje-two-col--wide">
           <aside id="panel-clase-seleccion" class="crear-personaje-side-panel crear-personaje-side-panel--left is-collapsed" aria-hidden="true">
-            <p class="crear-personaje-side-panel__title">Clase</p>
-            <p class="crear-personaje-side-panel__value" id="panel-clase-seleccion-value"></p>
+            <p class="crear-personaje-side-panel__title" id="panel-clase-seleccion-title">Clase</p>
+            <div class="crear-personaje-side-panel__meta" id="panel-clase-seleccion-meta"></div>
           </aside>
 
           <div class="crear-personaje-two-col">
@@ -63,8 +63,8 @@
           </div>
 
           <aside id="panel-raza-seleccion" class="crear-personaje-side-panel crear-personaje-side-panel--right is-collapsed" aria-hidden="true">
-            <p class="crear-personaje-side-panel__title">Raza</p>
-            <p class="crear-personaje-side-panel__value" id="panel-raza-seleccion-value"></p>
+            <p class="crear-personaje-side-panel__title" id="panel-raza-seleccion-title">Raza</p>
+            <div class="crear-personaje-side-panel__meta" id="panel-raza-seleccion-meta"></div>
             <div id="panel-subraza-wrap" class="crear-personaje-subraza-wrap" hidden>
               <p class="crear-personaje-side-panel__title crear-personaje-side-panel__title--sub">Subraza</p>
               <div class="crear-personaje-subraza-list" role="list">
@@ -82,6 +82,7 @@
                   </button>
                 <% }); %>
               </div>
+              <div class="crear-personaje-side-panel__meta" id="panel-subraza-seleccion-meta"></div>
             </div>
           </aside>
         </div>
@@ -96,30 +97,163 @@
 
   <%- include('partials/footer') %>
   <%- include('partials/avatarPickerToggleScript') %>
+  <script id="cp1-clases-data" type="application/json"><%- JSON.stringify(clases).replace(/</g, '\\u003c') %></script>
+  <script id="cp1-razas-data" type="application/json"><%- JSON.stringify(razas).replace(/</g, '\\u003c') %></script>
+  <script id="cp1-subrazas-data" type="application/json"><%- JSON.stringify(subrazas).replace(/</g, '\\u003c') %></script>
+  <script id="cp1-textos-directos-data" type="application/json"><%- JSON.stringify(textosDirectos || {}).replace(/</g, '\\u003c') %></script>
   <script>
     (function () {
       const STORAGE_KEY = 'crearPersonaje.seleccionPaso1';
+      const storage = window.sessionStorage;
       const items = Array.from(document.querySelectorAll('.crear-personaje-catalog-item[data-catalog-type][data-catalog-slug]'));
       const subrazaItems = Array.from(document.querySelectorAll('.crear-personaje-subraza-item[data-subraza-raza-id][data-subraza-slug]'));
       if (!items.length) return;
 
+      function parseJsonScript(id) {
+        const el = document.getElementById(id);
+        if (!el) return [];
+        try {
+          return JSON.parse(el.textContent || '[]');
+        } catch {
+          return [];
+        }
+      }
+
+      const clasesData = parseJsonScript('cp1-clases-data');
+      const razasData = parseJsonScript('cp1-razas-data');
+      const subrazasData = parseJsonScript('cp1-subrazas-data');
+      const textosDirectos = parseJsonScript('cp1-textos-directos-data');
+      const claseBySlug = new Map(clasesData.map((c) => [c.slug, c]));
+      const razaBySlug = new Map(razasData.map((r) => [r.slug, r]));
+      const subrazaBySlug = new Map(subrazasData.map((s) => [s.slug, s]));
+
       let seleccion = {};
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = storage.getItem(STORAGE_KEY);
         seleccion = raw ? JSON.parse(raw) : {};
       } catch {
         seleccion = {};
       }
 
+      function obtenerEstadoInfoActiva() {
+        const actual = seleccion?.infoActivaPaso1;
+        if (actual && typeof actual === 'object' && !Array.isArray(actual)) return actual;
+        seleccion.infoActivaPaso1 = {};
+        return seleccion.infoActivaPaso1;
+      }
+
+      function keyFila(kind, label = '') {
+        return `${String(kind || '').trim()}|${String(label || '').trim()}`;
+      }
+
+      function obtenerActivoGuardado(panelKey, kind, label) {
+        const estado = obtenerEstadoInfoActiva();
+        const panel = estado?.[panelKey];
+        if (!panel || typeof panel !== 'object') return '';
+        return String(panel[keyFila(kind, label)] || '').trim();
+      }
+
+      function guardarActivo(panelKey, kind, label, nombreActivo = '') {
+        const estado = obtenerEstadoInfoActiva();
+        if (!estado[panelKey] || typeof estado[panelKey] !== 'object') {
+          estado[panelKey] = {};
+        }
+        const key = keyFila(kind, label);
+        const valor = String(nombreActivo || '').trim();
+        if (valor) estado[panelKey][key] = valor;
+        else delete estado[panelKey][key];
+        seleccion.infoActivaPaso1 = estado;
+      }
+
       function render() {
         const panelClase = document.getElementById('panel-clase-seleccion');
         const panelRaza = document.getElementById('panel-raza-seleccion');
-        const panelClaseValue = document.getElementById('panel-clase-seleccion-value');
-        const panelRazaValue = document.getElementById('panel-raza-seleccion-value');
+        const panelClaseTitle = document.getElementById('panel-clase-seleccion-title');
+        const panelRazaTitle = document.getElementById('panel-raza-seleccion-title');
+        const panelClaseMeta = document.getElementById('panel-clase-seleccion-meta');
+        const panelRazaMeta = document.getElementById('panel-raza-seleccion-meta');
         const panelSubrazaWrap = document.getElementById('panel-subraza-wrap');
+        const panelSubrazaMeta = document.getElementById('panel-subraza-seleccion-meta');
+        const twoColWrap = document.querySelector('.crear-personaje-two-col-wrap');
         let nombreClase = '';
         let nombreRaza = '';
+        let slugClase = '';
+        let slugRaza = '';
         let razaIdSeleccionada = '';
+        let claseActivaEl = null;
+        let razaActivaEl = null;
+        const esMovilInfoInline = window.matchMedia('(max-width: 750px)').matches;
+        const actualizarPosicionPaneles = () => {
+          if (esMovilInfoInline) return;
+          if (panelClase && !panelClase.classList.contains('is-collapsed')) {
+            posicionarPanelSegunSeleccion(panelClase, claseActivaEl);
+          }
+          if (panelRaza && !panelRaza.classList.contains('is-collapsed')) {
+            posicionarPanelSegunSeleccion(panelRaza, razaActivaEl);
+          }
+        };
+
+        function obtenerPanelClaseInline() {
+          let panel = document.getElementById('panel-clase-seleccion-inline');
+          if (panel) return panel;
+          panel = document.createElement('aside');
+          panel.id = 'panel-clase-seleccion-inline';
+          panel.className = 'crear-personaje-side-panel crear-personaje-inline-panel';
+          panel.innerHTML = `
+            <p class="crear-personaje-side-panel__title" id="panel-clase-seleccion-inline-title">Clase</p>
+            <div class="crear-personaje-side-panel__meta" id="panel-clase-seleccion-inline-meta"></div>
+          `;
+          return panel;
+        }
+
+        function obtenerPanelRazaInline() {
+          let panel = document.getElementById('panel-raza-seleccion-inline');
+          if (panel) return panel;
+          panel = document.createElement('aside');
+          panel.id = 'panel-raza-seleccion-inline';
+          panel.className = 'crear-personaje-side-panel crear-personaje-inline-panel';
+          panel.innerHTML = `
+            <p class="crear-personaje-side-panel__title" id="panel-raza-seleccion-inline-title">Raza</p>
+            <div class="crear-personaje-side-panel__meta" id="panel-raza-seleccion-inline-meta"></div>
+          `;
+          return panel;
+        }
+
+        function posicionarPanelSegunSeleccion(panel, itemActivo) {
+          if (!panel) return;
+          if (window.matchMedia('(max-width: 750px)').matches) {
+            panel.style.marginTop = '';
+            return;
+          }
+          if (!itemActivo || !twoColWrap) {
+            panel.style.marginTop = '';
+            return;
+          }
+          const contenedorTarjeta = itemActivo.closest('.crear-personaje-card');
+          const baseRect = contenedorTarjeta
+            ? contenedorTarjeta.getBoundingClientRect()
+            : twoColWrap.getBoundingClientRect();
+          const itemRect = itemActivo.getBoundingClientRect();
+          let topRelativo = Math.max(0, itemRect.top - baseRect.top);
+          const panelHeight = panel.getBoundingClientRect().height || panel.offsetHeight || 0;
+          const listaTarjetas = contenedorTarjeta
+            ? Array.from(contenedorTarjeta.querySelectorAll('.crear-personaje-catalog-item:not([hidden])'))
+            : [];
+          const ultimaTarjeta = listaTarjetas.length ? listaTarjetas[listaTarjetas.length - 1] : null;
+
+          if (ultimaTarjeta) {
+            const ultimaRect = ultimaTarjeta.getBoundingClientRect();
+            const limiteInferior = Math.max(0, ultimaRect.bottom - baseRect.top);
+            if (panelHeight > 0 && topRelativo + panelHeight > limiteInferior) {
+              // Si el panel se pasa por abajo, alinear su parte inferior
+              // con la parte inferior de la última tarjeta visible.
+              const topAlineadoInferior = Math.max(0, limiteInferior - panelHeight);
+              topRelativo = topAlineadoInferior;
+            }
+          }
+
+          panel.style.marginTop = `${Math.max(0, topRelativo)}px`;
+        }
 
         items.forEach((item) => {
           const type = item.dataset.catalogType;
@@ -128,11 +262,18 @@
           item.classList.toggle('is-active', isActive);
           item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
           if (isActive) {
-            const nombre = item.querySelector('h3')?.textContent?.trim() || '';
-            if (type === 'clase') nombreClase = nombre;
+            if (type === 'clase') {
+              const claseData = claseBySlug.get(slug);
+              nombreClase = claseData?.nombre || item.querySelector('h3')?.textContent?.trim() || '';
+              slugClase = slug;
+              claseActivaEl = item;
+            }
             if (type === 'raza') {
-              nombreRaza = nombre;
+              const razaData = razaBySlug.get(slug);
+              nombreRaza = razaData?.nombre || item.querySelector('h3')?.textContent?.trim() || '';
+              slugRaza = slug;
               razaIdSeleccionada = item.dataset.catalogId || '';
+              razaActivaEl = item;
             }
           }
         });
@@ -148,27 +289,89 @@
           delete seleccion.subraza;
         }
 
-        if (panelClase && panelClaseValue) {
-          if (nombreClase) {
-            panelClaseValue.textContent = nombreClase;
-            panelClase.classList.remove('is-collapsed');
-            panelClase.setAttribute('aria-hidden', 'false');
-          } else {
-            panelClaseValue.textContent = '';
+        if (panelClase) {
+          if (esMovilInfoInline) {
             panelClase.classList.add('is-collapsed');
             panelClase.setAttribute('aria-hidden', 'true');
+            panelClase.style.marginTop = '';
+          } else {
+            const panelInline = document.getElementById('panel-clase-seleccion-inline');
+            if (panelInline) panelInline.remove();
+          }
+
+          if (nombreClase) {
+            const filasClase = extraerFilasClase(claseBySlug.get(slugClase));
+            if (esMovilInfoInline && claseActivaEl) {
+              const panelInline = obtenerPanelClaseInline();
+              const panelInlineTitle = panelInline.querySelector('#panel-clase-seleccion-inline-title');
+              const panelInlineMeta = panelInline.querySelector('#panel-clase-seleccion-inline-meta');
+              if (panelInlineTitle) panelInlineTitle.textContent = nombreClase;
+              if (panelInlineMeta) renderMeta(panelInlineMeta, filasClase, null, 'clase');
+              claseActivaEl.insertAdjacentElement('afterend', panelInline);
+            } else {
+              if (panelClaseTitle) panelClaseTitle.textContent = nombreClase;
+              panelClase.classList.remove('is-collapsed');
+              panelClase.setAttribute('aria-hidden', 'false');
+              renderMeta(
+                panelClaseMeta,
+                filasClase,
+                actualizarPosicionPaneles,
+                'clase'
+              );
+            }
+          } else {
+            const panelInline = document.getElementById('panel-clase-seleccion-inline');
+            if (panelInline) panelInline.remove();
+            if (!esMovilInfoInline) {
+              if (panelClaseTitle) panelClaseTitle.textContent = 'Clase';
+              panelClase.classList.add('is-collapsed');
+              panelClase.setAttribute('aria-hidden', 'true');
+              panelClase.style.marginTop = '';
+              if (panelClaseMeta) panelClaseMeta.innerHTML = '';
+            }
           }
         }
 
-        if (panelRaza && panelRazaValue) {
-          if (nombreRaza) {
-            panelRazaValue.textContent = nombreRaza;
-            panelRaza.classList.remove('is-collapsed');
-            panelRaza.setAttribute('aria-hidden', 'false');
-          } else {
-            panelRazaValue.textContent = '';
+        if (panelRaza) {
+          if (esMovilInfoInline) {
             panelRaza.classList.add('is-collapsed');
             panelRaza.setAttribute('aria-hidden', 'true');
+            panelRaza.style.marginTop = '';
+          } else {
+            const panelInlineRaza = document.getElementById('panel-raza-seleccion-inline');
+            if (panelInlineRaza) panelInlineRaza.remove();
+          }
+
+          if (nombreRaza) {
+            const filasRaza = extraerFilasRaza(razaBySlug.get(slugRaza));
+            if (esMovilInfoInline && razaActivaEl) {
+              const panelInlineRaza = obtenerPanelRazaInline();
+              const panelInlineRazaTitle = panelInlineRaza.querySelector('#panel-raza-seleccion-inline-title');
+              const panelInlineRazaMeta = panelInlineRaza.querySelector('#panel-raza-seleccion-inline-meta');
+              if (panelInlineRazaTitle) panelInlineRazaTitle.textContent = nombreRaza;
+              if (panelInlineRazaMeta) renderMeta(panelInlineRazaMeta, filasRaza, null, 'raza');
+              razaActivaEl.insertAdjacentElement('afterend', panelInlineRaza);
+            } else {
+              if (panelRazaTitle) panelRazaTitle.textContent = nombreRaza;
+              panelRaza.classList.remove('is-collapsed');
+              panelRaza.setAttribute('aria-hidden', 'false');
+              renderMeta(
+                panelRazaMeta,
+                filasRaza,
+                actualizarPosicionPaneles,
+                'raza'
+              );
+            }
+          } else {
+            const panelInlineRaza = document.getElementById('panel-raza-seleccion-inline');
+            if (panelInlineRaza) panelInlineRaza.remove();
+            if (!esMovilInfoInline) {
+              if (panelRazaTitle) panelRazaTitle.textContent = 'Raza';
+              panelRaza.classList.add('is-collapsed');
+              panelRaza.setAttribute('aria-hidden', 'true');
+              panelRaza.style.marginTop = '';
+              if (panelRazaMeta) panelRazaMeta.innerHTML = '';
+            }
           }
         }
 
@@ -187,7 +390,553 @@
           item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         });
 
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(seleccion));
+        if (panelSubrazaMeta) {
+          const subrazaActiva = seleccion.subraza ? subrazaBySlug.get(seleccion.subraza) : null;
+          if (subrazaActiva) {
+            renderMeta(
+              panelSubrazaMeta,
+              extraerFilasSubraza(subrazaActiva),
+              actualizarPosicionPaneles,
+              'subraza'
+            );
+          } else {
+            panelSubrazaMeta.innerHTML = '';
+          }
+        }
+
+        actualizarPosicionPaneles();
+
+        storage.setItem(STORAGE_KEY, JSON.stringify(seleccion));
+      }
+
+      function traducirTextoDirecto(valor = '') {
+        const key = String(valor || '').trim();
+        return (textosDirectos && textosDirectos[key]) || key;
+      }
+
+      function traducirNombreProficiencia(name = '') {
+        return traducirTextoDirecto(name);
+      }
+
+      function categoriaCompetencia(item) {
+        const idx = String(item?.index || '').toLowerCase();
+        const name = String(item?.name || '').toLowerCase();
+        const texto = `${idx} ${name}`;
+        if (idx.includes('saving-throw')) return 'Tiradas de salvación';
+        if (idx.includes('armor') || idx === 'shields') return 'Armaduras';
+        if (idx.includes('tool') || idx.includes('kit') || idx.includes('instrument')) return 'Herramientas';
+        if (
+          texto.includes('weapon') ||
+          texto.includes('sword') ||
+          texto.includes('bow') ||
+          texto.includes('crossbow') ||
+          texto.includes('dagger') ||
+          texto.includes('mace') ||
+          texto.includes('spear') ||
+          texto.includes('club') ||
+          texto.includes('staff') ||
+          texto.includes('sling') ||
+          texto.includes('javelin') ||
+          texto.includes('scimitar') ||
+          texto.includes('darts') ||
+          texto.includes('rapier') ||
+          texto.includes('sickle')
+        ) return 'Armas';
+        return 'Otros';
+      }
+
+      function formatearCompetencias(valor) {
+        let data = valor;
+        if (typeof data === 'string') {
+          const s = data.trim();
+          if ((s.startsWith('{') && s.endsWith('}')) || (s.startsWith('[') && s.endsWith(']'))) {
+            try { data = JSON.parse(s); } catch { return s; }
+          } else {
+            return s;
+          }
+        }
+
+        const profs = Array.isArray(data?.proficiencies) ? data.proficiencies : [];
+        if (!profs.length) return formatearValor(data);
+
+        const grupos = new Map();
+        profs.forEach((p) => {
+          const cat = categoriaCompetencia(p);
+          const nombre = traducirNombreProficiencia(String(p?.name || p?.index || ''));
+          if (!nombre) return;
+          if (!grupos.has(cat)) grupos.set(cat, []);
+          grupos.get(cat).push(nombre);
+        });
+
+        const orden = ['Armaduras', 'Armas', 'Herramientas', 'Tiradas de salvación', 'Otros'];
+        const lineas = [];
+        orden.forEach((cat) => {
+          const vals = grupos.get(cat);
+          if (!vals || !vals.length) return;
+          lineas.push(`<strong>${cat}:</strong> ${vals.join(', ')}`);
+        });
+        return lineas.join('<br>');
+      }
+
+      function formatearValor(valor, key = '') {
+        if (key === 'competencia') return formatearCompetencias(valor);
+        if (key === 'rasgos_bd') return formatearRasgosBd(valor);
+        if (valor == null || valor === '') return '—';
+        if (typeof valor === 'string') {
+          const s = valor.trim();
+          if ((s.startsWith('[') && s.endsWith(']')) || (s.startsWith('{') && s.endsWith('}'))) {
+            try {
+              return formatearValor(JSON.parse(s));
+            } catch {
+              return s;
+            }
+          }
+          return s;
+        }
+        if (Array.isArray(valor)) {
+          if (!valor.length) return '—';
+          if (key === 'tirada_salvacion') {
+            return valor.map((item) => {
+              const n = String(item?.name || item?.index || '');
+              return traducirTextoDirecto(n.toUpperCase()) || n;
+            }).join(', ');
+          }
+          return valor.map((item) => formatearValor(item)).join(', ');
+        }
+        if (typeof valor === 'object') {
+          if ('name' in valor && valor.name) return String(valor.name);
+          if ('index' in valor && valor.index) return String(valor.index);
+          if ('ability_score' in valor && valor.ability_score && 'bonus' in valor) {
+            const ab = formatearValor(valor.ability_score);
+            return `${ab} +${valor.bonus}`;
+          }
+          const pares = Object.entries(valor).filter(([k]) => !['url'].includes(k));
+          if (!pares.length) return '—';
+          return pares.map(([k, v]) => `${k}: ${formatearValor(v)}`).join(' | ');
+        }
+        return String(valor);
+      }
+
+      function formatearRasgosBd(valor) {
+        const rasgos = Array.isArray(valor) ? valor : [];
+        if (!rasgos.length) return '—';
+
+        return rasgos
+          .map((rasgo) => {
+            const nombre = String(rasgo?.nombre || rasgo?.name || rasgo?.slug || '').trim();
+            const descripcion = String(rasgo?.descripcion || '').trim();
+            if (!nombre && !descripcion) return '';
+            if (!descripcion) return `<strong>${nombre}</strong>`;
+            return `<strong>${nombre}:</strong> ${descripcion}`;
+          })
+          .filter(Boolean)
+          .join('<br>');
+      }
+
+      function obtenerOpcionesCompetenciaClase(valor) {
+        let data = valor;
+        if (typeof data === 'string') {
+          const s = data.trim();
+          if ((s.startsWith('{') && s.endsWith('}')) || (s.startsWith('[') && s.endsWith(']'))) {
+            try {
+              data = JSON.parse(s);
+            } catch {
+              data = null;
+            }
+          }
+        }
+        const profs = Array.isArray(data?.proficiencies) ? data.proficiencies : [];
+        const grupos = new Map();
+
+        profs.forEach((p) => {
+          const nombre = traducirNombreProficiencia(String(p?.name || p?.index || '')).trim();
+          if (!nombre) return;
+          const categoria = categoriaCompetencia(p);
+          if (!grupos.has(categoria)) grupos.set(categoria, []);
+          grupos.get(categoria).push(nombre);
+        });
+
+        const armas = grupos.get('Armas') || [];
+        const armaduras = grupos.get('Armaduras') || [];
+
+        const opciones = [];
+        if (armas.length) {
+          opciones.push({
+            nombre: 'Armas',
+            descripcion: armas.join(', ')
+          });
+        }
+        if (armaduras.length) {
+          opciones.push({
+            nombre: 'Armaduras',
+            descripcion: armaduras.join(', ')
+          });
+        }
+
+        const ordenResto = ['Herramientas', 'Tiradas de salvación', 'Otros'];
+        ordenResto.forEach((cat) => {
+          const items = grupos.get(cat) || [];
+          if (!items.length) return;
+          opciones.push({
+            nombre: cat,
+            descripcion: items.join(', ')
+          });
+        });
+
+        return opciones;
+      }
+
+      function formatearLanzamientoHechizoClase(valor) {
+        let data = valor;
+        if (typeof data === 'string') {
+          const s = data.trim();
+          if ((s.startsWith('{') && s.endsWith('}')) || (s.startsWith('[') && s.endsWith(']'))) {
+            try {
+              data = JSON.parse(s);
+            } catch {
+              return s;
+            }
+          } else {
+            return s;
+          }
+        }
+        if (!data || typeof data !== 'object') return '—';
+
+        const nivel = Number(data.level);
+        const abRaw = String(data?.spellcasting_ability?.name || data?.spellcasting_ability?.index || '').toUpperCase();
+        const ab = traducirTextoDirecto(abRaw) || formatearValor(data?.spellcasting_ability);
+        const info = Array.isArray(data.info) ? data.info : [];
+
+        const lineas = [];
+        if (Number.isFinite(nivel) && nivel > 0) {
+          lineas.push(`<strong>Nivel de acceso:</strong> ${nivel}`);
+        }
+        if (ab && ab !== '—') {
+          lineas.push(`<strong>Característica para lanzar:</strong> ${ab}`);
+        }
+
+        function traducirSeccionSpellcasting(nombre = '') {
+          const n = String(nombre || '').trim().toLowerCase();
+          return (textosDirectos && textosDirectos[n]) || nombre || '';
+        }
+
+        info.slice(0, 4).forEach((bloque) => {
+          const titulo = traducirSeccionSpellcasting(bloque?.name);
+          const primera = Array.isArray(bloque?.desc) ? String(bloque.desc[0] || '').trim() : '';
+          if (!titulo && !primera) return;
+          const resumen = primera
+            ? primera.length > 260
+              ? `${primera.slice(0, 260).trim()}...`
+              : primera
+            : 'Sin detalle.';
+          lineas.push(`<strong>${titulo || 'Detalle'}:</strong> ${resumen}`);
+        });
+
+        return lineas.length ? lineas.join('<br>') : '—';
+      }
+
+      function obtenerOpcionesInfoClase(data) {
+        const opcionesBase = [];
+        const vida = construirBloqueVidaClase(data);
+        if (vida && vida !== '—') {
+          opcionesBase.push({ nombre: 'Vida', descripcion: vida });
+        }
+        const tiradas = formatearValor(data.tirada_salvacion, 'tirada_salvacion');
+        if (tiradas && tiradas !== '—') {
+          opcionesBase.push({ nombre: 'Tiradas de salvación', descripcion: tiradas });
+        }
+        const opcionesCompetencias = obtenerOpcionesCompetenciaClase(data.competencia);
+        return { opcionesBase, opcionesCompetencias };
+      }
+
+      function obtenerRasgosInteractivos(valor) {
+        const rasgos = Array.isArray(valor) ? valor : [];
+        return rasgos
+          .map((rasgo) => {
+            const nombre = String(rasgo?.nombre || rasgo?.name || rasgo?.slug || '').trim();
+            const descripcion = String(rasgo?.descripcion || '').trim();
+            if (!nombre) return null;
+            return { nombre, descripcion };
+          })
+          .filter(Boolean);
+      }
+
+      function obtenerRasgosClaseNivel1(data) {
+        const rasgos = Array.isArray(data?.rasgosNivel1) ? data.rasgosNivel1 : [];
+        return rasgos
+          .map((rasgo) => {
+            const slug = String(rasgo?.slug || '').trim();
+            const nombreOriginal = String(rasgo?.nombre || '').trim();
+            const nombre = nombreOriginal || slug;
+            const descripcion = String(rasgo?.descripcion || '').trim();
+            if (!nombre) return null;
+            return { nombre, descripcion };
+          })
+          .filter(Boolean);
+      }
+
+      function filaTieneContenido(row) {
+        if (!row) return false;
+        if (row.kind === 'trait_toggles') {
+          return Array.isArray(row.rasgos) && row.rasgos.length > 0;
+        }
+        if (row.kind === 'info_toggles') {
+          return Array.isArray(row.opciones) && row.opciones.length > 0;
+        }
+        return !!row.value && row.value !== '—';
+      }
+
+      function extraerFilasClase(data) {
+        if (!data || typeof data !== 'object') return [];
+        const { opcionesBase, opcionesCompetencias } = obtenerOpcionesInfoClase(data);
+        const rasgosNivel1 = obtenerRasgosClaseNivel1(data);
+        return [
+          { label: '', value: formatearValor(data.descripcion, 'descripcion') },
+          rasgosNivel1.length
+            ? { label: 'Características de nivel 1', kind: 'trait_toggles', rasgos: rasgosNivel1 }
+            : null,
+          opcionesBase.length
+            ? { label: 'Vida y lanzamiento', kind: 'info_toggles', opciones: opcionesBase }
+            : null,
+          opcionesCompetencias.length
+            ? { label: 'Competencias', kind: 'info_toggles', opciones: opcionesCompetencias }
+            : null
+        ].filter(filaTieneContenido);
+      }
+
+      function construirBloqueVidaClase(data) {
+        const dado = Number(data?.dado_vida);
+        if (!Number.isFinite(dado) || dado < 1) return '—';
+        const promedio = Math.floor(dado / 2) + 1;
+        const nombreClase = String(data?.nombre || 'la clase').toLowerCase();
+        return [
+          `<strong>Dado de vida:</strong> 1d${dado} por nivel de ${nombreClase}.`,
+          `<strong>Vida en nivel 1:</strong> ${dado} + tu modificador de Constitución.`,
+          `<strong>Vida en niveles superiores:</strong> 1d${dado}(o ${promedio} de valor medio) + tu modificador de Constitución por cada nivel de ${nombreClase} a partir del 2.`
+        ].join('<br>');
+      }
+
+      function extraerFilasRaza(data) {
+        if (!data || typeof data !== 'object') return [];
+        const rasgosInteractivos = obtenerRasgosInteractivos(data.rasgosDetalle);
+        const rasgosLegacy = formatearValor(data.traits, 'traits');
+        const opcionesInfo = [
+          { nombre: 'Edad', descripcion: formatearValor(data.edad, 'edad') },
+          { nombre: 'Alineamiento', descripcion: formatearValor(data.alineamiento, 'alineamiento') },
+          { nombre: 'Descripción de lenguajes', descripcion: formatearValor(data.lenguaje_desc, 'lenguaje_desc') },
+          { nombre: 'Descripción de tamaño', descripcion: formatearValor(data.tamano_desc, 'tamano_desc') },
+          { nombre: 'Velocidad', descripcion: formatearValor(data.velocidad, 'velocidad') },
+          { nombre: 'Idiomas', descripcion: formatearValor(data.idiomas, 'idiomas') },
+          { nombre: 'Bonificadores', descripcion: formatearValor(data.bonuses, 'bonuses') }
+        ].filter((item) => item.descripcion && item.descripcion !== '—');
+        return [
+          { label: '', value: formatearValor(data.descripcion, 'descripcion') },
+          opcionesInfo.length
+            ? { label: 'Información', kind: 'info_toggles', opciones: opcionesInfo }
+            : null,
+          rasgosInteractivos.length
+            ? { label: 'Rasgos', kind: 'trait_toggles', rasgos: rasgosInteractivos }
+            : { label: 'Rasgos', value: rasgosLegacy, isHtml: true }
+        ].filter(filaTieneContenido);
+      }
+
+      function extraerFilasSubraza(data) {
+        if (!data || typeof data !== 'object') return [];
+        const rasgosInteractivos = obtenerRasgosInteractivos(data.rasgosDetalle);
+        const rasgosLegacy = formatearValor(data.rasgos, 'rasgos');
+        return [
+          { label: '', value: formatearValor(data.descripcion, 'descripcion') },
+          rasgosInteractivos.length
+            ? { label: 'Rasgos', kind: 'trait_toggles', rasgos: rasgosInteractivos }
+            : { label: 'Rasgos', value: rasgosLegacy, isHtml: true },
+          { label: 'Bonificadores', value: formatearValor(data.bonuses, 'bonuses') },
+          { label: 'Idiomas', value: formatearValor(data.idiomas, 'idiomas') }
+        ].filter(filaTieneContenido);
+      }
+
+      function renderMeta(container, rows = [], onContentChange = null, panelKey = '') {
+        if (!container) return;
+        container.innerHTML = '';
+        if (!Array.isArray(rows) || !rows.length) return;
+
+        rows.forEach((rowData) => {
+          const label = rowData?.label || '';
+          const value = rowData?.value == null ? '' : String(rowData.value);
+          const isHtml = !!rowData?.isHtml;
+          const isSubtitle = !!rowData?.isSubtitle;
+          const isTraitToggles = rowData?.kind === 'trait_toggles';
+          const isInfoToggles = rowData?.kind === 'info_toggles';
+          if (isInfoToggles) {
+            const opciones = Array.isArray(rowData.opciones) ? rowData.opciones : [];
+            if (!opciones.length) return;
+            const row = document.createElement('div');
+            row.className = 'crear-personaje-side-panel__meta-row crear-personaje-side-panel__meta-row--traits';
+
+            if (label) {
+              const title = document.createElement('strong');
+              title.textContent = `${label}:`;
+              row.appendChild(title);
+            }
+
+            const list = document.createElement('div');
+            list.className = 'crear-personaje-trait-list';
+
+            const detail = document.createElement('div');
+            detail.className = 'crear-personaje-trait-detail';
+            detail.hidden = true;
+
+            const nombreGuardado = obtenerActivoGuardado(panelKey, 'info_toggles', label);
+            let activo = -1;
+
+            function actualizarDetalle(idx) {
+              if (idx < 0 || idx >= opciones.length) {
+                detail.hidden = true;
+                detail.innerHTML = '';
+                if (typeof onContentChange === 'function') onContentChange();
+                return;
+              }
+              const opcion = opciones[idx];
+              const nombre = String(opcion?.nombre || '').trim();
+              const descripcion = String(opcion?.descripcion || '').trim() || 'Sin información disponible.';
+              detail.hidden = false;
+              detail.innerHTML = `<strong>${nombre}</strong><br>${descripcion}`;
+              if (typeof onContentChange === 'function') onContentChange();
+            }
+
+            opciones.forEach((opcion, idx) => {
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.className = 'crear-personaje-trait-item';
+              const nombreOpcion = String(opcion?.nombre || `Dato ${idx + 1}`);
+              btn.textContent = nombreOpcion;
+              btn.setAttribute('aria-pressed', 'false');
+              if (nombreGuardado && nombreOpcion === nombreGuardado) {
+                activo = idx;
+              }
+              btn.addEventListener('click', () => {
+                if (activo === idx) {
+                  activo = -1;
+                  guardarActivo(panelKey, 'info_toggles', label, '');
+                } else {
+                  activo = idx;
+                  guardarActivo(panelKey, 'info_toggles', label, nombreOpcion);
+                }
+                Array.from(list.querySelectorAll('.crear-personaje-trait-item')).forEach((el, elIdx) => {
+                  const isActive = elIdx === activo;
+                  el.classList.toggle('is-active', isActive);
+                  el.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+                actualizarDetalle(activo);
+              });
+              list.appendChild(btn);
+            });
+
+            row.appendChild(list);
+            row.appendChild(detail);
+            container.appendChild(row);
+            if (activo >= 0) {
+              Array.from(list.querySelectorAll('.crear-personaje-trait-item')).forEach((el, elIdx) => {
+                const isActive = elIdx === activo;
+                el.classList.toggle('is-active', isActive);
+                el.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+              });
+            }
+            actualizarDetalle(activo);
+            return;
+          }
+          if (isTraitToggles) {
+            const rasgos = Array.isArray(rowData.rasgos) ? rowData.rasgos : [];
+            if (!rasgos.length) return;
+            const row = document.createElement('div');
+            row.className = 'crear-personaje-side-panel__meta-row crear-personaje-side-panel__meta-row--traits';
+
+            if (label) {
+              const title = document.createElement('strong');
+              title.textContent = `${label}:`;
+              row.appendChild(title);
+            }
+
+            const list = document.createElement('div');
+            list.className = 'crear-personaje-trait-list';
+
+            const detail = document.createElement('div');
+            detail.className = 'crear-personaje-trait-detail';
+            detail.hidden = true;
+
+            const nombreGuardado = obtenerActivoGuardado(panelKey, 'trait_toggles', label);
+            let activo = -1;
+
+            function actualizarDetalle(idx) {
+              if (idx < 0 || idx >= rasgos.length) {
+                detail.hidden = true;
+                detail.innerHTML = '';
+                if (typeof onContentChange === 'function') onContentChange();
+                return;
+              }
+              const rasgo = rasgos[idx];
+              const nombre = String(rasgo?.nombre || '').trim();
+              const descripcion = String(rasgo?.descripcion || '').trim() || 'Sin descripción disponible.';
+              detail.hidden = false;
+              detail.innerHTML = `<strong>${nombre}</strong><br>${descripcion}`;
+              if (typeof onContentChange === 'function') onContentChange();
+            }
+
+            rasgos.forEach((rasgo, idx) => {
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.className = 'crear-personaje-trait-item';
+              const nombreRasgo = String(rasgo?.nombre || `Rasgo ${idx + 1}`);
+              btn.textContent = nombreRasgo;
+              btn.setAttribute('aria-pressed', 'false');
+              if (nombreGuardado && nombreRasgo === nombreGuardado) {
+                activo = idx;
+              }
+              btn.addEventListener('click', () => {
+                if (activo === idx) {
+                  activo = -1;
+                  guardarActivo(panelKey, 'trait_toggles', label, '');
+                } else {
+                  activo = idx;
+                  guardarActivo(panelKey, 'trait_toggles', label, nombreRasgo);
+                }
+                Array.from(list.querySelectorAll('.crear-personaje-trait-item')).forEach((el, elIdx) => {
+                  const isActive = elIdx === activo;
+                  el.classList.toggle('is-active', isActive);
+                  el.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+                actualizarDetalle(activo);
+              });
+              list.appendChild(btn);
+            });
+
+            row.appendChild(list);
+            row.appendChild(detail);
+            container.appendChild(row);
+            if (activo >= 0) {
+              Array.from(list.querySelectorAll('.crear-personaje-trait-item')).forEach((el, elIdx) => {
+                const isActive = elIdx === activo;
+                el.classList.toggle('is-active', isActive);
+                el.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+              });
+            }
+            actualizarDetalle(activo);
+            return;
+          }
+          if (!value || value === '—') return;
+          const row = document.createElement('p');
+          row.className = 'crear-personaje-side-panel__meta-row';
+          if (!label) {
+            row.textContent = value;
+          } else if (isSubtitle) {
+            row.classList.add('crear-personaje-side-panel__meta-row--subtitle');
+            row.innerHTML = `<strong class="crear-personaje-side-panel__subtitle-label">${label}</strong><br>${value}`;
+          } else if (isHtml) {
+            row.innerHTML = `<strong>${label}:</strong><br>${value}`;
+          } else {
+            row.innerHTML = `<strong>${label}:</strong> ${value}`;
+          }
+          container.appendChild(row);
+        });
       }
 
       items.forEach((item) => {
@@ -199,7 +948,7 @@
           } else {
             seleccion[type] = slug;
           }
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(seleccion));
+          storage.setItem(STORAGE_KEY, JSON.stringify(seleccion));
           render();
         });
       });
@@ -212,7 +961,7 @@
           } else {
             seleccion.subraza = slug;
           }
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(seleccion));
+          storage.setItem(STORAGE_KEY, JSON.stringify(seleccion));
           render();
         });
       });

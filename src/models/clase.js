@@ -27,6 +27,9 @@ const Clase = sequelize.define("Clase", {
     competencia: {
         type: DataTypes.JSON
     },
+    proficiency_choices: {
+        type: DataTypes.JSON
+    },
 
 }, {
     tableName: "Clase",

@@ -12,6 +12,18 @@ const Trasfondo = sequelize.define("Trasfondo", {
     },
     descripcion: {
         type: DataTypes.TEXT
+    },
+    competencias: {
+        type: DataTypes.JSON,
+        allowNull: true
+    },
+    idiomas_opciones: {
+        type: DataTypes.JSON,
+        allowNull: true
+    },
+    rasgo: {
+        type: DataTypes.JSON,
+        allowNull: true
     }
 },{
     tableName: "Trasfondo",

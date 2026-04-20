@@ -13,6 +13,76 @@
       <div class="form-panel form-panel--wide form-panel--plain crear-personaje-panel--wide">
         <%- include('partials/crearPersonajeImagePickerCard', { imagenesDisponibles }) %>
 
+        <section class="crear-paso2-grid" aria-label="Progresión por nivel de clase y raza">
+          <article class="crear-paso2-panel">
+            <div class="crear-paso2-panel__header">
+              <div class="crear-paso2-panel__title-row">
+                <div class="crear-paso2-panel__title-control">
+                  <label class="crear-paso2-panel__label">Clase</label>
+                  <select id="cp2-clase-select" class="crear-paso2-panel__title-select crear-paso2-native-select" aria-label="Seleccionar clase">
+                    <option value="">Selecciona clase</option>
+                    <% clases.forEach((clase) => { %>
+                      <option value="<%= clase.slug %>"><%= clase.nombre %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </div>
+              <div class="crear-paso2-overview" id="cp2-class-summary">
+                <p class="crear-paso2-overview__level">
+                  <strong>Nivel:</strong>
+                  <span id="cp2-total-level">1</span>
+                </p>
+                <aside class="crear-paso2-vitals-card" aria-label="Resumen de vida">
+                  <p class="crear-paso2-summary__item"><strong>Vida base estimada:</strong> <span id="cp2-hp-estimate">0</span></p>
+                  <p class="crear-paso2-summary__item"><strong>Dados de vida:</strong> <span id="cp2-hit-dice">—</span></p>
+                </aside>
+              </div>
+              <div id="cp2-multiclass-list" class="crear-paso2-multiclass-list"></div>
+            </div>
+            <div id="cp2-clase-cards" class="crear-paso2-card-list"></div>
+            <div class="crear-paso2-panel__bottom-actions">
+              <button type="button" id="cp2-add-class" class="btn btn-secondary">+ Añadir otra clase</button>
+            </div>
+            <section id="cp2-class-picker" class="crear-paso2-class-picker" hidden aria-label="Seleccionar clase">
+              <div id="cp2-class-picker-list" class="crear-paso2-class-picker__list"></div>
+            </section>
+          </article>
+
+          <article class="crear-paso2-panel">
+            <div class="crear-paso2-panel__header">
+              <div class="crear-paso2-panel__title-row">
+                <div class="crear-paso2-panel__title-control">
+                  <label for="cp2-raza-select" class="crear-paso2-panel__label">Raza</label>
+                  <div class="crear-paso2-dropdown" id="cp2-raza-dropdown">
+                    <button type="button" id="cp2-raza-trigger" class="crear-paso2-dropdown__trigger" aria-haspopup="listbox" aria-expanded="false">
+                      <img class="crear-paso2-dropdown__img" src="/images/personajesDefecto/imagenPorDefecto.avif" alt="" />
+                      <span class="crear-paso2-dropdown__text">Selecciona raza</span>
+                    </button>
+                    <div id="cp2-raza-menu" class="crear-paso2-dropdown__menu" role="listbox" hidden></div>
+                  </div>
+                  <select id="cp2-raza-select" class="crear-paso2-panel__title-select crear-paso2-native-select" aria-label="Seleccionar raza">
+                    <option value="">Selecciona raza</option>
+                    <% razas.forEach((raza) => { %>
+                      <option value="<%= raza.slug %>"><%= raza.nombre %></option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <div id="cp2-subraza-control" class="crear-paso2-panel__sub-control crear-paso2-panel__title-control" hidden>
+                  <label for="cp2-subraza-select" class="crear-paso2-panel__label">Subraza</label>
+                  <select id="cp2-subraza-select" class="crear-paso2-panel__title-select" aria-label="Seleccionar subraza">
+                    <option value="">Selecciona subraza</option>
+                    <% subrazas.forEach((subraza) => { %>
+                      <option value="<%= subraza.slug %>" data-raza-id="<%= subraza.RazaId %>"><%= subraza.nombre %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div id="cp2-raza-cards" class="crear-paso2-card-list"></div>
+          </article>
+        </section>
+
         <div class="form-actions">
           <a href="/personajes/crear/1" class="btn btn-secondary">Anterior</a>
           <a href="/personajes/crear/3" class="btn btn-primary">Siguiente</a>
@@ -23,5 +93,2308 @@
 
   <%- include('partials/footer') %>
   <%- include('partials/avatarPickerToggleScript') %>
+  <script id="cp2-clases-data" type="application/json"><%- JSON.stringify(clases).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-subclases-data" type="application/json"><%- JSON.stringify(subclases || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-subclase-niveles-data" type="application/json"><%- JSON.stringify(subclaseNiveles || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-razas-data" type="application/json"><%- JSON.stringify(razas).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-subrazas-data" type="application/json"><%- JSON.stringify(subrazas).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-clase-niveles-data" type="application/json"><%- JSON.stringify(claseNiveles || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-raza-niveles-data" type="application/json"><%- JSON.stringify(razaNiveles || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-rasgos-raciales-trad-data" type="application/json"><%- JSON.stringify(mapaRasgoRacial || {}).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-textos-directos-data" type="application/json"><%- JSON.stringify(textosDirectos || {}).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-feats-data" type="application/json"><%- JSON.stringify(featsCatalogo || []).replace(/</g, '\\u003c') %></script>
+  <script>
+    (function () {
+      const STORAGE_SELECTION_KEY = 'crearPersonaje.seleccionPaso1';
+      const STORAGE_ATTRS_KEY = 'crearPersonaje.atributosPaso3';
+      const STORAGE_KNOWN_LANG_KEY = 'crearPersonaje.idiomasConocidosPaso2';
+      const STORAGE_DRACONIC_ANCESTRY_KEY = 'crearPersonaje.ancestroDraconidoPaso2';
+      const STORAGE_OPEN_CARDS_KEY = 'crearPersonaje.tarjetasAbiertasPaso2';
+      const storage = window.sessionStorage;
+
+      function parseJsonScript(id) {
+        const el = document.getElementById(id);
+        if (!el) return [];
+        try {
+          return JSON.parse(el.textContent || '[]');
+        } catch {
+          return [];
+        }
+      }
+
+      function obtenerBaseScoresPaso3() {
+        try {
+          const raw = storage.getItem(STORAGE_ATTRS_KEY);
+          return raw ? JSON.parse(raw) : {};
+        } catch {
+          return {};
+        }
+      }
+
+      function parsearJsonFlexible(valor, fallback) {
+        if (valor == null) return fallback;
+        if (typeof valor === 'string') {
+          const s = valor.trim();
+          if (!s) return fallback;
+          if ((s.startsWith('[') && s.endsWith(']')) || (s.startsWith('{') && s.endsWith('}'))) {
+            try {
+              return JSON.parse(s);
+            } catch {
+              return fallback;
+            }
+          }
+          return fallback;
+        }
+        return valor;
+      }
+
+      function mapAtributo(idx = '') {
+        const raw = String(idx || '').trim();
+        const keyLower = raw.toLowerCase();
+        // Abreviaturas de atributos en texto: vienen del JSON para evitar hardcodeo en EJS.
+        return (textosDirectos && (textosDirectos[keyLower] || textosDirectos[raw])) || raw.toUpperCase();
+      }
+
+      function traducirNombreProficiencia(name = '') {
+        const keyRaw = String(name || '').trim();
+        if (!keyRaw) return '';
+        const sinPrefijo = keyRaw.replace(/^(skill|saving throw|saving throws|tool|tools|instrument|instruments|language|languages|weapon|weapons|armor|armour)\s*:\s*/i, '').trim();
+        const keyLower = keyRaw.toLowerCase();
+        const sinPrefijoLower = sinPrefijo.toLowerCase();
+        const keySlug = keyLower.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const sinPrefijoSlug = sinPrefijoLower.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+        const traducido =
+          (textosDirectos && (
+            textosDirectos[keyRaw] ||
+            textosDirectos[sinPrefijo] ||
+            textosDirectos[keyLower] ||
+            textosDirectos[sinPrefijoLower] ||
+            textosDirectos[keySlug] ||
+            textosDirectos[sinPrefijoSlug]
+          )) ||
+          '';
+        if (traducido) return String(traducido).trim();
+        return sinPrefijo || keyRaw;
+      }
+
+      function obtenerEstadoCompetenciasClase() {
+        const actual = seleccion?.competencias_clase_elegidas;
+        if (actual && typeof actual === 'object' && !Array.isArray(actual)) return actual;
+        seleccion.competencias_clase_elegidas = {};
+        return seleccion.competencias_clase_elegidas;
+      }
+
+      function categoriaCompetencia(item) {
+        const idx = String(item?.index || '').toLowerCase();
+        const name = String(item?.name || '').toLowerCase();
+        const texto = `${idx} ${name}`;
+        if (idx.includes('saving-throw')) return 'Tiradas de salvación';
+        if (idx.includes('armor') || idx === 'shields') return 'Armaduras';
+        if (idx.includes('tool') || idx.includes('kit') || idx.includes('instrument')) return 'Herramientas';
+        if (
+          texto.includes('weapon') ||
+          texto.includes('sword') ||
+          texto.includes('bow') ||
+          texto.includes('crossbow') ||
+          texto.includes('dagger') ||
+          texto.includes('mace') ||
+          texto.includes('spear') ||
+          texto.includes('club') ||
+          texto.includes('staff') ||
+          texto.includes('sling') ||
+          texto.includes('javelin') ||
+          texto.includes('scimitar') ||
+          texto.includes('darts') ||
+          texto.includes('rapier') ||
+          texto.includes('sickle')
+        ) return 'Armas';
+        return 'Otros';
+      }
+
+      function formatearTiradasSalvacionClase(valor) {
+        const lista = Array.isArray(parsearJsonFlexible(valor, valor)) ? parsearJsonFlexible(valor, valor) : [];
+        if (!lista.length) return [];
+        return lista
+          .map((item) => {
+            const bruto = String(item?.name || item?.index || item || '').trim();
+            if (!bruto) return '';
+            return traducirNombreProficiencia(bruto);
+          })
+          .filter(Boolean);
+      }
+
+      function extraerOpcionesCompetenciaClase(choice) {
+        const opciones = [];
+        function pushOpcion(item) {
+          const slug = String(
+            item?.item?.index ||
+            item?.proficiency?.index ||
+            item?.index ||
+            item?.slug ||
+            ''
+          ).trim();
+          const nombreRaw = String(
+            item?.item?.name ||
+            item?.proficiency?.name ||
+            item?.name ||
+            slug
+          ).trim();
+          if (!slug && !nombreRaw) return;
+          const nombre = traducirNombreProficiencia(nombreRaw || slug);
+          if (opciones.some((op) => op.slug === slug && op.nombre === nombre)) return;
+          opciones.push({ slug: slug || nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-'), nombre });
+        }
+        function recorrer(node) {
+          if (!node) return;
+          if (Array.isArray(node)) {
+            node.forEach(recorrer);
+            return;
+          }
+          if (typeof node !== 'object') return;
+          if (node?.item || node?.proficiency) {
+            pushOpcion(node);
+          }
+          if (Array.isArray(node?.options)) node.options.forEach(recorrer);
+          if (Array.isArray(node?.from?.options)) node.from.options.forEach(recorrer);
+          if (Array.isArray(node?.from)) node.from.forEach(recorrer);
+        }
+        recorrer(choice?.from || choice);
+        const textoChoice = JSON.stringify(choice || {}).toLowerCase();
+        const tieneInstrumento = opciones.some((op) => {
+          const t = `${String(op?.slug || '').toLowerCase()} ${String(op?.nombre || '').toLowerCase()}`;
+          return t.includes('instrument') || t.includes('bagpipes') || t.includes('drum') || t.includes('flute') || t.includes('lute') || t.includes('lyre') || t.includes('horn') || t.includes('pan') || t.includes('shawm') || t.includes('viol');
+        }) || textoChoice.includes('instrument') || textoChoice.includes('musical');
+        const tieneHabilidad = opciones.some((op) => {
+          const t = `${String(op?.slug || '').toLowerCase()} ${String(op?.nombre || '').toLowerCase()}`;
+          return t.includes('skill') || t.includes('acrobatics') || t.includes('athletics') || t.includes('stealth') || t.includes('perception');
+        }) || textoChoice.includes('skill');
+        const tieneHerramienta = !tieneInstrumento && (opciones.some((op) => {
+          const t = `${String(op?.slug || '').toLowerCase()} ${String(op?.nombre || '').toLowerCase()}`;
+          return t.includes('tool') || t.includes('kit') || t.includes('tools');
+        }) || textoChoice.includes('tool') || textoChoice.includes('kit'));
+
+        const tipo = tieneInstrumento ? 'Instrumento' : (tieneHabilidad ? 'Habilidad' : (tieneHerramienta ? 'Herramienta' : 'Competencia'));
+        return { opciones, tipo };
+      }
+
+      function renderSelectorCompetenciaClase({ key, opciones, cantidad, tipo = 'Competencia' }) {
+        const estado = obtenerEstadoCompetenciasClase();
+        const previas = Array.isArray(estado[key]) ? estado[key] : [];
+        const total = Math.max(1, Number(cantidad) || 1);
+        const tipoLower = String(tipo || 'Competencia').toLowerCase();
+        const filas = Array.from({ length: total }, (_, idx) => {
+          const selected = String(previas[idx] || '').trim();
+          const seleccionadosOtros = new Set(
+            previas
+              .map((v, i) => (i === idx ? '' : String(v || '').trim()))
+              .filter(Boolean)
+          );
+          const opts = opciones
+            .filter((op) => op.slug === selected || !seleccionadosOtros.has(op.slug))
+            .map((op) => `
+              <option value="${escapeHtml(op.slug)}" ${op.slug === selected ? 'selected' : ''}>${escapeHtml(op.nombre)}</option>
+            `).join('');
+          return `
+            <div class="crear-paso2-ancestor-choice-row">
+              <label class="crear-paso2-ancestor-label" for="cp2-class-choice-${escapeHtml(key)}-${idx}">${escapeHtml(tipo)} ${idx + 1}</label>
+              <select
+                id="cp2-class-choice-${escapeHtml(key)}-${idx}"
+                class="crear-paso2-panel__title-select cp2-class-choice-select"
+                data-class-choice-key="${escapeHtml(key)}"
+                data-choice-idx="${idx}"
+              >
+                <option value="">Selecciona ${escapeHtml(tipoLower)}</option>
+                ${opts}
+              </select>
+            </div>
+          `;
+        }).join('');
+        return filas;
+      }
+
+      function formatearCompetenciasClase(valor, tiradasSalvacion = null, claseSlug = '', proficiencyChoicesRaw = null) {
+        const data = parsearJsonFlexible(valor, valor) || {};
+        const profs = Array.isArray(data?.proficiencies) ? data.proficiencies : [];
+        const proficiencyChoices = Array.isArray(proficiencyChoicesRaw)
+          ? proficiencyChoicesRaw
+          : (Array.isArray(data?.proficiency_choices) ? data.proficiency_choices : []);
+        const grupos = new Map();
+        profs.forEach((p) => {
+          const categoria = categoriaCompetencia(p);
+          const nombre = traducirNombreProficiencia(String(p?.name || p?.index || ''));
+          if (!nombre) return;
+          if (!grupos.has(categoria)) grupos.set(categoria, []);
+          grupos.get(categoria).push(nombre);
+        });
+        const salvaciones = formatearTiradasSalvacionClase(tiradasSalvacion);
+        if (salvaciones.length) {
+          grupos.set('Tiradas de salvación', salvaciones);
+        }
+        const tieneLineasFijas = grupos.size > 0;
+        const orden = ['Armaduras', 'Armas', 'Herramientas', 'Tiradas de salvación', 'Otros'];
+        const lineas = [];
+        orden.forEach((cat) => {
+          const items = grupos.get(cat);
+          if (!items || !items.length) return;
+          lineas.push(`<strong>${cat}:</strong> ${items.join(', ')}`);
+        });
+        const eleccionesHtml = proficiencyChoices
+          .map((choice, choiceIdx) => {
+            const cantidad = Number(choice?.choose || choice?.count || 0);
+            if (!cantidad) return '';
+            const { opciones, tipo } = extraerOpcionesCompetenciaClase(choice);
+            if (!Array.isArray(opciones) || !opciones.length) return '';
+            const key = `clase:${String(claseSlug || '')}:prof-choice:${choiceIdx}`;
+            const filas = renderSelectorCompetenciaClase({ key, opciones, cantidad, tipo });
+            const tipoLower = String(tipo || 'Competencia').toLowerCase();
+            return `
+              <p class="crear-paso2-ancestor-label">Elige ${cantidad} ${escapeHtml(tipoLower)}${cantidad > 1 ? 's' : ''}:</p>
+              ${filas}
+            `;
+          })
+          .filter(Boolean)
+          .join('');
+
+        if (!tieneLineasFijas && !eleccionesHtml) return 'Sin datos de competencias.';
+        return `${lineas.join('<br>')}${eleccionesHtml ? `<div class="cp2-class-proficiency-choices">${eleccionesHtml}</div>` : ''}`;
+      }
+
+      function formatearBonificadores(mods) {
+        if (typeof mods === 'string') {
+          const txt = mods.trim();
+          if (txt) return txt;
+        }
+        const lista = Array.isArray(parsearJsonFlexible(mods, mods)) ? parsearJsonFlexible(mods, mods) : [];
+        if (!lista.length) return 'Sin bonificadores.';
+        return lista
+          .map((b) => {
+            const idx = b?.ability_score?.index || b?.ability_score?.name || '';
+            const bonus = Number(b?.bonus) || 0;
+            return `${mapAtributo(idx)} ${bonus >= 0 ? '+' : ''}${bonus}`;
+          })
+          .join(', ');
+      }
+
+      function obtenerEstadoBonificadoresRaciales() {
+        const actual = seleccion?.bonificadores_raciales_elegidos;
+        if (actual && typeof actual === 'object' && !Array.isArray(actual)) return actual;
+        seleccion.bonificadores_raciales_elegidos = {};
+        return seleccion.bonificadores_raciales_elegidos;
+      }
+
+      function analizarBonificadoresRaciales(mods) {
+        const lista = Array.isArray(parsearJsonFlexible(mods, mods)) ? parsearJsonFlexible(mods, mods) : [];
+        const fijos = [];
+        const elecciones = [];
+        lista.forEach((b) => {
+          const idxRaw = String(b?.ability_score?.index || b?.ability_score?.name || '').trim().toLowerCase();
+          const bonus = Number(b?.bonus) || 0;
+          if (!bonus) return;
+          if (idxRaw === 'choice') {
+            elecciones.push(bonus);
+            return;
+          }
+          fijos.push(`${mapAtributo(idxRaw)} ${bonus >= 0 ? '+' : ''}${bonus}`);
+        });
+        return { fijos, elecciones };
+      }
+
+      function descripcionEleccionesBonificador(elecciones = []) {
+        const lista = Array.isArray(elecciones) ? elecciones.map((v) => Number(v) || 0).filter((v) => v > 0) : [];
+        if (!lista.length) return 'Bonificadores a elección.';
+        const todosMasUno = lista.every((v) => v === 1);
+        if (todosMasUno && lista.length > 1) {
+          return `${lista.length} bonificadores de +1 en atributos diferentes.`;
+        }
+        return 'Bonificadores a elección.';
+      }
+
+      function renderSelectorBonificadorRacial({ key, elecciones = [], descripcion = '' }) {
+        const estado = obtenerEstadoBonificadoresRaciales();
+        const previas = Array.isArray(estado[key]) ? estado[key] : [];
+        const totalesActuales = calcularTotalesConAsiPaso2();
+        const opcionesBase = [
+          ['fuerza', 'Fuerza'],
+          ['destreza', 'Destreza'],
+          ['constitucion', 'Constitución'],
+          ['inteligencia', 'Inteligencia'],
+          ['sabiduria', 'Sabiduría'],
+          ['carisma', 'Carisma']
+        ];
+        const filas = elecciones.map((bonus, idx) => {
+          const bonusNum = Number(bonus) || 0;
+          const selected = String(previas[idx] || '').trim();
+          const seleccionadosEnOtros = new Set(
+            previas
+              .map((val, i) => (i === idx ? '' : String(val || '').trim()))
+              .filter(Boolean)
+          );
+          const opcionesFila = opcionesBase.filter(([slug]) => {
+            if (slug !== selected && seleccionadosEnOtros.has(slug)) return false;
+            const totalActual = Number(totalesActuales?.[slug] || 0);
+            const ajusteSeleccionActual = slug === selected ? bonusNum : 0;
+            const totalProyectado = totalActual + bonusNum - ajusteSeleccionActual;
+            return totalProyectado <= 20;
+          });
+          const opts = opcionesFila.map(([slug, nombre]) => `
+            <option value="${escapeHtml(slug)}" ${slug === selected ? 'selected' : ''}>${escapeHtml(nombre)}</option>
+          `).join('');
+          const bonusLabel = `${bonusNum >= 0 ? '+' : ''}${bonusNum}`;
+          return `
+            <div class="crear-paso2-ancestor-choice-row">
+              <label class="crear-paso2-ancestor-label" for="cp2-race-ability-choice-${escapeHtml(key)}-${idx}">Bonificador ${idx + 1} (${bonusLabel})</label>
+              <select
+                id="cp2-race-ability-choice-${escapeHtml(key)}-${idx}"
+                class="crear-paso2-panel__title-select cp2-race-choice-select cp2-race-ability-choice-select"
+                data-bonus-key="${escapeHtml(key)}"
+                data-choice-idx="${idx}"
+              >
+                <option value="">Selecciona atributo</option>
+                ${opts}
+              </select>
+            </div>
+          `;
+        }).join('');
+        const desc = escapeHtml(String(descripcion || '').trim() || 'Sin descripción disponible.');
+        return `
+          <p>${desc}</p>
+          <p class="crear-paso2-ancestor-label">Elige ${elecciones.length} atributo${elecciones.length > 1 ? 's' : ''} para aplicar bonificadores:</p>
+          ${filas}
+        `;
+      }
+
+      function obtenerBonificadoresRazaPaso2({ fila, razaSeleccionada, subrazaSeleccionada }) {
+        const bonosFila = parsearJsonFlexible(fila?.modificadores, null);
+        if (Array.isArray(bonosFila) && bonosFila.length) return bonosFila;
+
+        const slugRaza = String(razaSeleccionada?.slug || '').trim().toLowerCase();
+        const bonosSubraza = parsearJsonFlexible(subrazaSeleccionada?.bonuses, null);
+        if (slugRaza === 'human' && Array.isArray(bonosSubraza) && bonosSubraza.length) {
+          return bonosSubraza;
+        }
+
+        const bonosRaza = parsearJsonFlexible(razaSeleccionada?.bonuses, []);
+        if (Array.isArray(bonosRaza) && bonosRaza.length) return bonosRaza;
+
+        return Array.isArray(bonosSubraza) ? bonosSubraza : [];
+      }
+
+      function formatearIdiomas(idiomas) {
+        if (typeof idiomas === 'string') {
+          const txt = idiomas.trim();
+          if (txt) return txt;
+        }
+        const lista = Array.isArray(parsearJsonFlexible(idiomas, idiomas)) ? parsearJsonFlexible(idiomas, idiomas) : [];
+        if (!lista.length) return 'Sin datos de idiomas.';
+        return lista.map((i) => {
+          const idx = String(i?.index || '').trim().toLowerCase();
+          const name = String(i?.name || '').trim();
+          return name || idx;
+        }).filter(Boolean).join(', ');
+      }
+
+      function slugIdiomaDesdeTexto(valor = '') {
+        const t = String(valor || '').trim().toLowerCase();
+        const mapa = {
+          common: 'common',
+          'comun': 'common',
+          dwarvish: 'dwarvish',
+          enano: 'dwarvish',
+          elvish: 'elvish',
+          'elfico': 'elvish',
+          giant: 'giant',
+          gnomish: 'gnomish',
+          gnomo: 'gnomish',
+          goblin: 'goblin',
+          halfling: 'halfling',
+          mediano: 'halfling',
+          orc: 'orc',
+          orco: 'orc',
+          abyssal: 'abyssal',
+          abisal: 'abyssal',
+          celestial: 'celestial',
+          draconic: 'draconic',
+          draconico: 'draconic',
+          'deep speech': 'deep-speech',
+          infernal: 'infernal',
+          primordial: 'primordial',
+          sylvan: 'sylvan',
+          silvano: 'sylvan',
+          undercommon: 'undercommon',
+          'infracomun': 'undercommon'
+        };
+        return mapa[t] || t.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      }
+
+      function preguardarIdiomasConocidos(razaSeleccionada, subrazaSeleccionada) {
+        const conocidos = new Set();
+        // Base de 5e: todas las razas manejan común
+        conocidos.add('common');
+        const idiomaPropioPorRaza = {
+          dragonborn: 'draconic',
+          dwarf: 'dwarvish',
+          elf: 'elvish',
+          gnome: 'gnomish',
+          'half-elf': 'elvish',
+          'half-orc': 'orc',
+          halfling: 'halfling',
+          human: null,
+          tiefling: 'infernal'
+        };
+        const slugRaza = String(razaSeleccionada?.slug || '').trim().toLowerCase();
+        const idiomaRaza = slugRaza ? idiomaPropioPorRaza[slugRaza] : null;
+        if (idiomaRaza) conocidos.add(idiomaRaza);
+        storage.setItem(STORAGE_KNOWN_LANG_KEY, JSON.stringify(Array.from(conocidos)));
+      }
+
+      const clases = parseJsonScript('cp2-clases-data');
+      const subclases = parseJsonScript('cp2-subclases-data');
+      const subclaseNiveles = parseJsonScript('cp2-subclase-niveles-data');
+      const razas = parseJsonScript('cp2-razas-data');
+      const subrazas = parseJsonScript('cp2-subrazas-data');
+      const claseNiveles = parseJsonScript('cp2-clase-niveles-data');
+      const razaNiveles = parseJsonScript('cp2-raza-niveles-data');
+      const mapaRasgoRacialRaw = parseJsonScript('cp2-rasgos-raciales-trad-data');
+      const textosDirectos = parseJsonScript('cp2-textos-directos-data');
+      const featsCatalogo = parseJsonScript('cp2-feats-data');
+      const featCatalogoLista = Array.isArray(featsCatalogo) ? featsCatalogo : [];
+      const featBySlug = new Map(
+        featCatalogoLista
+          .map((f) => {
+            const slug = String(f?.slug || '').trim().toLowerCase();
+            return [slug, f];
+          })
+          .filter(([slug]) => slug)
+      );
+      const featsSorted = featCatalogoLista
+        .slice()
+        .sort((a, b) => String(a?.nombre || '').localeCompare(String(b?.nombre || ''), 'es'));
+      const mapaRasgoRacialBySlug = new Map(Object.entries(mapaRasgoRacialRaw || {}));
+      const claseBySlug = new Map(clases.map((c) => [c.slug, c]));
+      const subclaseBySlug = new Map(
+        (Array.isArray(subclases) ? subclases : [])
+          .map((s) => [String(s?.slug || '').trim(), s])
+          .filter(([slug]) => slug)
+      );
+      const subclasesByClaseId = new Map();
+      (Array.isArray(subclases) ? subclases : []).forEach((s) => {
+        const claseId = Number(s?.ClaseId);
+        if (!claseId) return;
+        if (!subclasesByClaseId.has(claseId)) subclasesByClaseId.set(claseId, []);
+        subclasesByClaseId.get(claseId).push(s);
+      });
+      const razaBySlug = new Map(razas.map((r) => [r.slug, r]));
+      const subrazaBySlug = new Map(subrazas.map((s) => [s.slug, s]));
+      const claseSelect = document.getElementById('cp2-clase-select');
+      const razaSelect = document.getElementById('cp2-raza-select');
+      const totalLevelEl = document.getElementById('cp2-total-level');
+      const hpEstimateEl = document.getElementById('cp2-hp-estimate');
+      const hitDiceEl = document.getElementById('cp2-hit-dice');
+      const multiclassListEl = document.getElementById('cp2-multiclass-list');
+      const addClassBtn = document.getElementById('cp2-add-class');
+      const classPickerEl = document.getElementById('cp2-class-picker');
+      const classPickerListEl = document.getElementById('cp2-class-picker-list');
+      const razaTrigger = document.getElementById('cp2-raza-trigger');
+      const razaMenu = document.getElementById('cp2-raza-menu');
+      const subrazaSelect = document.getElementById('cp2-subraza-select');
+      const subrazaControl = document.getElementById('cp2-subraza-control');
+      const claseCardsEl = document.getElementById('cp2-clase-cards');
+      const razaCardsEl = document.getElementById('cp2-raza-cards');
+      if (!claseSelect || !razaSelect || !totalLevelEl || !hpEstimateEl || !hitDiceEl || !multiclassListEl || !addClassBtn || !classPickerEl || !classPickerListEl || !razaTrigger || !razaMenu || !subrazaSelect || !subrazaControl || !claseCardsEl || !razaCardsEl) return;
+
+      let seleccion = {};
+      try {
+        const raw = storage.getItem(STORAGE_SELECTION_KEY);
+        seleccion = raw ? JSON.parse(raw) : {};
+      } catch {
+        seleccion = {};
+      }
+      if (!seleccion.asi_mejoras || typeof seleccion.asi_mejoras !== 'object' || Array.isArray(seleccion.asi_mejoras)) {
+        seleccion.asi_mejoras = {};
+      }
+      if (!Array.isArray(seleccion.feats)) {
+        seleccion.feats = [];
+      }
+      let ancestroDraconido = String(storage.getItem(STORAGE_DRACONIC_ANCESTRY_KEY) || '').trim().toLowerCase();
+      const ANCESTROS_DRACONIDOS = [
+        { slug: 'black', nombre: 'Dragón negro', dano: 'Ácido', aliento: 'Línea de 1,5 x 9 m (salv. DES)' },
+        { slug: 'blue', nombre: 'Dragón azul', dano: 'Relámpago', aliento: 'Línea de 1,5 x 9 m (salv. DES)' },
+        { slug: 'brass', nombre: 'Dragón de latón', dano: 'Fuego', aliento: 'Línea de 1,5 x 9 m (salv. DES)' },
+        { slug: 'bronze', nombre: 'Dragón de bronce', dano: 'Relámpago', aliento: 'Línea de 1,5 x 9 m (salv. DES)' },
+        { slug: 'copper', nombre: 'Dragón de cobre', dano: 'Ácido', aliento: 'Línea de 1,5 x 9 m (salv. DES)' },
+        { slug: 'gold', nombre: 'Dragón dorado', dano: 'Fuego', aliento: 'Cono de 4,5 m (salv. DES)' },
+        { slug: 'green', nombre: 'Dragón verde', dano: 'Veneno', aliento: 'Cono de 4,5 m (salv. CON)' },
+        { slug: 'red', nombre: 'Dragón rojo', dano: 'Fuego', aliento: 'Cono de 4,5 m (salv. DES)' },
+        { slug: 'silver', nombre: 'Dragón plateado', dano: 'Frío', aliento: 'Cono de 4,5 m (salv. CON)' },
+        { slug: 'white', nombre: 'Dragón blanco', dano: 'Frío', aliento: 'Cono de 4,5 m (salv. CON)' }
+      ];
+      if (!ANCESTROS_DRACONIDOS.some((a) => a.slug === ancestroDraconido)) {
+        ancestroDraconido = '';
+      }
+      const collapsedClassBySlug = new Set();
+
+      function renderTablaAncestrosDraconidos() {
+        const filas = ANCESTROS_DRACONIDOS.map((a) => `
+          <tr>
+            <td>${a.nombre}</td>
+            <td>${a.dano}</td>
+            <td>${a.aliento}</td>
+          </tr>
+        `).join('');
+        const opciones = ANCESTROS_DRACONIDOS.map((a) => `
+          <option value="${a.slug}" ${a.slug === ancestroDraconido ? 'selected' : ''}>${a.nombre}</option>
+        `).join('');
+        return `
+          <p>Tienes ascendencia dracónica. Elige un tipo de dragón de la tabla de ascendencia dracónica.</p>
+          <table class="crear-paso2-ancestor-table">
+            <thead>
+              <tr>
+                <th>Dragón</th>
+                <th>Tipo de daño</th>
+                <th>Arma de aliento</th>
+              </tr>
+            </thead>
+            <tbody>${filas}</tbody>
+          </table>
+          <label class="crear-paso2-ancestor-label" for="cp2-draconic-ancestor-select">Ascendencia dracónica</label>
+          <select id="cp2-draconic-ancestor-select" class="crear-paso2-panel__title-select">
+            <option value="" ${ancestroDraconido ? '' : 'selected'}>Selecciona ascendencia</option>
+            ${opciones}
+          </select>
+        `;
+      }
+
+      function getAncestroDraconidoActual() {
+        return ANCESTROS_DRACONIDOS.find((a) => a.slug === ancestroDraconido) || null;
+      }
+
+      function danoArmaAlientoPorNivel(nivel = 1) {
+        const n = Math.max(1, Number(nivel) || 1);
+        if (n >= 16) return '5d6';
+        if (n >= 11) return '4d6';
+        if (n >= 6) return '3d6';
+        return '2d6';
+      }
+
+      function nivelEscaladoArmaAliento(nivel = 1) {
+        const n = Math.max(1, Number(nivel) || 1);
+        if (n >= 16) return 16;
+        if (n >= 11) return 11;
+        if (n >= 6) return 6;
+        return 1;
+      }
+
+      function resumenMejorasArmaAlientoPorNivel(nivel = 1) {
+        const n = Math.max(1, Number(nivel) || 1);
+        const hitos = [1, 6, 11, 16];
+        return hitos
+          .map((hito) => `${n >= hito ? '✓' : '○'} Nivel ${hito}: ${hito === 1 ? '2d6' : hito === 6 ? '3d6' : hito === 11 ? '4d6' : '5d6'}`)
+          .join('\n');
+      }
+
+      function escapeHtml(texto = '') {
+        return String(texto || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function obtenerEstadoCompetenciasRaciales() {
+        const actual = seleccion?.competencias_raciales_elegidas;
+        if (actual && typeof actual === 'object' && !Array.isArray(actual)) return actual;
+        seleccion.competencias_raciales_elegidas = {};
+        return seleccion.competencias_raciales_elegidas;
+      }
+
+      function extraerOpcionesCompetenciaRacial(modificadores, rasgoSlug = '') {
+        const data = parsearJsonFlexible(modificadores, modificadores);
+        const opciones = [];
+        let cantidad = 0;
+
+        function pushOpcion(item) {
+          const slug = String(
+            item?.item?.index ||
+            item?.proficiency?.index ||
+            item?.index ||
+            item?.slug ||
+            ''
+          ).trim();
+          const nombreRaw = String(
+            item?.item?.name ||
+            item?.proficiency?.name ||
+            item?.name ||
+            slug
+          ).trim();
+          if (!slug && !nombreRaw) return;
+          const nombre = traducirNombreProficiencia(nombreRaw || slug);
+          if (opciones.some((op) => op.slug === slug && op.nombre === nombre)) return;
+          opciones.push({ slug: slug || nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-'), nombre });
+        }
+
+        function recorrer(node) {
+          if (!node) return;
+          if (Array.isArray(node)) {
+            node.forEach(recorrer);
+            return;
+          }
+          if (typeof node === 'string') return;
+          if (typeof node !== 'object') return;
+
+          const type = String(node?.option_type || node?.type || '').toLowerCase();
+          const choose = Number(node?.choose || node?.count || 0);
+          if (type.includes('proficiency') && choose > 0) {
+            cantidad = Math.max(cantidad, choose);
+          }
+          if (Array.isArray(node?.from?.options)) {
+            if (choose > 0) cantidad = Math.max(cantidad, choose);
+            node.from.options.forEach(pushOpcion);
+          }
+          if (Array.isArray(node?.options)) {
+            if (choose > 0) cantidad = Math.max(cantidad, choose);
+            node.options.forEach(pushOpcion);
+          }
+          if (Array.isArray(node?.proficiencies)) {
+            if (choose > 0) cantidad = Math.max(cantidad, choose);
+            node.proficiencies.forEach(pushOpcion);
+          }
+          if (node?.subtrait_options) recorrer(node.subtrait_options);
+          if (node?.trait_specific) recorrer(node.trait_specific);
+          if (node?.proficiency_choices) recorrer(node.proficiency_choices);
+          Object.keys(node).forEach((k) => {
+            if (['from', 'options', 'proficiencies', 'subtrait_options', 'trait_specific', 'proficiency_choices'].includes(k)) return;
+            recorrer(node[k]);
+          });
+        }
+
+        recorrer(data);
+
+        // Fallback para casos sin estructura normalizada (ej: skill-versatility)
+        if (!opciones.length && String(rasgoSlug || '').trim() === 'skill-versatility') {
+          const skills = [
+            'acrobatics',
+            'animal-handling',
+            'arcana',
+            'athletics',
+            'deception',
+            'history',
+            'insight',
+            'intimidation',
+            'investigation',
+            'medicine',
+            'nature',
+            'perception',
+            'performance',
+            'persuasion',
+            'religion',
+            'sleight-of-hand',
+            'stealth',
+            'survival'
+          ];
+          skills.forEach((slug) => {
+            const nombre = traducirNombreProficiencia(String(slug || '').trim());
+            opciones.push({ slug, nombre });
+          });
+          cantidad = Math.max(cantidad, 2);
+        }
+
+        return { opciones, cantidad: Math.max(0, cantidad) };
+      }
+
+      function renderSelectorCompetenciaRacial({ rasgoSlug, opciones, cantidad, descripcion }) {
+        const estado = obtenerEstadoCompetenciasRaciales();
+        const previas = Array.isArray(estado[rasgoSlug]) ? estado[rasgoSlug] : [];
+        const total = Math.max(1, Number(cantidad) || 1);
+        const filas = Array.from({ length: total }, (_, idx) => {
+          const selected = String(previas[idx] || '').trim();
+          const opts = opciones.map((op) => `
+            <option value="${escapeHtml(op.slug)}" ${op.slug === selected ? 'selected' : ''}>${escapeHtml(op.nombre)}</option>
+          `).join('');
+          return `
+            <div class="crear-paso2-ancestor-choice-row">
+              <label class="crear-paso2-ancestor-label" for="cp2-race-choice-${escapeHtml(rasgoSlug)}-${idx}">Competencia ${idx + 1}</label>
+              <select
+                id="cp2-race-choice-${escapeHtml(rasgoSlug)}-${idx}"
+                class="crear-paso2-panel__title-select cp2-race-choice-select"
+                data-rasgo="${escapeHtml(rasgoSlug)}"
+                data-choice-idx="${idx}"
+              >
+                <option value="">Selecciona competencia</option>
+                ${opts}
+              </select>
+            </div>
+          `;
+        }).join('');
+
+        const desc = escapeHtml(String(descripcion || '').trim() || 'Sin descripción disponible.');
+        return `
+          <p>${desc}</p>
+          <p class="crear-paso2-ancestor-label">Elige ${total} competencia${total > 1 ? 's' : ''}:</p>
+          ${filas}
+        `;
+      }
+
+      function cerrarMenusCatalogo() {
+        [razaMenu].forEach((menu) => menu.setAttribute('hidden', ''));
+        [razaTrigger].forEach((trigger) => trigger.setAttribute('aria-expanded', 'false'));
+      }
+
+      function actualizarTriggerCatalogo({ selectEl, triggerEl, mapBySlug, placeholder }) {
+        const slug = String(selectEl.value || '').trim();
+        const data = mapBySlug.get(slug);
+        const img = triggerEl.querySelector('.crear-paso2-dropdown__img');
+        const text = triggerEl.querySelector('.crear-paso2-dropdown__text');
+        const nombre = String(data?.nombre || '').trim();
+        const imagen = String(data?.imagenUrl || '/images/personajesDefecto/imagenPorDefecto.avif').trim();
+        if (img) img.src = imagen || '/images/personajesDefecto/imagenPorDefecto.avif';
+        if (text) text.textContent = nombre || placeholder;
+      }
+
+      function inicializarDropdownCatalogo({ selectEl, triggerEl, menuEl, mapBySlug, lista, placeholder }) {
+        menuEl.innerHTML = '';
+        (Array.isArray(lista) ? lista : []).forEach((item) => {
+          const slug = String(item?.slug || '').trim();
+          if (!slug) return;
+          const nombre = String(item?.nombre || slug).trim();
+          const imagen = String(item?.imagenUrl || '/images/personajesDefecto/imagenPorDefecto.avif').trim();
+          const option = document.createElement('button');
+          option.type = 'button';
+          option.className = 'crear-paso2-dropdown__option';
+          option.setAttribute('role', 'option');
+          option.dataset.slug = slug;
+          option.innerHTML = `
+            <img class="crear-paso2-dropdown__option-img" src="${imagen}" alt="" loading="lazy" />
+            <span class="crear-paso2-dropdown__option-text">${nombre}</span>
+          `;
+          option.addEventListener('click', () => {
+            selectEl.value = slug;
+            selectEl.dispatchEvent(new Event('change'));
+            cerrarMenusCatalogo();
+          });
+          menuEl.appendChild(option);
+        });
+
+        triggerEl.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const abierto = !menuEl.hasAttribute('hidden');
+          cerrarMenusCatalogo();
+          if (!abierto) {
+            menuEl.removeAttribute('hidden');
+            triggerEl.setAttribute('aria-expanded', 'true');
+          }
+        });
+
+        selectEl.addEventListener('change', () => {
+          actualizarTriggerCatalogo({ selectEl, triggerEl, mapBySlug, placeholder });
+        });
+        actualizarTriggerCatalogo({ selectEl, triggerEl, mapBySlug, placeholder });
+      }
+
+      function normalizarMulticlases() {
+        const raw = Array.isArray(seleccion.multiclases) ? seleccion.multiclases : [];
+        const usadas = new Set();
+        const lista = [];
+        raw.forEach((fila) => {
+          const slug = String(fila?.slug || '').trim();
+          const nivel = Math.max(1, Math.min(20, Number(fila?.nivel) || 1));
+          if (!slug || !claseBySlug.has(slug) || usadas.has(slug)) return;
+          usadas.add(slug);
+          const subclaseSlug = String(fila?.subclase || '').trim();
+          const subclase = subclaseBySlug.get(subclaseSlug);
+          const clase = claseBySlug.get(slug);
+          const subclaseValida = subclase && Number(subclase?.ClaseId) === Number(clase?.id) ? subclaseSlug : '';
+          lista.push({ slug, nivel, subclase: subclaseValida });
+        });
+
+        if (!lista.length) {
+          const slugBase = String(seleccion.clase || '').trim();
+          if (slugBase && claseBySlug.has(slugBase)) {
+            lista.push({ slug: slugBase, nivel: 1, subclase: '' });
+          }
+        }
+
+        if (lista.length) {
+          const slugActivo = String(seleccion.clase || '').trim();
+          if (!slugActivo || !lista.some((fila) => fila.slug === slugActivo)) {
+            seleccion.clase = lista[0].slug;
+          }
+        } else {
+          delete seleccion.clase;
+        }
+
+        seleccion.multiclases = lista;
+      }
+
+      function obtenerMulticlases() {
+        normalizarMulticlases();
+        return Array.isArray(seleccion.multiclases) ? seleccion.multiclases : [];
+      }
+
+      function nivelTotalPersonaje() {
+        return obtenerMulticlases().reduce((acc, fila) => acc + (Number(fila?.nivel) || 0), 0);
+      }
+
+      function nivelMaximoParaClase(slug) {
+        const clasesActuales = obtenerMulticlases();
+        const resto = clasesActuales
+          .filter((fila) => fila.slug !== slug)
+          .reduce((acc, fila) => acc + (Number(fila?.nivel) || 0), 0);
+        return Math.max(1, 20 - resto);
+      }
+
+      function actualizarNivelClase(slug, nivelNuevo) {
+        const lista = obtenerMulticlases();
+        if (!lista.some((item) => item.slug === slug)) return;
+        const maxNivel = nivelMaximoParaClase(slug);
+        const nivelNormalizado = Math.max(1, Math.min(maxNivel, Number(nivelNuevo) || 1));
+        seleccion.multiclases = lista.map((item) => (
+          item.slug === slug
+            ? { ...item, nivel: nivelNormalizado }
+            : item
+        ));
+      }
+
+      function obtenerSubclasesDeClase(claseSeleccionada) {
+        const claseId = Number(claseSeleccionada?.id) || 0;
+        const lista = Array.isArray(subclasesByClaseId.get(claseId)) ? subclasesByClaseId.get(claseId) : [];
+        return lista.slice().sort((a, b) => String(a?.nombre || '').localeCompare(String(b?.nombre || ''), 'es'));
+      }
+
+      function obtenerEtiquetaTipoSubclase(claseSeleccionada) {
+        const opciones = obtenerSubclasesDeClase(claseSeleccionada);
+        const contador = new Map();
+        opciones.forEach((sub) => {
+          const tipo = String(sub?.tipo_subclase || '').trim();
+          if (!tipo) return;
+          contador.set(tipo, (contador.get(tipo) || 0) + 1);
+        });
+        if (!contador.size) return 'Subclase';
+        return Array.from(contador.entries())
+          .sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0]), 'es'))[0][0];
+      }
+
+      function obtenerNivelDesbloqueoSubclase(claseSeleccionada) {
+        if (!claseSeleccionada) return null;
+        const opcionesSubclase = obtenerSubclasesDeClase(claseSeleccionada);
+        if (!opcionesSubclase.length) return null;
+        const subIds = new Set(opcionesSubclase.map((s) => Number(s?.id)).filter(Boolean));
+        const niveles = (Array.isArray(subclaseNiveles) ? subclaseNiveles : [])
+          .filter((fila) => subIds.has(Number(fila?.SubclaseId)))
+          .map((fila) => Number(fila?.nivel))
+          .filter((n) => Number.isFinite(n) && n > 0);
+        if (!niveles.length) return 1;
+        return Math.min(...niveles);
+      }
+
+      function actualizarSubclaseClase(slugClase, subclaseSlug) {
+        const clase = claseBySlug.get(String(slugClase || '').trim());
+        if (!clase) return;
+        const nueva = String(subclaseSlug || '').trim();
+        const sub = subclaseBySlug.get(nueva);
+        const valido = sub && Number(sub?.ClaseId) === Number(clase?.id) ? nueva : '';
+        const nivelDesbloqueo = obtenerNivelDesbloqueoSubclase(clase);
+        seleccion.multiclases = obtenerMulticlases().map((fila) => {
+          if (fila.slug !== slugClase) return fila;
+          const nivelClase = Number(fila?.nivel) || 1;
+          if (!nivelDesbloqueo || nivelClase < nivelDesbloqueo) {
+            return { ...fila, subclase: '' };
+          }
+          return { ...fila, subclase: valido };
+        });
+      }
+
+      function calcularVidaBaseEstimada() {
+        const clasesActuales = obtenerMulticlases();
+        if (!clasesActuales.length) return 0;
+        let total = 0;
+        clasesActuales.forEach((fila, idx) => {
+          const clase = claseBySlug.get(fila.slug);
+          const dado = Number(clase?.dado_vida) || 0;
+          const nivel = Number(fila?.nivel) || 0;
+          if (dado < 1 || nivel < 1) return;
+          const promedio = Math.floor(dado / 2) + 1;
+          if (idx === 0) {
+            total += dado;
+            if (nivel > 1) total += (nivel - 1) * promedio;
+          } else {
+            total += nivel * promedio;
+          }
+        });
+        return total;
+      }
+
+      function construirTextoDadosVida() {
+        const acumulado = new Map();
+        obtenerMulticlases().forEach((fila) => {
+          const clase = claseBySlug.get(fila.slug);
+          const dado = Number(clase?.dado_vida) || 0;
+          const nivel = Number(fila?.nivel) || 0;
+          if (dado < 1 || nivel < 1) return;
+          const key = `d${dado}`;
+          acumulado.set(key, (acumulado.get(key) || 0) + nivel);
+        });
+        if (!acumulado.size) return '—';
+        return Array.from(acumulado.entries())
+          .sort((a, b) => Number(a[0].slice(1)) - Number(b[0].slice(1)))
+          .map(([die, count]) => `${count}${die}`)
+          .join(' + ');
+      }
+
+      function renderResumenClase() {
+        totalLevelEl.textContent = String(nivelTotalPersonaje());
+        hpEstimateEl.textContent = String(calcularVidaBaseEstimada());
+        hitDiceEl.textContent = construirTextoDadosVida();
+      }
+
+      function renderClassPicker() {
+        classPickerListEl.innerHTML = '';
+        const seleccionadas = new Set(obtenerMulticlases().map((fila) => fila.slug));
+        const nivelTotal = nivelTotalPersonaje();
+        if (nivelTotal >= 20) {
+          const empty = document.createElement('p');
+          empty.className = 'crear-paso2-empty';
+          empty.textContent = 'Has alcanzado el nivel total 20.';
+          classPickerListEl.appendChild(empty);
+          return;
+        }
+
+        let disponibles = 0;
+        clases.forEach((clase) => {
+          const slug = String(clase?.slug || '').trim();
+          if (!slug || seleccionadas.has(slug)) return;
+          disponibles += 1;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'crear-personaje-catalog-item';
+          btn.innerHTML = `
+            <img class="crear-personaje-catalog-item__img" src="${String(clase?.imagenUrl || '/images/personajesDefecto/imagenPorDefecto.avif')}" alt="" loading="lazy" />
+            <h3>${String(clase?.nombre || slug)}</h3>
+          `;
+          btn.addEventListener('click', () => {
+            const actuales = obtenerMulticlases();
+            if (actuales.some((fila) => fila.slug === slug)) return;
+            if (nivelTotalPersonaje() >= 20) return;
+            actuales.push({ slug, nivel: 1, subclase: '' });
+            seleccion.multiclases = actuales;
+            seleccion.clase = slug;
+            claseSelect.value = slug;
+            claseSelect.dispatchEvent(new Event('change'));
+            classPickerEl.setAttribute('hidden', '');
+          });
+          classPickerListEl.appendChild(btn);
+        });
+
+        if (!disponibles) {
+          const empty = document.createElement('p');
+          empty.className = 'crear-paso2-empty';
+          empty.textContent = 'No hay clases disponibles para añadir.';
+          classPickerListEl.appendChild(empty);
+        }
+      }
+
+      function renderListaMulticlase() {
+        multiclassListEl.innerHTML = '';
+        const lista = obtenerMulticlases();
+        if (!lista.length) return;
+        lista.forEach((fila) => {
+          const clase = claseBySlug.get(fila.slug);
+          if (!clase) return;
+          const row = document.createElement('div');
+          row.className = 'crear-paso2-multiclass-item';
+          const isActive = fila.slug === String(seleccion.clase || '').trim();
+          row.classList.toggle('is-active', isActive);
+
+          row.innerHTML = `
+            <div class="crear-paso2-multiclass-item__name">
+              <img class="crear-paso2-multiclass-item__img" src="${String(clase?.imagenUrl || '/images/personajesDefecto/imagenPorDefecto.avif')}" alt="" loading="lazy" />
+              <span>${String(clase?.nombre || fila.slug)}</span>
+            </div>
+          `;
+
+          const maxNivel = nivelMaximoParaClase(fila.slug);
+          const nivelActual = Math.max(1, Math.min(maxNivel, Number(fila.nivel) || 1));
+          fila.nivel = nivelActual;
+
+          const levelWrap = document.createElement('div');
+          levelWrap.className = 'crear-paso2-multiclass-item__level';
+          const levelLabel = document.createElement('label');
+          levelLabel.textContent = 'Nivel';
+          const levelSelectEl = document.createElement('select');
+          levelSelectEl.className = 'crear-paso2-multiclass-item__level-select';
+          for (let i = 1; i <= maxNivel; i += 1) {
+            const opt = document.createElement('option');
+            opt.value = String(i);
+            opt.textContent = String(i);
+            if (i === nivelActual) opt.selected = true;
+            levelSelectEl.appendChild(opt);
+          }
+          const onNivelChange = (event) => {
+            event.stopPropagation();
+            actualizarNivelClase(fila.slug, levelSelectEl.value);
+            guardarSeleccion();
+            render();
+          };
+          levelSelectEl.addEventListener('change', onNivelChange);
+          levelSelectEl.addEventListener('input', onNivelChange);
+          levelWrap.appendChild(levelLabel);
+          levelWrap.appendChild(levelSelectEl);
+          row.appendChild(levelWrap);
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'crear-paso2-multiclass-item__delete';
+          deleteBtn.setAttribute('aria-label', `Eliminar clase ${String(clase?.nombre || fila.slug)}`);
+          deleteBtn.textContent = '×';
+          deleteBtn.addEventListener('click', () => {
+            const restantes = obtenerMulticlases().filter((item) => item.slug !== fila.slug);
+            seleccion.multiclases = restantes;
+            if (!restantes.length) {
+              delete seleccion.clase;
+              claseSelect.value = '';
+            } else if (String(seleccion.clase || '').trim() === fila.slug) {
+              seleccion.clase = restantes[0].slug;
+              claseSelect.value = restantes[0].slug;
+            }
+            render();
+          });
+          row.appendChild(deleteBtn);
+
+          multiclassListEl.appendChild(row);
+        });
+      }
+
+      function contraerTarjetasDentro(container) {
+        Array.from(container.querySelectorAll('.crear-paso2-card')).forEach((card) => {
+          card.setAttribute('aria-expanded', 'false');
+          card.classList.remove('is-open');
+          const detail = card.querySelector('.crear-paso2-card__detail');
+          if (detail) detail.hidden = true;
+          const toggle = card.querySelector('.crear-paso2-drawer__toggle');
+          if (toggle) toggle.setAttribute('aria-expanded', 'false');
+        });
+        const scopeKey = String(container?.dataset?.openScope || '').trim();
+        if (scopeKey) {
+          const estado = obtenerEstadoTarjetasAbiertas();
+          delete estado[scopeKey];
+          guardarEstadoTarjetasAbiertas(estado);
+        }
+      }
+
+      function guardarSeleccion() {
+        storage.setItem(STORAGE_SELECTION_KEY, JSON.stringify(seleccion));
+      }
+
+      function obtenerEstadoTarjetasAbiertas() {
+        try {
+          const raw = storage.getItem(STORAGE_OPEN_CARDS_KEY);
+          const parsed = raw ? JSON.parse(raw) : {};
+          return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+        } catch {
+          return {};
+        }
+      }
+
+      function guardarEstadoTarjetasAbiertas(estado) {
+        storage.setItem(STORAGE_OPEN_CARDS_KEY, JSON.stringify(estado && typeof estado === 'object' ? estado : {}));
+      }
+
+      function actualizarTarjetasAbiertas(scopeKey, abiertasSet) {
+        if (!scopeKey) return;
+        const estado = obtenerEstadoTarjetasAbiertas();
+        const lista = Array.from(abiertasSet || []).map((v) => String(v || '').trim()).filter(Boolean);
+        if (lista.length) estado[scopeKey] = lista;
+        else delete estado[scopeKey];
+        guardarEstadoTarjetasAbiertas(estado);
+      }
+
+      function actualizarSelectorSubraza() {
+        const razaSeleccionada = razaBySlug.get(String(razaSelect.value || '').trim());
+        const razaId = razaSeleccionada ? Number(razaSeleccionada.id) : null;
+        const opciones = Array.from(subrazaSelect.options).slice(1);
+        if (!razaId) {
+          opciones.forEach((opt) => {
+            opt.hidden = true;
+            opt.disabled = true;
+          });
+          subrazaControl.hidden = true;
+          subrazaSelect.required = false;
+          subrazaSelect.value = '';
+          delete seleccion.subraza;
+          return;
+        }
+
+        let visibles = 0;
+        opciones.forEach((opt) => {
+          const coincide = Number(opt.dataset.razaId || 0) === razaId;
+          opt.hidden = !coincide;
+          opt.disabled = !coincide;
+          if (coincide) visibles += 1;
+        });
+
+        if (!visibles) {
+          subrazaControl.hidden = true;
+          subrazaSelect.required = false;
+          subrazaSelect.value = '';
+          delete seleccion.subraza;
+          return;
+        }
+
+        subrazaControl.hidden = false;
+        subrazaSelect.required = true;
+        const actual = String(subrazaSelect.value || '').trim();
+        const actualValida = opciones.some((opt) => !opt.hidden && opt.value === actual);
+        if (!actualValida) {
+          subrazaSelect.value = '';
+          delete seleccion.subraza;
+        }
+      }
+
+      function sincronizarSelectoresConSeleccion() {
+        normalizarMulticlases();
+        claseSelect.value = String(seleccion?.clase || '');
+        razaSelect.value = String(seleccion?.raza || '');
+        subrazaSelect.value = String(seleccion?.subraza || '');
+        actualizarSelectorSubraza();
+      }
+
+      function construirMapaRasgos(...grupos) {
+        const mapa = new Map();
+        mapaRasgoRacialBySlug.forEach((valor, slug) => {
+          if (!slug) return;
+          mapa.set(slug, {
+            nombre: String(valor?.nombre || '').trim(),
+            descripcion: String(valor?.descripcion || '').trim()
+          });
+        });
+        grupos.forEach((grupo) => {
+          const lista = Array.isArray(grupo) ? grupo : [];
+          lista.forEach((rasgo) => {
+            const slug = String(rasgo?.slug || '').trim();
+            if (!slug) return;
+            const previo = mapa.get(slug);
+            mapa.set(slug, {
+              nombre: String(rasgo?.nombre || rasgo?.name || previo?.nombre || slug).trim(),
+              descripcion: String(rasgo?.descripcion || previo?.descripcion || '').trim(),
+              modificadores: rasgo?.modificadores ?? previo?.modificadores ?? null
+            });
+          });
+        });
+        return mapa;
+      }
+
+      const OPCIONES_ATRIBUTOS_BASE = [
+        ['fuerza', 'Fuerza'],
+        ['destreza', 'Destreza'],
+        ['constitucion', 'Constitución'],
+        ['inteligencia', 'Inteligencia'],
+        ['sabiduria', 'Sabiduría'],
+        ['carisma', 'Carisma']
+      ];
+
+      function normalizarAbilityPaso2(raw = '') {
+        const t = String(raw || '').trim().toLowerCase();
+        const sinAcentos = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const map = {
+          strength: 'fuerza',
+          str: 'fuerza',
+          fuerza: 'fuerza',
+          dexterity: 'destreza',
+          dex: 'destreza',
+          destreza: 'destreza',
+          constitution: 'constitucion',
+          con: 'constitucion',
+          constitucion: 'constitucion',
+          inteligencia: 'inteligencia',
+          intelligence: 'inteligencia',
+          int: 'inteligencia',
+          wisdom: 'sabiduria',
+          wis: 'sabiduria',
+          sabiduria: 'sabiduria',
+          charisma: 'carisma',
+          cha: 'carisma',
+          carisma: 'carisma'
+        };
+        return map[sinAcentos] || '';
+      }
+
+      function calcularTotalesBaseConBonosRacialesPaso2() {
+        const totals = {};
+        OPCIONES_ATRIBUTOS_BASE.forEach(([slug]) => {
+          totals[slug] = 0;
+        });
+
+        const slugRazaActual = String(seleccion?.raza || '').trim().toLowerCase();
+        const slugSubrazaActual = String(seleccion?.subraza || '').trim().toLowerCase();
+        const razaSeleccionadaActual = slugRazaActual ? razaBySlug.get(slugRazaActual) : null;
+        const subrazaSeleccionadaActual = slugSubrazaActual ? subrazaBySlug.get(slugSubrazaActual) : null;
+
+        const baseScores = obtenerBaseScoresPaso3();
+        const bonusEstado = seleccion?.bonificadores_raciales_elegidos && typeof seleccion.bonificadores_raciales_elegidos === 'object'
+          ? seleccion.bonificadores_raciales_elegidos
+          : {};
+
+        function agregarDesdeMods(mods, key) {
+          const lista = Array.isArray(parsearJsonFlexible(mods, mods)) ? parsearJsonFlexible(mods, mods) : [];
+          const elegido = Array.isArray(bonusEstado?.[key]) ? bonusEstado[key] : [];
+          let idxChoice = 0;
+
+          lista.forEach((b) => {
+            if (!b || typeof b !== 'object') return;
+            const idxRaw = String(b?.ability_score?.index || b?.ability_score?.name || '').trim().toLowerCase();
+            const bonus = Number(b?.bonus) || 0;
+            if (!bonus) return;
+            if (idxRaw === 'choice') {
+              const elegidoCampo = String(elegido[idxChoice] || '').trim().toLowerCase();
+              idxChoice += 1;
+              const field = normalizarAbilityPaso2(elegidoCampo);
+              if (field) totals[field] = (totals[field] || 0) + bonus;
+              return;
+            }
+            const field = normalizarAbilityPaso2(idxRaw);
+            if (!field) return;
+            totals[field] = (totals[field] || 0) + bonus;
+          });
+        }
+
+        // Race bonuses (tarjeta "Bonificadores" del paso 2)
+        if (razaSeleccionadaActual && String(slugRazaActual) !== 'human') {
+          const filaRaza1 = Array.isArray(razaNiveles)
+            ? razaNiveles.find((f) => Number(f?.RazaId) === Number(razaSeleccionadaActual.id) && Number(f?.nivel) === 1)
+            : null;
+          const modsRaza = obtenerBonificadoresRazaPaso2({ fila: filaRaza1, razaSeleccionada: razaSeleccionadaActual, subrazaSeleccionada: subrazaSeleccionadaActual });
+          const keyRaza = `raza:${String(slugRazaActual || '')}:nivel:1`;
+          if (Array.isArray(modsRaza) && modsRaza.length) agregarDesdeMods(modsRaza, keyRaza);
+        }
+
+        // Subrace bonuses (tarjeta "Subraza · Bonificadores")
+        if (subrazaSeleccionadaActual) {
+          const modsSubraza = parsearJsonFlexible(subrazaSeleccionadaActual?.bonuses, []);
+          const keySub = `subraza:${String(slugSubrazaActual || '')}:nivel:1`;
+          if (Array.isArray(modsSubraza) && modsSubraza.length) agregarDesdeMods(modsSubraza, keySub);
+        }
+
+        const totalesActuales = {};
+        OPCIONES_ATRIBUTOS_BASE.forEach(([field]) => {
+          const base = Number(baseScores[field]) || 8;
+          const totalActual = base + (Number(totals[field]) || 0);
+          totalesActuales[field] = totalActual;
+        });
+        return totalesActuales;
+      }
+
+      function calcularTotalesConAsiPaso2() {
+        const totales = calcularTotalesBaseConBonosRacialesPaso2();
+        const asiRaw = seleccion?.asi_mejoras;
+        const entradas = asiRaw && typeof asiRaw === 'object'
+          ? (Array.isArray(asiRaw) ? asiRaw : Object.values(asiRaw))
+          : [];
+        entradas.forEach((asi) => {
+          if (!asi || typeof asi !== 'object') return;
+          const modo = String(asi?.modo || (asi?.featSlug ? 'feat' : 'atributos')).trim().toLowerCase();
+          if (modo !== 'atributos') return;
+          const attrs = Array.isArray(asi?.atributos) ? asi.atributos : [];
+          attrs.forEach((rawAttr) => {
+            const field = normalizarAbilityPaso2(rawAttr);
+            if (!field) return;
+            totales[field] = (Number(totales[field]) || 0) + 1;
+          });
+        });
+        return totales;
+      }
+
+      function esRasgoMejoraPuntuacion(rasgo) {
+        const idx = String(rasgo?.index || '').trim().toLowerCase();
+        return idx.includes('ability-score-improvement');
+      }
+
+      function construirAsiKey(claseSeleccionada, nivel, rasgo) {
+        const slugClase = String(claseSeleccionada?.slug || claseSeleccionada?.nombre || '').trim().toLowerCase();
+        const nivelNum = Number(nivel) || 1;
+        const slugRasgo = String(rasgo?.index || rasgo?.slug || '').trim().toLowerCase();
+        return [slugClase, nivelNum, slugRasgo].filter(Boolean).join(':');
+      }
+
+      function obtenerEstadoASI(asiKey) {
+        const raw = seleccion?.asi_mejoras && typeof seleccion.asi_mejoras === 'object' ? seleccion.asi_mejoras[asiKey] : null;
+        if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+          const featSlug = String(raw.featSlug || '').trim().toLowerCase();
+          const modoInferido = String(raw.modo || '').trim().toLowerCase() || (featSlug ? 'feat' : 'atributos');
+          const atributosBase = Array.isArray(raw.atributos) ? raw.atributos : [];
+          return {
+            bonusMode: 'plus1plus1',
+            atributos: modoInferido === 'atributos' ? atributosBase : [],
+            featSlug: modoInferido === 'feat' ? featSlug : '',
+            modo: modoInferido
+          };
+        }
+        return { bonusMode: 'plus1plus1', atributos: [], featSlug: '', modo: 'atributos' };
+      }
+
+      function actualizarEstadoASI(asiKey, patch) {
+        const estado = obtenerEstadoASI(asiKey);
+        const p = patch || {};
+        const nextModo = String((p.modo ?? estado.modo) || 'atributos').trim().toLowerCase();
+        const bonusMode = 'plus1plus1';
+        const nextFeatSlugRaw = p.featSlug != null ? p.featSlug : estado.featSlug;
+        const nextFeatSlug = String(nextFeatSlugRaw || '').trim().toLowerCase();
+        const nextAttrs = Array.isArray(p.atributos) ? p.atributos : estado.atributos;
+
+        let nuevo = {
+          ...estado,
+          ...p,
+          modo: nextModo,
+          bonusMode
+        };
+
+        if (nextModo === 'feat') {
+          nuevo.featSlug = nextFeatSlug;
+          nuevo.atributos = [];
+        } else {
+          // atributos
+          nuevo.featSlug = '';
+          nuevo.atributos = Array.isArray(nextAttrs) ? nextAttrs : [];
+        }
+
+        seleccion.asi_mejoras[asiKey] = nuevo;
+        return nuevo;
+      }
+
+      function recalcularFeatsDesdeASI() {
+        if (!seleccion.asi_mejoras || typeof seleccion.asi_mejoras !== 'object') {
+          seleccion.feats = [];
+          return;
+        }
+        const estados = Array.isArray(seleccion.asi_mejoras) ? seleccion.asi_mejoras : Object.values(seleccion.asi_mejoras);
+        const vistos = new Set();
+        const feats = [];
+        estados.forEach((asi) => {
+          if (!asi || typeof asi !== 'object') return;
+          const modo = String(asi?.modo || (asi?.featSlug ? 'feat' : 'atributos')).trim().toLowerCase();
+          if (modo !== 'feat') return;
+          const slug = String(asi?.featSlug || '').trim().toLowerCase();
+          if (!slug || vistos.has(slug)) return;
+          const feat = featBySlug.get(slug);
+          if (!feat) return;
+          vistos.add(slug);
+          feats.push(feat);
+        });
+        seleccion.feats = feats;
+      }
+
+      function renderAsiSelectorHtml(asiKey, rasgo) {
+        const estado = obtenerEstadoASI(asiKey);
+        const modo = String(estado?.modo || (estado?.featSlug ? 'feat' : 'atributos')).trim().toLowerCase();
+        const hasFeat = modo === 'feat' && Boolean(estado?.featSlug);
+        const attrs = Array.isArray(estado?.atributos) ? estado.atributos : [];
+        const attr0 = String(attrs?.[0] || '').trim().toLowerCase();
+        const attr1 = String(attrs?.[1] || '').trim().toLowerCase();
+        const totalesConAsi = modo === 'atributos' ? calcularTotalesConAsiPaso2() : null;
+
+        const desc = String(rasgo?.descripcion || '').trim();
+        const descHtml = desc
+          ? `<p>${escapeHtml(desc).replace(/\\n/g, '<br/>')}</p>`
+          : '';
+
+        const disabledAttrs = modo !== 'atributos' ? 'disabled' : '';
+        function puedeIncluir(slug, choiceIdx) {
+          if (!totalesConAsi) return true;
+          const otro = choiceIdx === 0 ? attr1 : attr0;
+          const aporteActualEnCampo = (attr0 === slug ? 1 : 0) + (attr1 === slug ? 1 : 0);
+          const aporteNuevoEnCampo = 1 + (otro === slug ? 1 : 0);
+          const totalProyectado = Number(totalesConAsi[slug] || 0) - aporteActualEnCampo + aporteNuevoEnCampo;
+          return totalProyectado <= 20;
+        }
+
+        const opcionesAttr0 = OPCIONES_ATRIBUTOS_BASE.map(([slug, nombre]) => {
+          if (!puedeIncluir(slug, 0)) return '';
+          return `<option value="${escapeHtml(slug)}" ${slug === attr0 ? 'selected' : ''}>${escapeHtml(nombre)}</option>`;
+        }).filter(Boolean).join('');
+
+        const opcionesAttr1 = OPCIONES_ATRIBUTOS_BASE.map(([slug, nombre]) => {
+          if (!puedeIncluir(slug, 1)) return '';
+          return `<option value="${escapeHtml(slug)}" ${slug === attr1 ? 'selected' : ''}>${escapeHtml(nombre)}</option>`;
+        }).filter(Boolean).join('');
+
+        const attrsHtml = `
+          <div class="crear-paso2-ancestor-choice-row">
+            <label class="crear-paso2-ancestor-label" for="cp2-asi-attr1-0-${escapeHtml(asiKey)}">Bonificador 1 (+1)</label>
+            <select
+              id="cp2-asi-attr1-0-${escapeHtml(asiKey)}"
+              class="crear-paso2-panel__title-select cp2-asi-attr1-select"
+              data-asi-key="${escapeHtml(asiKey)}"
+              data-choice-idx="0"
+              ${disabledAttrs}
+            >
+              <option value="">Selecciona atributo</option>
+              ${opcionesAttr0}
+            </select>
+          </div>
+          <div class="crear-paso2-ancestor-choice-row">
+            <label class="crear-paso2-ancestor-label" for="cp2-asi-attr1-1-${escapeHtml(asiKey)}">Bonificador 2 (+1)</label>
+            <select
+              id="cp2-asi-attr1-1-${escapeHtml(asiKey)}"
+              class="crear-paso2-panel__title-select cp2-asi-attr1-select"
+              data-asi-key="${escapeHtml(asiKey)}"
+              data-choice-idx="1"
+              ${disabledAttrs}
+            >
+              <option value="">Selecciona atributo</option>
+              ${opcionesAttr1}
+            </select>
+          </div>
+        `;
+
+        const opcionesFeats = featsSorted
+          .map((f) => {
+            const slug = String(f?.slug || '').trim().toLowerCase();
+            if (!slug) return '';
+            const nombre = String(f?.nombre || slug);
+            const selected = slug === (estado?.featSlug || '');
+            return `<option value="${escapeHtml(slug)}" ${selected ? 'selected' : ''}>${escapeHtml(nombre)}</option>`;
+          })
+          .join('');
+
+        const featSelSlug = String(estado?.featSlug || '').trim().toLowerCase();
+        const featSel = featSelSlug ? featBySlug.get(featSelSlug) : null;
+        const featDesc = featSel?.descripcion ? String(featSel.descripcion).trim() : '';
+        const featDescHtml = featDesc
+          ? `<p>${escapeHtml(featDesc).replace(/\\n/g, '<br/>')}</p>`
+          : `<p>Selecciona un feat para ver su descripción.</p>`;
+
+        return `
+          ${descHtml}
+          <div class="cp2-asi-selector">
+            <div class="crear-paso2-ancestor-choice-row">
+              <label class="crear-paso2-ancestor-label" for="cp2-asi-main-mode-${escapeHtml(asiKey)}">Elección</label>
+              <select
+                id="cp2-asi-main-mode-${escapeHtml(asiKey)}"
+                class="crear-paso2-panel__title-select cp2-asi-main-mode-select"
+                data-asi-key="${escapeHtml(asiKey)}"
+              >
+                <option value="atributos" ${modo === 'atributos' ? 'selected' : ''}>Mejora de atributos</option>
+                <option value="feat" ${modo === 'feat' ? 'selected' : ''}>Feat</option>
+              </select>
+            </div>
+
+            <div class="cp2-asi-attrs-block" ${modo === 'atributos' ? '' : 'hidden'}>
+              <div class="crear-paso2-ancestor-choice-row">
+                <label class="crear-paso2-ancestor-label">Bonificación</label>
+                <div style="font-weight:700; color:var(--dnd-red-dark); margin-top:0.2rem;">+1 y +1 (dos atributos)</div>
+              </div>
+              ${attrsHtml}
+            </div>
+
+            <div class="cp2-asi-feat-block" ${modo === 'feat' ? '' : 'hidden'}>
+              <div class="crear-paso2-ancestor-choice-row">
+                <label class="crear-paso2-ancestor-label" for="cp2-asi-feat-${escapeHtml(asiKey)}">Selecciona un feat</label>
+                <select
+                  id="cp2-asi-feat-${escapeHtml(asiKey)}"
+                  class="crear-paso2-panel__title-select cp2-asi-feat-select"
+                  data-asi-key="${escapeHtml(asiKey)}"
+                >
+                  <option value="">Ninguna</option>
+                  ${opcionesFeats}
+                </select>
+              </div>
+              ${featDescHtml}
+            </div>
+          </div>
+        `;
+      }
+
+      function slugificarTexto(raw = '') {
+        return String(raw || '')
+          .trim()
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+
+      function esRasgoEleccionSubclase(rasgo, claseSeleccionada, nivelRasgo, nivelDesbloqueoSubclase) {
+        if (!claseSeleccionada || !nivelDesbloqueoSubclase) return false;
+        if (Number(nivelRasgo) !== Number(nivelDesbloqueoSubclase)) return false;
+        const opcionesSub = obtenerSubclasesDeClase(claseSeleccionada);
+        if (!opcionesSub.length) return false;
+
+        const slugsCanonicos = new Set([
+          'arcane-tradition',
+          'bard-college',
+          'divine-domain',
+          'druid-circle',
+          'martial-archetype',
+          'monastic-tradition',
+          'otherworldly-patron',
+          'primal-path',
+          'ranger-archetype',
+          'roguish-archetype',
+          'sacred-oath',
+          'sorcerous-origin'
+        ]);
+
+        const idx = slugificarTexto(rasgo?.index || '');
+        if (idx && slugsCanonicos.has(idx)) return true;
+
+        const nombre = slugificarTexto(rasgo?.name || '');
+        if (nombre && slugsCanonicos.has(nombre)) return true;
+
+        const tiposSubclase = new Set(
+          opcionesSub
+            .map((s) => slugificarTexto(s?.tipo_subclase || ''))
+            .filter(Boolean)
+        );
+        if (idx && tiposSubclase.has(idx)) return true;
+        if (nombre && tiposSubclase.has(nombre)) return true;
+        return false;
+      }
+
+      function renderSelectorSubclaseHtml(claseSeleccionada, nivelClase, subclaseSeleccionadaSlug = '') {
+        const opciones = obtenerSubclasesDeClase(claseSeleccionada);
+        const etiquetaTipo = obtenerEtiquetaTipoSubclase(claseSeleccionada);
+        const etiquetaTipoMin = etiquetaTipo.toLowerCase();
+        if (!opciones.length) return '<p>Esta clase no tiene subclases disponibles.</p>';
+        const nivelDesbloqueo = obtenerNivelDesbloqueoSubclase(claseSeleccionada) || 1;
+        const bloqueado = Number(nivelClase) < Number(nivelDesbloqueo);
+        const opts = opciones.map((sub) => {
+          const slug = String(sub?.slug || '').trim();
+          if (!slug) return '';
+          const nombre = String(sub?.nombre || slug).trim();
+          return `<option value="${escapeHtml(slug)}" ${slug === subclaseSeleccionadaSlug ? 'selected' : ''}>${escapeHtml(nombre)}</option>`;
+        }).filter(Boolean).join('');
+        const detalleSub = subclaseSeleccionadaSlug
+          ? String(subclaseBySlug.get(subclaseSeleccionadaSlug)?.descripcion || '').trim()
+          : '';
+        return `
+          <p>${escapeHtml(etiquetaTipo)} se elige en nivel ${nivelDesbloqueo}.</p>
+          <div class="crear-paso2-ancestor-choice-row">
+            <label class="crear-paso2-ancestor-label" for="cp2-subclass-select-${escapeHtml(String(claseSeleccionada?.slug || ''))}">${escapeHtml(etiquetaTipo)}</label>
+            <select
+              id="cp2-subclass-select-${escapeHtml(String(claseSeleccionada?.slug || ''))}"
+              class="crear-paso2-panel__title-select cp2-subclass-select"
+              data-clase-slug="${escapeHtml(String(claseSeleccionada?.slug || ''))}"
+              ${bloqueado ? 'disabled' : ''}
+            >
+              <option value="">Selecciona ${escapeHtml(etiquetaTipoMin)}</option>
+              ${opts}
+            </select>
+          </div>
+          ${bloqueado ? `<p>Sube esta clase al nivel ${nivelDesbloqueo} para elegir ${escapeHtml(etiquetaTipoMin)}.</p>` : ''}
+          ${detalleSub ? `<p>${escapeHtml(detalleSub).replace(/\n/g, '<br/>')}</p>` : ''}
+        `;
+      }
+
+      function construirTarjetasClase(claseSeleccionada, nivelElegido, subclaseSeleccionadaSlug = '') {
+        if (!claseSeleccionada) return [];
+        const filas = claseNiveles
+          .filter((fila) => Number(fila?.ClaseId) === Number(claseSeleccionada.id) && Number(fila?.nivel) <= nivelElegido)
+          .sort((a, b) => Number(a.nivel) - Number(b.nivel));
+        const tarjetaCompetencias = {
+          titulo: 'Competencias de clase',
+          nivel: 1,
+          detalleHtml: formatearCompetenciasClase(
+            claseSeleccionada.competencia,
+            claseSeleccionada.tirada_salvacion,
+            claseSeleccionada.slug,
+            claseSeleccionada.proficiency_choices
+          )
+        };
+        const tarjetas = [];
+        let tarjetaEleccionSubclase = null;
+        const etiquetaTipoSubclase = obtenerEtiquetaTipoSubclase(claseSeleccionada);
+        const nivelDesbloqueoSubclase = obtenerNivelDesbloqueoSubclase(claseSeleccionada);
+        if (nivelDesbloqueoSubclase && Number(nivelElegido) >= Number(nivelDesbloqueoSubclase)) {
+          tarjetaEleccionSubclase = {
+            titulo: `Elección de ${String(etiquetaTipoSubclase || 'Subclase').toLowerCase()}`,
+            nivel: Number(nivelDesbloqueoSubclase),
+            detalleHtml: renderSelectorSubclaseHtml(claseSeleccionada, nivelElegido, subclaseSeleccionadaSlug),
+            ordenInterno: 0
+          };
+        }
+
+        filas.forEach((fila) => {
+          const nivel = Number(fila?.nivel) || 1;
+          const rasgos = Array.isArray(fila?.rasgos) ? fila.rasgos : [];
+
+          rasgos.forEach((rasgo) => {
+            if (esRasgoEleccionSubclase(rasgo, claseSeleccionada, nivel, nivelDesbloqueoSubclase)) return;
+            const slug = String(rasgo?.index || '').trim();
+            const nombre = String(rasgo?.name || slug).trim();
+            if (!nombre) return;
+            if (esRasgoMejoraPuntuacion(rasgo)) {
+              const asiKey = construirAsiKey(claseSeleccionada, nivel, rasgo);
+              tarjetas.push({
+                titulo: `${nombre}`,
+                nivel,
+                detalleHtml: renderAsiSelectorHtml(asiKey, rasgo),
+                ordenInterno: 20
+              });
+            } else {
+              const detalle = String(rasgo?.descripcion || '').trim() || 'Sin descripción disponible.';
+              tarjetas.push({
+                titulo: `${nombre}`,
+                nivel,
+                detalle,
+                ordenInterno: 20
+              });
+            }
+          });
+        });
+
+        const subclaseSel = subclaseBySlug.get(String(subclaseSeleccionadaSlug || '').trim());
+        if (subclaseSel && Number(subclaseSel?.ClaseId) === Number(claseSeleccionada?.id)) {
+          const filasSub = (Array.isArray(subclaseNiveles) ? subclaseNiveles : [])
+            .filter((fila) => Number(fila?.SubclaseId) === Number(subclaseSel?.id) && Number(fila?.nivel) <= Number(nivelElegido))
+            .sort((a, b) => Number(a?.nivel) - Number(b?.nivel));
+          filasSub.forEach((filaSub) => {
+            const nivelSub = Number(filaSub?.nivel) || 1;
+            const rasgosSub = Array.isArray(filaSub?.rasgos) ? filaSub.rasgos : [];
+            rasgosSub.forEach((rasgo) => {
+              const nombre = String(rasgo?.name || rasgo?.index || '').trim();
+              if (!nombre) return;
+              const detalle = String(rasgo?.descripcion || '').trim() || 'Sin descripción disponible.';
+              tarjetas.push({
+                titulo: `${etiquetaTipoSubclase} · ${nombre}`,
+                nivel: nivelSub,
+                detalle,
+                ordenInterno: 30
+              });
+            });
+          });
+        }
+
+        const tarjetasOrdenadas = tarjetas
+          .slice()
+          .sort((a, b) => {
+            const nivelA = Number(a?.nivel) || 1;
+            const nivelB = Number(b?.nivel) || 1;
+            if (nivelA !== nivelB) return nivelA - nivelB;
+            const ordenA = Number(a?.ordenInterno) || 99;
+            const ordenB = Number(b?.ordenInterno) || 99;
+            if (ordenA !== ordenB) return ordenA - ordenB;
+            return String(a?.titulo || '').localeCompare(String(b?.titulo || ''), 'es');
+          })
+          .map(({ ordenInterno, ...tarjeta }) => tarjeta);
+
+        return [tarjetaCompetencias, ...(tarjetaEleccionSubclase ? [tarjetaEleccionSubclase] : []), ...tarjetasOrdenadas];
+      }
+
+      function construirTarjetasRaza(razaSeleccionada, subrazaSeleccionada, nivelElegido) {
+        if (!razaSeleccionada) return [];
+        const slugRaza = String(razaSeleccionada?.slug || '').trim().toLowerCase();
+        const mapaRasgos = construirMapaRasgos(
+          razaSeleccionada.rasgosDetalle,
+          subrazaSeleccionada?.rasgosDetalle
+        );
+
+        const filas = razaNiveles
+          .filter((fila) => Number(fila?.RazaId) === Number(razaSeleccionada.id) && Number(fila?.nivel) <= nivelElegido)
+          .sort((a, b) => Number(a.nivel) - Number(b.nivel));
+
+        const tarjetas = [];
+        const filasFuente = filas.length
+          ? filas
+          : [{
+              nivel: 1,
+              rasgos: parsearJsonFlexible(razaSeleccionada?.traits, []),
+              modificadores: parsearJsonFlexible(razaSeleccionada?.bonuses, []),
+              velocidad: razaSeleccionada?.velocidad,
+              idiomas: parsearJsonFlexible(razaSeleccionada?.idiomas, [])
+            }];
+
+        filasFuente.forEach((fila) => {
+          const nivel = Number(fila?.nivel) || 1;
+          if (nivel === 1) {
+            tarjetas.push({
+              titulo: 'Idiomas',
+              nivel,
+              detalle: formatearIdiomas(fila?.idiomas || razaSeleccionada?.idiomas)
+            });
+
+            const velocidad = Number(fila?.velocidad) || Number(razaSeleccionada?.velocidad) || 0;
+            if (velocidad > 0) {
+              tarjetas.push({
+                titulo: 'Velocidad',
+                nivel,
+                detalle: `${velocidad} pies`
+              });
+            }
+
+            if (slugRaza !== 'human') {
+              const bonosBase = obtenerBonificadoresRazaPaso2({ fila, razaSeleccionada, subrazaSeleccionada });
+              const analisis = analizarBonificadoresRaciales(bonosBase);
+              const detalleBase = analisis.fijos.length
+                ? analisis.fijos.join(', ')
+                : (analisis.elecciones.length ? 'Bonificadores a elección.' : formatearBonificadores(bonosBase));
+              tarjetas.push({
+                titulo: 'Bonificadores',
+                nivel,
+                ...(analisis.elecciones.length
+                  ? {
+                      detalleHtml: renderSelectorBonificadorRacial({
+                        key: `raza:${slugRaza}:nivel:${nivel}`,
+                        elecciones: analisis.elecciones,
+                        descripcion: detalleBase
+                      })
+                    }
+                  : { detalle: detalleBase })
+              });
+            }
+          }
+
+          const rasgos = Array.isArray(parsearJsonFlexible(fila?.rasgos, [])) ? parsearJsonFlexible(fila?.rasgos, []) : [];
+          rasgos.forEach((ref) => {
+            const slug = String(ref?.index || '').trim();
+            const nombreApi = String(ref?.name || '').trim();
+            const local = slug ? mapaRasgos.get(slug) : null;
+            const titulo = (local?.nombre || nombreApi || slug || 'Rasgo racial').trim();
+            const detalle = String(local?.descripcion || '').trim() || 'Sin descripción disponible.';
+            const esDraconido = String(razaSeleccionada?.slug || '').trim().toLowerCase() === 'dragonborn';
+            const esAscendenciaDraconica = slug === 'draconic-ancestry';
+            const esArmaAliento = slug === 'breath-weapon';
+            const esResistencia = slug === 'damage-resistance';
+            const eleccionComp = extraerOpcionesCompetenciaRacial(local?.modificadores, slug);
+            if (esDraconido && esAscendenciaDraconica) {
+              tarjetas.push({ titulo, nivel, detalleHtml: renderTablaAncestrosDraconidos() });
+            } else if (esDraconido && esArmaAliento) {
+              const ancestro = getAncestroDraconidoActual();
+              if (!ancestro) {
+                tarjetas.push({
+                  titulo,
+                  nivel: nivelEscaladoArmaAliento(nivelElegido),
+                  detalle: 'Selecciona una ascendencia dracónica para ver el tipo de daño y el arma de aliento.'
+                });
+                return;
+              }
+              tarjetas.push({
+                titulo,
+                nivel: nivelEscaladoArmaAliento(nivelElegido),
+                detalle: `Ascendencia elegida: ${ancestro.nombre}\nArma de aliento: ${ancestro.aliento}\nDaño actual: ${danoArmaAlientoPorNivel(nivelElegido)} (${ancestro.dano})\n\nProgresión de daño:\n${resumenMejorasArmaAlientoPorNivel(nivelElegido)}`
+              });
+            } else if (esDraconido && esResistencia) {
+              const ancestro = getAncestroDraconidoActual();
+              if (!ancestro) {
+                tarjetas.push({
+                  titulo,
+                  nivel,
+                  detalle: 'Selecciona una ascendencia dracónica para activar la resistencia elemental.'
+                });
+                return;
+              }
+              tarjetas.push({
+                titulo,
+                nivel,
+                detalle: `Ascendencia elegida: ${ancestro.nombre}\nResistencia activa: ${ancestro.dano}`
+              });
+            } else if (eleccionComp.opciones.length && eleccionComp.cantidad > 0) {
+              tarjetas.push({
+                titulo,
+                nivel,
+                detalleHtml: renderSelectorCompetenciaRacial({
+                  rasgoSlug: slug || titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                  opciones: eleccionComp.opciones,
+                  cantidad: eleccionComp.cantidad,
+                  descripcion: detalle
+                })
+              });
+            } else {
+              tarjetas.push({ titulo, nivel, detalle });
+            }
+          });
+        });
+
+        if (subrazaSeleccionada) {
+          const bonosSubraza = parsearJsonFlexible(subrazaSeleccionada?.bonuses, []);
+          if (Array.isArray(bonosSubraza) && bonosSubraza.length) {
+            const analisisSubraza = analizarBonificadoresRaciales(bonosSubraza);
+            const detalleSubraza = analisisSubraza.fijos.length
+              ? analisisSubraza.fijos.join(', ')
+              : (analisisSubraza.elecciones.length
+                ? descripcionEleccionesBonificador(analisisSubraza.elecciones)
+                : formatearBonificadores(bonosSubraza));
+            tarjetas.push({
+              titulo: 'Subraza · Bonificadores',
+              nivel: 1,
+              ...(analisisSubraza.elecciones.length
+                ? {
+                    detalleHtml: renderSelectorBonificadorRacial({
+                      key: `subraza:${String(subrazaSeleccionada?.slug || '').trim().toLowerCase()}:nivel:1`,
+                      elecciones: analisisSubraza.elecciones,
+                      descripcion: detalleSubraza
+                    })
+                  }
+                : { detalle: detalleSubraza })
+            });
+          }
+
+          const rasgosSubraza = Array.isArray(subrazaSeleccionada?.rasgosDetalle)
+            ? subrazaSeleccionada.rasgosDetalle
+            : [];
+          rasgosSubraza.forEach((rasgo) => {
+            const slug = String(rasgo?.slug || '').trim();
+            const local = slug ? mapaRasgos.get(slug) : null;
+            const titulo = String(local?.nombre || rasgo?.nombre || rasgo?.name || slug || 'Rasgo de subraza').trim();
+            const detalle = String(local?.descripcion || rasgo?.descripcion || '').trim() || 'Sin descripción disponible.';
+            tarjetas.push({
+              titulo: `Subraza · ${titulo}`,
+              nivel: 1,
+              detalle
+            });
+          });
+        }
+
+        return tarjetas;
+      }
+
+      function renderTarjetas(container, tarjetas, mensajeVacio, scopeKey = '') {
+        const estadoAbiertas = obtenerEstadoTarjetasAbiertas();
+        const abiertas = new Set(Array.isArray(estadoAbiertas[scopeKey]) ? estadoAbiertas[scopeKey] : []);
+        container.dataset.openScope = String(scopeKey || '');
+        container.innerHTML = '';
+        if (!Array.isArray(tarjetas) || !tarjetas.length) {
+          const empty = document.createElement('p');
+          empty.className = 'crear-paso2-empty';
+          empty.textContent = mensajeVacio;
+          container.appendChild(empty);
+          return;
+        }
+
+        tarjetas.forEach((tarjeta, idx) => {
+          const card = document.createElement('article');
+          card.className = 'crear-paso2-card';
+          card.setAttribute('aria-expanded', 'false');
+
+          const toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'crear-paso2-drawer__toggle';
+          toggle.setAttribute('aria-expanded', 'false');
+
+          const title = document.createElement('span');
+          title.className = 'crear-paso2-card__title';
+          title.textContent = `Nivel ${tarjeta.nivel} · ${tarjeta.titulo}`;
+          toggle.appendChild(title);
+
+          const detail = document.createElement('div');
+          detail.className = 'crear-paso2-card__detail';
+          detail.hidden = true;
+          if (typeof tarjeta.detalleHtml === 'string' && tarjeta.detalleHtml.trim()) {
+            detail.classList.add('is-html');
+            detail.innerHTML = tarjeta.detalleHtml;
+          } else {
+            detail.textContent = String(tarjeta.detalle || '');
+          }
+
+          card.appendChild(toggle);
+          card.appendChild(detail);
+
+          toggle.addEventListener('click', () => {
+            const expanded = card.getAttribute('aria-expanded') === 'true';
+            card.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+            toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+            card.classList.toggle('is-open', !expanded);
+            detail.hidden = expanded;
+            const keyTitulo = String(title.textContent || '').trim();
+            if (keyTitulo) {
+              if (!expanded) abiertas.add(keyTitulo);
+              else abiertas.delete(keyTitulo);
+              actualizarTarjetasAbiertas(scopeKey, abiertas);
+            }
+          });
+
+          function actualizarAvisoPendiente() {
+            const selectors = [
+              // Raza (ya existente)
+              '.cp2-race-choice-select',
+              '.cp2-class-choice-select',
+              '#cp2-draconic-ancestor-select',
+              '.cp2-subclass-select',
+              // ASI (atributos / feat)
+              '.cp2-asi-attr1-select',
+              '.cp2-asi-feat-select',
+              '.cp2-asi-main-mode-select'
+            ].join(', ');
+            const selectsPendientes = Array.from(detail.querySelectorAll(selectors));
+            const tienePendiente = selectsPendientes.some((sel) => {
+              if (sel.disabled) return false;
+              // Ignora únicamente los selects que están dentro de bloques internos ASI ocultos
+              // (no el `detail` completo de la tarjeta, que también usa `hidden` cuando está colapsada).
+              if (sel.closest('.cp2-asi-attrs-block[hidden], .cp2-asi-feat-block[hidden]')) return false;
+              return !String(sel.value || '').trim();
+            });
+            card.classList.toggle('is-pending', tienePendiente);
+            let badge = title.querySelector('.crear-paso2-card__pending');
+            if (tienePendiente && !badge) {
+              badge = document.createElement('span');
+              badge.className = 'crear-paso2-card__pending';
+              badge.textContent = ' !';
+              title.appendChild(badge);
+            } else if (!tienePendiente && badge) {
+              badge.remove();
+            }
+          }
+
+          card.dataset.cardIndex = String(idx);
+          container.appendChild(card);
+
+          const ancestroSelect = detail.querySelector('#cp2-draconic-ancestor-select');
+          if (ancestroSelect) {
+            ancestroSelect.addEventListener('click', (event) => event.stopPropagation());
+            ancestroSelect.addEventListener('change', (event) => {
+              ancestroDraconido = String(event.target?.value || '').trim().toLowerCase();
+              if (ancestroDraconido) {
+                storage.setItem(STORAGE_DRACONIC_ANCESTRY_KEY, ancestroDraconido);
+                seleccion.ascendencia_draconida = ancestroDraconido;
+              } else {
+                storage.removeItem(STORAGE_DRACONIC_ANCESTRY_KEY);
+                delete seleccion.ascendencia_draconida;
+              }
+              guardarSeleccion();
+              render();
+            });
+          }
+
+          const subclassSelects = Array.from(detail.querySelectorAll('.cp2-subclass-select'));
+          subclassSelects.forEach((selectEl) => {
+            selectEl.addEventListener('click', (event) => event.stopPropagation());
+            selectEl.addEventListener('change', () => {
+              const claseSlug = String(selectEl.dataset.claseSlug || '').trim();
+              if (!claseSlug) return;
+              actualizarSubclaseClase(claseSlug, String(selectEl.value || '').trim());
+              guardarSeleccion();
+              render();
+            });
+          });
+
+          const classChoiceSelects = Array.from(detail.querySelectorAll('.cp2-class-choice-select'));
+          classChoiceSelects.forEach((selectEl) => {
+            selectEl.addEventListener('click', (event) => event.stopPropagation());
+            selectEl.addEventListener('change', () => {
+              const key = String(selectEl.dataset.classChoiceKey || '').trim();
+              const idxChoice = Math.max(0, Number(selectEl.dataset.choiceIdx) || 0);
+              if (!key) return;
+              const estado = obtenerEstadoCompetenciasClase();
+              const prev = Array.isArray(estado[key]) ? estado[key] : [];
+              const valorNuevo = String(selectEl.value || '').trim();
+              if (valorNuevo) {
+                for (let i = 0; i < prev.length; i += 1) {
+                  if (i === idxChoice) continue;
+                  if (String(prev[i] || '').trim() === valorNuevo) prev[i] = '';
+                }
+              }
+              prev[idxChoice] = valorNuevo;
+              estado[key] = prev;
+              seleccion.competencias_clase_elegidas = estado;
+              guardarSeleccion();
+              render();
+            });
+          });
+
+          const selectsCompetencia = Array.from(detail.querySelectorAll('.cp2-race-choice-select'));
+          selectsCompetencia.forEach((selectEl) => {
+            selectEl.addEventListener('click', (event) => event.stopPropagation());
+            selectEl.addEventListener('change', () => {
+              const bonusKey = String(selectEl.dataset.bonusKey || '').trim();
+              const rasgo = String(selectEl.dataset.rasgo || '').trim();
+              const idxChoice = Math.max(0, Number(selectEl.dataset.choiceIdx) || 0);
+              if (!rasgo && !bonusKey) return;
+              if (bonusKey) {
+                const estadoBonos = obtenerEstadoBonificadoresRaciales();
+                const prevBonos = Array.isArray(estadoBonos[bonusKey]) ? estadoBonos[bonusKey] : [];
+                const valorNuevo = String(selectEl.value || '').trim();
+                if (valorNuevo) {
+                  for (let i = 0; i < prevBonos.length; i += 1) {
+                    if (i === idxChoice) continue;
+                    if (String(prevBonos[i] || '').trim() === valorNuevo) {
+                      prevBonos[i] = '';
+                    }
+                  }
+                }
+                prevBonos[idxChoice] = valorNuevo;
+                estadoBonos[bonusKey] = prevBonos;
+                seleccion.bonificadores_raciales_elegidos = estadoBonos;
+                render();
+                return;
+              } else {
+                const estado = obtenerEstadoCompetenciasRaciales();
+                const prev = Array.isArray(estado[rasgo]) ? estado[rasgo] : [];
+                prev[idxChoice] = String(selectEl.value || '').trim();
+                estado[rasgo] = prev;
+                seleccion.competencias_raciales_elegidas = estado;
+              }
+              guardarSeleccion();
+              actualizarAvisoPendiente();
+            });
+          });
+
+          // ASI: selección de mejora de atributos y/o dote (feats)
+          const asiMainModeSelects = Array.from(detail.querySelectorAll('.cp2-asi-main-mode-select'));
+          asiMainModeSelects.forEach((selectEl) => {
+            selectEl.addEventListener('click', (event) => event.stopPropagation());
+            selectEl.addEventListener('change', () => {
+              const asiKey = String(selectEl.dataset.asiKey || '').trim();
+              if (!asiKey) return;
+              const modoNuevo = String(selectEl.value || '').trim().toLowerCase();
+              const estado = obtenerEstadoASI(asiKey);
+
+              if (modoNuevo === 'feat') {
+                actualizarEstadoASI(asiKey, { modo: 'feat', featSlug: estado?.featSlug || '' });
+              } else {
+                actualizarEstadoASI(asiKey, { modo: 'atributos' });
+              }
+
+              recalcularFeatsDesdeASI();
+              guardarSeleccion();
+              render();
+            });
+          });
+
+          const asiFeatSelects = Array.from(detail.querySelectorAll('.cp2-asi-feat-select'));
+          asiFeatSelects.forEach((selectEl) => {
+            selectEl.addEventListener('click', (event) => event.stopPropagation());
+            selectEl.addEventListener('change', () => {
+              const asiKey = String(selectEl.dataset.asiKey || '').trim();
+              if (!asiKey) return;
+              const slugFeat = String(selectEl.value || '').trim().toLowerCase();
+              actualizarEstadoASI(asiKey, { modo: 'feat', featSlug: slugFeat });
+              recalcularFeatsDesdeASI();
+              guardarSeleccion();
+              render();
+            });
+          });
+
+          const asiAttr1Selects = Array.from(detail.querySelectorAll('.cp2-asi-attr1-select'));
+          asiAttr1Selects.forEach((selectEl) => {
+            selectEl.addEventListener('click', (event) => event.stopPropagation());
+            selectEl.addEventListener('change', () => {
+              const asiKey = String(selectEl.dataset.asiKey || '').trim();
+              if (!asiKey) return;
+              const selects = Array.from(detail.querySelectorAll('.cp2-asi-attr1-select'));
+              const v0 = (selects.find((s) => String(s.dataset.choiceIdx) === '0')?.value || '').trim().toLowerCase();
+              const v1 = (selects.find((s) => String(s.dataset.choiceIdx) === '1')?.value || '').trim().toLowerCase();
+              const attrs = [];
+              if (v0) attrs.push(v0);
+              if (v1) attrs.push(v1);
+              actualizarEstadoASI(asiKey, { modo: 'atributos', atributos: attrs });
+              guardarSeleccion();
+              render();
+            });
+          });
+
+          actualizarAvisoPendiente();
+
+          const keyTitulo = String(title.textContent || '').trim();
+          if (abiertas.has(keyTitulo)) {
+            card.setAttribute('aria-expanded', 'true');
+            toggle.setAttribute('aria-expanded', 'true');
+            card.classList.add('is-open');
+            detail.hidden = false;
+          }
+        });
+      }
+
+      function renderSeccionesClase() {
+        claseCardsEl.innerHTML = '';
+        const clasesActuales = obtenerMulticlases();
+        if (!clasesActuales.length) {
+          renderTarjetas(claseCardsEl, [], 'Primero selecciona una clase en el paso 1.', 'clase:empty');
+          return;
+        }
+
+        clasesActuales.forEach((filaClase) => {
+          const clase = claseBySlug.get(filaClase.slug);
+          if (!clase) return;
+          const nivelClase = Math.max(1, Number(filaClase.nivel) || 1);
+          const section = document.createElement('section');
+          section.className = 'crear-paso2-class-section';
+          section.dataset.slug = String(filaClase.slug || '');
+
+          const head = document.createElement('div');
+          head.className = 'crear-paso2-class-section__head';
+          head.innerHTML = `
+            <p class="crear-paso2-class-section__title">${String(clase.nombre || filaClase.slug)} · nivel ${nivelClase}</p>
+          `;
+          const toggleBtn = document.createElement('button');
+          toggleBtn.type = 'button';
+          toggleBtn.className = 'btn btn-secondary crear-paso2-class-section__toggle';
+          const colapsada = collapsedClassBySlug.has(filaClase.slug);
+          toggleBtn.textContent = colapsada ? 'Mostrar características' : 'Contraer características';
+          toggleBtn.setAttribute('aria-pressed', colapsada ? 'true' : 'false');
+          head.appendChild(toggleBtn);
+          section.appendChild(head);
+
+          const cardsWrap = document.createElement('div');
+          cardsWrap.className = 'crear-paso2-card-list';
+          if (colapsada) cardsWrap.setAttribute('hidden', '');
+          section.appendChild(cardsWrap);
+
+          const subclaseSeleccionada = String(filaClase?.subclase || '').trim();
+          const cards = construirTarjetasClase(clase, nivelClase, subclaseSeleccionada);
+          renderTarjetas(cardsWrap, cards, 'No hay datos de clase para ese nivel.', `clase:${filaClase.slug}`);
+
+          toggleBtn.addEventListener('click', () => {
+            const estaColapsada = cardsWrap.hasAttribute('hidden');
+            if (estaColapsada) {
+              cardsWrap.removeAttribute('hidden');
+              collapsedClassBySlug.delete(filaClase.slug);
+              toggleBtn.textContent = 'Contraer características';
+              toggleBtn.setAttribute('aria-pressed', 'false');
+            } else {
+              contraerTarjetasDentro(cardsWrap);
+              cardsWrap.setAttribute('hidden', '');
+              collapsedClassBySlug.add(filaClase.slug);
+              toggleBtn.textContent = 'Mostrar características';
+              toggleBtn.setAttribute('aria-pressed', 'true');
+            }
+          });
+
+          claseCardsEl.appendChild(section);
+        });
+      }
+
+      function render() {
+        normalizarMulticlases();
+        const claseSlug = String(seleccion?.clase || claseSelect.value || '').trim();
+        const razaSlug = String(razaSelect.value || '').trim();
+        if (claseSlug) seleccion.clase = claseSlug;
+        else delete seleccion.clase;
+        if (razaSlug) seleccion.raza = razaSlug;
+        else delete seleccion.raza;
+        actualizarSelectorSubraza();
+        const subrazaSlug = String(subrazaSelect.value || '').trim();
+        if (subrazaSlug) seleccion.subraza = subrazaSlug;
+        else delete seleccion.subraza;
+
+        const razaSeleccionada = razaBySlug.get(razaSlug);
+        const subrazaSeleccionada = subrazaBySlug.get(subrazaSlug);
+        const nivelElegido = Math.max(1, nivelTotalPersonaje());
+        seleccion.multiclases = obtenerMulticlases().map((filaClase) => {
+          const clase = claseBySlug.get(String(filaClase?.slug || '').trim());
+          if (!clase) return filaClase;
+          const nivelClase = Number(filaClase?.nivel) || 1;
+          const nivelDesbloqueo = obtenerNivelDesbloqueoSubclase(clase);
+          const subclaseSlug = String(filaClase?.subclase || '').trim();
+          const sub = subclaseBySlug.get(subclaseSlug);
+          const valida = sub && Number(sub?.ClaseId) === Number(clase?.id);
+          if (!nivelDesbloqueo || nivelClase < nivelDesbloqueo) {
+            return { ...filaClase, subclase: '' };
+          }
+          return { ...filaClase, subclase: valida ? subclaseSlug : '' };
+        });
+        // Mantén la selección de mejoras (ASI) coherente cuando cambie la clase / multiclase.
+        if (seleccion.asi_mejoras && typeof seleccion.asi_mejoras === 'object') {
+          const asiKeysActivos = new Set();
+          obtenerMulticlases().forEach((filaClase) => {
+            const clase = claseBySlug.get(String(filaClase?.slug || '').trim());
+            if (!clase) return;
+            const maxNivelClase = Number(filaClase?.nivel) || 1;
+            const filasClase = (Array.isArray(claseNiveles) ? claseNiveles : [])
+              .filter((f) => Number(f?.ClaseId) === Number(clase.id) && Number(f?.nivel) <= maxNivelClase);
+            filasClase.forEach((fila) => {
+              const nivelFila = Number(fila?.nivel) || 1;
+              const rasgos = Array.isArray(fila?.rasgos) ? fila.rasgos : [];
+              rasgos.forEach((rasgo) => {
+                if (!esRasgoMejoraPuntuacion(rasgo)) return;
+                const asiKey = construirAsiKey(clase, nivelFila, rasgo);
+                if (asiKey) asiKeysActivos.add(asiKey);
+              });
+            });
+          });
+          seleccion.asi_mejoras = Object.fromEntries(
+            Object.entries(seleccion.asi_mejoras).filter(([k]) => asiKeysActivos.has(k))
+          );
+          recalcularFeatsDesdeASI();
+        }
+        if (String(razaSlug || '').trim().toLowerCase() === 'dragonborn' && ancestroDraconido) {
+          seleccion.ascendencia_draconida = ancestroDraconido;
+        } else {
+          delete seleccion.ascendencia_draconida;
+        }
+        if (!seleccion.competencias_raciales_elegidas || typeof seleccion.competencias_raciales_elegidas !== 'object') {
+          seleccion.competencias_raciales_elegidas = {};
+        }
+        if (!seleccion.competencias_clase_elegidas || typeof seleccion.competencias_clase_elegidas !== 'object') {
+          seleccion.competencias_clase_elegidas = {};
+        }
+        if (!seleccion.bonificadores_raciales_elegidos || typeof seleccion.bonificadores_raciales_elegidos !== 'object') {
+          seleccion.bonificadores_raciales_elegidos = {};
+        }
+        if (subrazaSeleccionada && razaSeleccionada && Number(subrazaSeleccionada.RazaId) !== Number(razaSeleccionada.id)) {
+          delete seleccion.subraza;
+          subrazaSelect.value = '';
+        }
+        preguardarIdiomasConocidos(razaSeleccionada, subrazaSeleccionada);
+        guardarSeleccion();
+        claseSelect.value = claseSlug;
+        renderResumenClase();
+        renderListaMulticlase();
+        renderClassPicker();
+
+        if (!razaSeleccionada) {
+          renderTarjetas(
+            claseCardsEl,
+            [],
+            'Primero selecciona una clase y una raza en el paso 1.',
+            'clase:empty'
+          );
+          renderTarjetas(
+            razaCardsEl,
+            [],
+            'Primero selecciona una clase y una raza en el paso 1.',
+            'raza:empty'
+          );
+          return;
+        }
+
+        renderSeccionesClase();
+        const tarjetasRaza = construirTarjetasRaza(razaSeleccionada, subrazaSeleccionada, nivelElegido);
+        renderTarjetas(
+          razaCardsEl,
+          tarjetasRaza,
+          'No hay datos de raza para ese nivel.',
+          `raza:${razaSlug || 'none'}:${subrazaSlug || 'none'}`
+        );
+      }
+
+      sincronizarSelectoresConSeleccion();
+      inicializarDropdownCatalogo({
+        selectEl: razaSelect,
+        triggerEl: razaTrigger,
+        menuEl: razaMenu,
+        mapBySlug: razaBySlug,
+        lista: razas,
+        placeholder: 'Selecciona raza'
+      });
+      renderClassPicker();
+
+      claseSelect.addEventListener('change', () => {
+        render();
+      });
+
+      razaSelect.addEventListener('change', () => {
+        render();
+      });
+
+      subrazaSelect.addEventListener('change', () => {
+        render();
+      });
+
+      addClassBtn.addEventListener('click', () => {
+        const abierto = !classPickerEl.hasAttribute('hidden');
+        if (abierto) classPickerEl.setAttribute('hidden', '');
+        else {
+          renderClassPicker();
+          classPickerEl.removeAttribute('hidden');
+        }
+      });
+
+      document.addEventListener('click', () => {
+        cerrarMenusCatalogo();
+      });
+
+      render();
+    })();
+  </script>
 </body>
 </html>
