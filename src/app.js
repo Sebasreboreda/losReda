@@ -68,7 +68,7 @@ function resolveSiteLogo() {
 const siteLogoAsset = resolveSiteLogo();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = Number.parseInt(process.env.PORT, 10) || 4000;
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const CANTIDAD_SUBRAZAS_MIN = 8;
 const CANTIDAD_FEATS_MIN = 1;
