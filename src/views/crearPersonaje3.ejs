@@ -21,6 +21,7 @@
               <button type="button" class="crear-paso3-method-btn" data-method="puntos">Método por puntos</button>
             </div>
             <p id="cp3-point-summary" class="crear-paso3-point-summary" hidden>Puntos restantes: 27 / 27</p>
+            <div id="cp3-standard-pool" class="crear-paso3-standard-pool" hidden aria-label="Valores del método standard"></div>
             <p id="cp3-racial-bonus-summary" class="crear-paso3-bonus-summary">Bonificadores raciales: —</p>
             <div class="crear-paso3-bonus-head" aria-hidden="true">
               <span class="crear-paso3-bonus-head__spacer"></span>
@@ -34,7 +35,7 @@
             <div id="cp3-attributes-list" class="crear-paso3-attributes-list"></div>
           </article>
 
-          <article class="crear-paso3-card">
+          <article id="cp3-trasfondo-card" class="crear-paso3-card">
             <h2 class="crear-paso3-card__title">Trasfondo</h2>
             <div class="crear-paso3-field">
               <label for="cp3-background-select">Selecciona trasfondo</label>
@@ -160,7 +161,7 @@
 
         <div class="form-actions">
           <a href="/personajes/crear/2" class="btn btn-secondary">Anterior</a>
-          <a href="/personajes/crear/4" class="btn btn-primary">Siguiente</a>
+          <a href="/personajes/crear/4" id="cp3-next-step" class="btn btn-primary">Siguiente<span id="cp3-next-pending" class="crear-paso3-next-pending" hidden> !</span></a>
         </div>
       </div>
     </div>
@@ -174,32 +175,40 @@
   <script id="cp3-idiomas-data" type="application/json"><%- JSON.stringify(idiomasCatalogo || []).replace(/</g, '\\u003c') %></script>
   <script id="cp3-atributos-data" type="application/json"><%- JSON.stringify(atributos).replace(/</g, '\\u003c') %></script>
   <script id="cp3-textos-directos-data" type="application/json"><%- JSON.stringify(textosDirectos || {}).replace(/</g, '\\u003c') %></script>
+  <script id="cp3-rules-data" type="application/json"><%- JSON.stringify(reglasCreacion || {}).replace(/</g, '\\u003c') %></script>
+  <script src="/js/crearPersonajeRules.js"></script>
   <script>
     (function () {
       const STORAGE_SELECTION_KEY = 'crearPersonaje.seleccionPaso1';
       const STORAGE_ATTRS_KEY = 'crearPersonaje.atributosPaso3';
+      const STORAGE_ATTRS_STANDARD_KEY = 'crearPersonaje.atributosPaso3.standard';
+      const STORAGE_ATTRS_PUNTOS_KEY = 'crearPersonaje.atributosPaso3.puntos';
+      const STORAGE_ATTRS_TOTAL_STANDARD_KEY = 'crearPersonaje.atributosPaso3.total.standard';
+      const STORAGE_ATTRS_TOTAL_PUNTOS_KEY = 'crearPersonaje.atributosPaso3.total.puntos';
       const STORAGE_BG_KEY = 'crearPersonaje.trasfondoPaso3';
       const STORAGE_BONUS_ASSIGN_KEY = 'crearPersonaje.bonosAsignadosPaso3';
       const STORAGE_TEXTS_KEY = 'crearPersonaje.textosPaso3';
       const STORAGE_BG_LANG_KEY = 'crearPersonaje.idiomasTrasfondoPaso3';
+      const STORAGE_BG_SKILLS_KEY = 'crearPersonaje.skillsTrasfondoPaso3';
+      const STORAGE_BG_TOOLS_KEY = 'crearPersonaje.toolsTrasfondoPaso3';
       const STORAGE_KNOWN_LANG_KEY = 'crearPersonaje.idiomasConocidosPaso2';
       const STORAGE_ATTR_METHOD_KEY = 'crearPersonaje.metodoAtributosPaso3';
       const STORAGE_DRAWERS_KEY = 'crearPersonaje.drawersPaso3';
       const storage = window.sessionStorage;
-      const SCORE_ORDER = [8, 10, 12, 13, 14, 15];
-      const ATTR_MIN = 8;
-      const ATTR_MAX = 15;
-      const POINT_BUY_TOTAL = 27;
-      const POINT_BUY_COST = {
-        8: 0,
-        9: 1,
-        10: 2,
-        11: 3,
-        12: 4,
-        13: 5,
-        14: 7,
-        15: 9
-      };
+      const rulesData = parseJsonScript('cp3-rules-data');
+      const attrRules = rulesData && typeof rulesData === 'object' && rulesData.atributos && typeof rulesData.atributos === 'object'
+        ? rulesData.atributos
+        : {};
+      const SCORE_ORDER = Array.isArray(attrRules.scoreOrder) && attrRules.scoreOrder.length
+        ? attrRules.scoreOrder.map((n) => Number(n)).filter((n) => Number.isFinite(n))
+        : [8, 10, 12, 13, 14, 15];
+      const STANDARD_DISPLAY_ORDER = [15, 14, 13, 12, 10];
+      const ATTR_MIN = Number.isFinite(Number(attrRules.attrMin)) ? Number(attrRules.attrMin) : 8;
+      const ATTR_MAX = Number.isFinite(Number(attrRules.attrMax)) ? Number(attrRules.attrMax) : 15;
+      const POINT_BUY_TOTAL = Number(attrRules.pointBuyTotal) || 27;
+      const POINT_BUY_COST = attrRules.pointBuyCost && typeof attrRules.pointBuyCost === 'object'
+        ? attrRules.pointBuyCost
+        : { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
 
       function parseJsonScript(id) {
         const el = document.getElementById(id);
@@ -242,13 +251,18 @@
       const bgSelect = document.getElementById('cp3-background-select');
       const bgDesc = document.getElementById('cp3-background-description');
       const bgDetails = document.getElementById('cp3-background-details');
+      const bgCard = document.getElementById('cp3-trasfondo-card');
+      const nextPendingBadge = document.getElementById('cp3-next-pending');
       const bonusSummary = document.getElementById('cp3-racial-bonus-summary');
       const pointSummary = document.getElementById('cp3-point-summary');
+      const standardPoolEl = document.getElementById('cp3-standard-pool');
+      const nextStepLink = Array.from(document.querySelectorAll('.form-actions a.btn.btn-primary'))
+        .find((a) => String(a.getAttribute('href') || '').trim().endsWith('/personajes/crear/4') || String(a.getAttribute('href') || '').trim().endsWith('/4'));
       const methodButtons = Array.from(document.querySelectorAll('.crear-paso3-method-btn'));
       const textInputs = Array.from(document.querySelectorAll('[data-cp3-text]'));
       const drawerToggles = Array.from(document.querySelectorAll('.crear-paso3-drawer__toggle'));
       const autoTextareas = Array.from(document.querySelectorAll('.crear-paso3-textarea--auto[data-cp3-text]'));
-      if (!listEl || !bgSelect || !bgDesc || !bgDetails || !bonusSummary || !pointSummary || methodButtons.length === 0) return;
+      if (!listEl || !bgSelect || !bgDesc || !bgDetails || !bonusSummary || !pointSummary || !standardPoolEl || methodButtons.length === 0) return;
 
       function normalizarAbility(valor = '') {
         const key = String(valor || '')
@@ -322,24 +336,62 @@
         seleccion = {};
       }
 
-      let baseScores = {};
-      try {
-        const raw = storage.getItem(STORAGE_ATTRS_KEY);
-        baseScores = raw ? JSON.parse(raw) : {};
-      } catch {
-        baseScores = {};
-      }
-      atributos.forEach((a) => {
-        const key = String(a?.campo || '').trim();
-        if (!key) return;
-        const value = Number(baseScores[key]);
-        baseScores[key] = SCORE_ORDER.includes(value) ? value : 8;
-      });
-
       let metodoAtributos = String(storage.getItem(STORAGE_ATTR_METHOD_KEY) || 'standard').trim().toLowerCase();
       if (!['standard', 'puntos'].includes(metodoAtributos)) {
         metodoAtributos = 'standard';
       }
+
+      function storageKeyPorMetodo(method) {
+        return method === 'puntos' ? STORAGE_ATTRS_PUNTOS_KEY : STORAGE_ATTRS_STANDARD_KEY;
+      }
+
+      function storageKeyTotalesPorMetodo(method) {
+        return method === 'puntos' ? STORAGE_ATTRS_TOTAL_PUNTOS_KEY : STORAGE_ATTRS_TOTAL_STANDARD_KEY;
+      }
+
+      function crearBaseScoresDefault() {
+        const out = {};
+        atributos.forEach((a) => {
+          const key = String(a?.campo || '').trim();
+          if (!key) return;
+          out[key] = 8;
+        });
+        return out;
+      }
+
+      function sanitizarBaseScores(scores, method) {
+        const out = {};
+        atributos.forEach((a) => {
+          const key = String(a?.campo || '').trim();
+          if (!key) return;
+          const raw = Number(scores?.[key]);
+          if (method === 'standard') {
+            out[key] = SCORE_ORDER.includes(raw) ? raw : 8;
+            return;
+          }
+          const clamped = Math.max(ATTR_MIN, Math.min(ATTR_MAX, Number.isFinite(raw) ? Math.round(raw) : ATTR_MIN));
+          out[key] = clamped;
+        });
+        return out;
+      }
+
+      function cargarBaseScoresPorMetodo(method) {
+        const key = storageKeyPorMetodo(method);
+        let parsed = null;
+        try {
+          const raw = storage.getItem(key);
+          parsed = raw ? JSON.parse(raw) : null;
+        } catch {
+          parsed = null;
+        }
+        const safe = sanitizarBaseScores(parsed && typeof parsed === 'object' ? parsed : crearBaseScoresDefault(), method);
+        storage.setItem(key, JSON.stringify(safe));
+        return safe;
+      }
+
+      const baseScoresStandard = cargarBaseScoresPorMetodo('standard');
+      const baseScoresPuntos = cargarBaseScoresPorMetodo('puntos');
+      let baseScores = metodoAtributos === 'puntos' ? baseScoresPuntos : baseScoresStandard;
 
       let bonusState = { contextKey: '', assignments: {} };
       try {
@@ -383,9 +435,39 @@
       } catch {
         idiomasTrasfondoState = [];
       }
+      let skillsTrasfondoState = [];
+      try {
+        const raw = storage.getItem(STORAGE_BG_SKILLS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        skillsTrasfondoState = Array.isArray(parsed) ? parsed.map((v) => String(v || '').trim()) : [];
+      } catch {
+        skillsTrasfondoState = [];
+      }
+      let toolsTrasfondoState = [];
+      try {
+        const raw = storage.getItem(STORAGE_BG_TOOLS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        toolsTrasfondoState = Array.isArray(parsed) ? parsed.map((v) => String(v || '').trim()) : [];
+      } catch {
+        toolsTrasfondoState = [];
+      }
 
       function guardarBaseScores() {
-        storage.setItem(STORAGE_ATTRS_KEY, JSON.stringify(baseScores));
+        const safe = sanitizarBaseScores(baseScores, metodoAtributos);
+        baseScores = safe;
+        storage.setItem(storageKeyPorMetodo(metodoAtributos), JSON.stringify(safe));
+        // Compatibilidad con el flujo existente de otras pantallas.
+        storage.setItem(STORAGE_ATTRS_KEY, JSON.stringify(safe));
+      }
+
+      function guardarTotalesMetodoActual(ctx) {
+        const totalScores = {};
+        ATTRIBUTE_FIELDS.forEach((field) => {
+          const base = Number(baseScores[field]) || 8;
+          const bonus = Number(ctx?.totalMap?.get(field) || 0);
+          totalScores[field] = base + bonus;
+        });
+        storage.setItem(storageKeyTotalesPorMetodo(metodoAtributos), JSON.stringify(totalScores));
       }
 
       function guardarSeleccionPaso1() {
@@ -411,32 +493,25 @@
       function guardarIdiomasTrasfondo() {
         storage.setItem(STORAGE_BG_LANG_KEY, JSON.stringify(idiomasTrasfondoState));
       }
+      function guardarSkillsTrasfondo() {
+        storage.setItem(STORAGE_BG_SKILLS_KEY, JSON.stringify(skillsTrasfondoState));
+      }
+      function guardarToolsTrasfondo() {
+        storage.setItem(STORAGE_BG_TOOLS_KEY, JSON.stringify(toolsTrasfondoState));
+      }
 
       function normalizarBaseScoresSegunMetodo() {
         let changed = false;
         ATTRIBUTE_FIELDS.forEach((field) => {
           const raw = Number(baseScores[field]);
-          const normalizado = Math.max(ATTR_MIN, Math.min(ATTR_MAX, Number.isFinite(raw) ? raw : ATTR_MIN));
+          let normalizado = ATTR_MIN;
+          if (metodoAtributos === 'standard') {
+            normalizado = SCORE_ORDER.includes(raw) ? raw : ATTR_MIN;
+          } else {
+            normalizado = Math.max(ATTR_MIN, Math.min(ATTR_MAX, Number.isFinite(raw) ? Math.round(raw) : ATTR_MIN));
+          }
           if (Number(baseScores[field]) !== normalizado) {
             baseScores[field] = normalizado;
-            changed = true;
-          }
-        });
-
-        if (metodoAtributos !== 'standard') {
-          if (changed) guardarBaseScores();
-          return;
-        }
-
-        const disponibles = SCORE_ORDER.slice().sort((a, b) => b - a);
-        const fieldsOrdenados = ATTRIBUTE_FIELDS
-          .map((field, idx) => ({ field, idx, value: Number(baseScores[field]) || ATTR_MIN }))
-          .sort((a, b) => (b.value - a.value) || (a.idx - b.idx));
-
-        fieldsOrdenados.forEach((item, idx) => {
-          const objetivo = disponibles[idx] ?? ATTR_MIN;
-          if (Number(baseScores[item.field]) !== objetivo) {
-            baseScores[item.field] = objetivo;
             changed = true;
           }
         });
@@ -524,27 +599,35 @@
         const fixedMapRacial = new Map();
         const fixedMapAsi = new Map();
         const fixedMapFeat = new Map();
+        const fixedMapClase = new Map();
         const slots = [];
-        const requiereUnoEnAtributosDistintos = slugRaza === 'human' && slugSubraza === 'variant-human';
+        const requiereUnoEnAtributosDistintos = false;
 
-        function agregarFijo(field, bonus, source = 'racial') {
+        function agregarFijo(field, bonus, source = 'racial', max = null) {
           const f = String(field || '').trim().toLowerCase();
           const val = Number(bonus) || 0;
           if (!f || !val) return;
           if (!ATTRIBUTE_FIELDS.includes(f)) return;
+          const base = Number(baseScores[f]) || 8;
+          const actual = Number(fixedMap.get(f)) || 0;
+          const maxBySource = source === 'feat' || source === 'asi' ? 20 : null;
+          const limite = Number.isFinite(Number(max)) && Number(max) > 0
+            ? Number(max)
+            : maxBySource;
           let incremento = val;
-          if (source === 'feat') {
-            const base = Number(baseScores[f]) || 8;
-            const totalActual = base + (Number(fixedMap.get(f)) || 0);
-            if (totalActual >= 20) return;
-            incremento = Math.min(val, 20 - totalActual);
+          if (limite) {
+            const totalActual = base + actual;
+            if (totalActual >= limite) return;
+            incremento = Math.min(val, limite - totalActual);
           }
           if (!incremento) return;
-          fixedMap.set(f, (fixedMap.get(f) || 0) + incremento);
+          fixedMap.set(f, actual + incremento);
           if (source === 'feat') {
             fixedMapFeat.set(f, (fixedMapFeat.get(f) || 0) + incremento);
           } else if (source === 'asi') {
             fixedMapAsi.set(f, (fixedMapAsi.get(f) || 0) + incremento);
+          } else if (source === 'clase' || source === 'subclase') {
+            fixedMapClase.set(f, (fixedMapClase.get(f) || 0) + incremento);
           } else {
             fixedMapRacial.set(f, (fixedMapRacial.get(f) || 0) + incremento);
           }
@@ -636,13 +719,31 @@
           }
           if (typeof valor !== 'object') return;
 
+          if (Array.isArray(valor?.ability_bonuses)) {
+            procesarValor(valor.ability_bonuses, source);
+          }
+          if (Array.isArray(valor?.abilityBonuses)) {
+            procesarValor(valor.abilityBonuses, source);
+          }
+          if (Array.isArray(valor?.modificadores)) {
+            procesarValor(valor.modificadores, source);
+          }
+
           if ('ability_score' in valor && 'bonus' in valor) {
             const field = normalizarAbility(valor?.ability_score?.index || valor?.ability_score?.name || valor?.ability_score);
             if (field && field !== 'choice') {
-              agregarFijo(field, valor?.bonus, source);
+              agregarFijo(field, valor?.bonus, source, valor?.max);
             } else {
               agregarSlot(valor?.bonus, ATTRIBUTE_FIELDS, source);
             }
+            return;
+          }
+
+          if (('ability' in valor || 'atributo' in valor || 'attribute' in valor) && ('bonus' in valor || 'valor' in valor || 'amount' in valor)) {
+            const field = normalizarAbility(valor?.ability || valor?.atributo || valor?.attribute);
+            const bonus = Number(valor?.bonus ?? valor?.valor ?? valor?.amount) || 0;
+            if (!field || field === 'choice' || !bonus) return;
+            agregarFijo(field, bonus, source, valor?.max);
             return;
           }
 
@@ -661,14 +762,27 @@
           if (Array.isArray(valor.bonuses)) procesarValor(valor.bonuses, source);
         }
 
-        const esHumano = slugRaza === 'human';
-        if (!esHumano) procesarValor(raza?.bonuses, 'racial');
+        const esRazaHumano = ['human', 'humano'].includes(String(slugRaza || '').trim().toLowerCase());
+        const tieneSubraza = Boolean(String(slugSubraza || '').trim());
+        const aplicarBonosRazaBase = !(esRazaHumano && tieneSubraza);
+        if (aplicarBonosRazaBase) {
+          procesarValor(raza?.bonuses, 'racial');
+        }
         procesarValor(subraza?.bonuses, 'racial');
         featsSeleccionados.forEach((feat) => {
           if (!feat || typeof feat !== 'object') return;
           if (feat?.bonuses != null) procesarValor(feat.bonuses, 'feat');
           else if (feat?.ability_bonuses != null) procesarValor(feat.ability_bonuses, 'feat');
           if (feat?.modificadores != null) procesarValor(feat.modificadores, 'feat');
+        });
+        const rasgosActivosClase = Array.isArray(seleccion?.rasgos_activos_clase)
+          ? seleccion.rasgos_activos_clase
+          : [];
+        rasgosActivosClase.forEach((rasgo) => {
+          if (!rasgo || typeof rasgo !== 'object') return;
+          if (rasgo?.modificadores != null) {
+            procesarValor(rasgo.modificadores, String(rasgo?.source || 'clase').trim().toLowerCase() || 'clase');
+          }
         });
 
         if (bonusState.contextKey !== contextKey) {
@@ -737,6 +851,7 @@
           fixedMapRacial,
           fixedMapAsi,
           fixedMapFeat,
+          fixedMapClase,
           slots: slotsActivos,
           totalMap,
           bonusSelectKey,
@@ -860,14 +975,17 @@
 
       function renderBonusSummary(ctx) {
         const partesRaza = [];
+        const partesClase = [];
         const partesFeat = [];
         ATTRIBUTE_FIELDS.forEach((field) => {
           const abrev = textosDirectos && textosDirectos[`${field}_abrev`] ? textosDirectos[`${field}_abrev`] : field;
           const bonusRaza = Number(ctx.fixedMapRacial?.get(field) || 0);
+          const bonusClase = Number(ctx.fixedMapClase?.get(field) || 0);
           const bonusAsi = Number(ctx.fixedMapAsi?.get(field) || 0);
           const bonusFeatDirecto = Number(ctx.fixedMapFeat?.get(field) || 0);
           const bonusFeat = bonusAsi + bonusFeatDirecto;
           if (bonusRaza) partesRaza.push(`${abrev} ${bonusRaza >= 0 ? '+' : ''}${bonusRaza}`);
+          if (bonusClase) partesClase.push(`${abrev} ${bonusClase >= 0 ? '+' : ''}${bonusClase}`);
           if (bonusFeat) partesFeat.push(`${abrev} ${bonusFeat >= 0 ? '+' : ''}${bonusFeat}`);
         });
 
@@ -882,7 +1000,7 @@
         if (slotsFeatDos) elegiblesFeat.push(`${slotsFeatDos} x +2`);
         if (slotsFeatUno) elegiblesFeat.push(`${slotsFeatUno} x +1`);
 
-        if (!partesRaza.length && !partesFeat.length && !elegiblesRaza.length && !elegiblesFeat.length) {
+        if (!partesRaza.length && !partesClase.length && !partesFeat.length && !elegiblesRaza.length && !elegiblesFeat.length) {
           bonusSummary.textContent = 'Bonificadores de raza: sin bonificadores.';
           return;
         }
@@ -891,6 +1009,7 @@
         const textoRazaElegibles = elegiblesRaza.length
           ? ` Puedes asignar: ${elegiblesRaza.join(' y ')}.`
           : '';
+        const textoClaseFijo = partesClase.length ? `Bonificadores de clase: ${partesClase.join(', ')}` : '';
         const textoFeatFijo = partesFeat.length ? `Modificadores de feat: ${partesFeat.join(', ')}` : '';
         const textoFeatElegibles = elegiblesFeat.length
           ? ` Puedes asignar: ${elegiblesFeat.join(' y ')}.`
@@ -901,13 +1020,40 @@
         const lineaFeat = textoFeatFijo || textoFeatElegibles || textoFeatBloqueado
           ? `\n${textoFeatFijo}${textoFeatElegibles}${textoFeatBloqueado}`.trimEnd()
           : '';
-        bonusSummary.textContent = `${textoRazaFijo}${textoRazaElegibles}${lineaFeat}`;
+        const lineaClase = textoClaseFijo ? `\n${textoClaseFijo}` : '';
+        bonusSummary.textContent = `${textoRazaFijo}${textoRazaElegibles}${lineaClase}${lineaFeat}`;
       }
 
       function renderAtributos() {
         const bonusCtx = crearContextoBonos();
+        guardarTotalesMetodoActual(bonusCtx);
         renderBonusSummary(bonusCtx);
         actualizarBotonesMetodo();
+        if (metodoAtributos === 'standard') {
+          const usoPorValor = ATTRIBUTE_FIELDS.reduce((acc, field) => {
+            const v = Number(baseScores[field]);
+            if (!Number.isFinite(v)) return acc;
+            acc.set(v, (acc.get(v) || 0) + 1);
+            return acc;
+          }, new Map());
+          standardPoolEl.hidden = false;
+          standardPoolEl.innerHTML = '';
+          const label = document.createElement('span');
+          label.className = 'crear-paso3-standard-pool__label';
+          label.textContent = 'Valores a elegir:';
+          standardPoolEl.appendChild(label);
+          STANDARD_DISPLAY_ORDER.forEach((valor) => {
+            const item = document.createElement('span');
+            const usado = Number(usoPorValor.get(valor) || 0) > 0;
+            item.className = `crear-paso3-standard-pool__value${usado ? ' is-used' : ''}`;
+            item.textContent = String(valor);
+            item.setAttribute('aria-label', usado ? `${valor} (usado)` : `${valor} (disponible)`);
+            standardPoolEl.appendChild(item);
+          });
+        } else {
+          standardPoolEl.hidden = true;
+          standardPoolEl.innerHTML = '';
+        }
         if (metodoAtributos === 'puntos') {
           const remaining = puntosRestantes();
           pointSummary.hidden = false;
@@ -1033,21 +1179,79 @@
 
       function formatearListaTexto(lista = []) {
         const valores = Array.isArray(lista) ? lista : [];
-        return valores.map((v) => traducirNombreDato(v)).filter(Boolean).join(', ') || '—';
+        const seen = new Set();
+        const salida = [];
+        valores.forEach((v) => {
+          const txt = traducirNombreDato(v);
+          const key = textoNormalizado(txt);
+          if (!key || seen.has(key)) return;
+          seen.add(key);
+          salida.push(txt);
+        });
+        return salida.join(', ') || '—';
+      }
+
+      function deduplicarListaTexto(lista = []) {
+        const items = Array.isArray(lista) ? lista : [];
+        const seen = new Set();
+        const salida = [];
+        items.forEach((item) => {
+          const txt = String(item || '')
+            .replace(/^(skill|skills|tool|tools|language|languages|instrument|instruments)\s*:\s*/i, '')
+            .trim();
+          if (!txt) return;
+          const key = textoNormalizado(txt);
+          if (!key || seen.has(key)) return;
+          seen.add(key);
+          salida.push(txt);
+        });
+        return salida;
+      }
+
+      function extraerTextosOpcionesEleccion(valor) {
+        const salida = [];
+        function push(raw) {
+          const txt = String(raw || '')
+            .replace(/^(skill|skills|tool|tools|language|languages|instrument|instruments)\s*:\s*/i, '')
+            .trim();
+          if (txt) salida.push(txt);
+        }
+        function walk(node) {
+          if (!node) return;
+          if (Array.isArray(node)) {
+            node.forEach(walk);
+            return;
+          }
+          if (typeof node === 'string') {
+            push(node);
+            return;
+          }
+          if (typeof node !== 'object') return;
+          push(node?.name || node?.nombre || node?.index || node?.slug);
+          if (node?.item) walk(node.item);
+          if (node?.proficiency) walk(node.proficiency);
+          if (Array.isArray(node?.options)) walk(node.options);
+          if (Array.isArray(node?.from)) walk(node.from);
+          if (node?.from?.options) walk(node.from.options);
+        }
+        walk(valor);
+        return deduplicarListaTexto(salida);
       }
 
       function normalizarBloqueEleccion(valor) {
         const data = parsearJsonFlexible(valor, valor);
         if (Array.isArray(data)) {
-          return { fixed: data.map((v) => String(v || '').trim()).filter(Boolean), choose: 0, options: [] };
+          return { fixed: deduplicarListaTexto(data.map((v) => String(v || '').trim()).filter(Boolean)), choose: 0, options: [] };
         }
         if (!data || typeof data !== 'object') {
           return { fixed: [], choose: 0, options: [] };
         }
+        const choose = Math.max(0, Number(data.choose || data.count || 0) || 0);
+        const opciones = extraerTextosOpcionesEleccion(data.options || data.from || []);
         return {
-          fixed: Array.isArray(data.fixed) ? data.fixed : [],
-          choose: Math.max(0, Number(data.choose) || 0),
-          options: Array.isArray(data.options) ? data.options : []
+          fixed: deduplicarListaTexto(Array.isArray(data.fixed) ? data.fixed : []),
+          choose,
+          options: opciones
         };
       }
 
@@ -1055,25 +1259,28 @@
         const data = parsearJsonFlexible(valor, valor);
         const salida = {
           skills: { fixed: [], choose: 0, options: [] },
-          tools: [],
+          tools: { fixed: [], choose: 0, options: [] },
           rawList: []
         };
         if (!data) return salida;
         if (Array.isArray(data)) {
-          salida.rawList = data.map((item) => {
+          salida.rawList = deduplicarListaTexto(data.map((item) => {
             if (typeof item === 'string') return item;
             return String(item?.name || item?.index || '').trim();
-          }).filter(Boolean);
+          }).filter(Boolean));
+          salida.skills.fixed = salida.rawList.slice();
           return salida;
         }
         if (typeof data !== 'object') return salida;
         if (Array.isArray(data.proficiencies)) {
-          salida.rawList = data.proficiencies.map((p) => String(p?.name || p?.index || '').trim()).filter(Boolean);
+          salida.rawList = deduplicarListaTexto(data.proficiencies.map((p) => String(p?.name || p?.index || '').trim()).filter(Boolean));
+          if (!salida.skills.fixed.length) salida.skills.fixed = salida.rawList.slice();
         }
         salida.skills = normalizarBloqueEleccion(data.skills || data.skill_proficiencies || {});
-        salida.tools = Array.isArray(data.tools || data.tool_proficiencies)
-          ? (data.tools || data.tool_proficiencies)
-          : [];
+        salida.tools = normalizarBloqueEleccion(data.tools || data.tool_proficiencies || {});
+        if (!salida.skills.fixed.length && salida.rawList.length) {
+          salida.skills.fixed = salida.rawList.slice();
+        }
         return salida;
       }
 
@@ -1091,7 +1298,14 @@
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.className = 'crear-personaje-trait-item';
-          btn.textContent = String(opcion.nombre || '');
+          const nombreBoton = String(opcion.nombre || '').trim();
+          btn.dataset.cp3Item = textoNormalizado(nombreBoton);
+          btn.textContent = nombreBoton;
+          const badge = document.createElement('span');
+          badge.className = 'crear-paso3-inline-pending';
+          badge.textContent = ' !';
+          badge.hidden = true;
+          btn.appendChild(badge);
           btn.addEventListener('click', () => {
             const active = btn.classList.contains('is-active');
             Array.from(list.querySelectorAll('.crear-personaje-trait-item')).forEach((b) => b.classList.remove('is-active'));
@@ -1119,6 +1333,20 @@
         row.appendChild(list);
         row.appendChild(detail);
         container.appendChild(row);
+        actualizarMarcadoresPendientesTrasfondo();
+      }
+
+      function actualizarMarcadoresPendientesTrasfondo() {
+        function marcarPendiente(key, pendientes) {
+          const btn = bgDetails.querySelector(`.crear-personaje-trait-item[data-cp3-item="${key}"]`);
+          if (!btn) return;
+          const badge = btn.querySelector('.crear-paso3-inline-pending');
+          btn.classList.toggle('is-pending', pendientes > 0);
+          if (badge) badge.hidden = pendientes <= 0;
+        }
+        marcarPendiente('idiomas', contarPendientesIdiomasNoRenderizados());
+        marcarPendiente('competencias', contarPendientesSkillsNoRenderizados());
+        marcarPendiente('herramientas', contarPendientesToolsNoRenderizados());
       }
 
       function textoNormalizado(s = '') {
@@ -1166,6 +1394,36 @@
           if (slug === 'common') return false;
           if (knownSet.has(slug) && slug !== seleccionActual) return false;
           if (selectedOther.has(slug) && slug !== seleccionActual) return false;
+          return true;
+        });
+      }
+
+      function normalizarOpcionesSimple(opciones = []) {
+        const lista = Array.isArray(opciones) ? opciones : [];
+        const out = [];
+        const seen = new Set();
+        lista.forEach((op) => {
+          const raw = typeof op === 'string' ? op : (op?.name || op?.nombre || op?.index || op?.slug || '');
+          const label = String(raw || '').trim();
+          if (!label) return;
+          const key = textoNormalizado(label);
+          if (!key || seen.has(key)) return;
+          seen.add(key);
+          out.push({ value: label, label: traducirNombreDato(label) });
+        });
+        return out;
+      }
+
+      function construirOpcionesGenericas(disponibles, seleccionActual, idx, estado) {
+        const selectedOther = new Set(
+          estado
+            .map((v, i) => (i === idx ? '' : textoNormalizado(v)))
+            .filter(Boolean)
+        );
+        return disponibles.filter((op) => {
+          const key = textoNormalizado(op?.value || op?.label || '');
+          if (!key) return false;
+          if (selectedOther.has(key) && key !== textoNormalizado(seleccionActual)) return false;
           return true;
         });
       }
@@ -1230,8 +1488,81 @@
             idiomasTrasfondoState[i] = String(select.value || '');
             guardarIdiomasTrasfondo();
             refrescarOpciones();
+            actualizarAvisosPendientesPaso3();
+            actualizarMarcadoresPendientesTrasfondo();
           });
 
+          wrap.appendChild(label);
+          wrap.appendChild(select);
+          detailEl.appendChild(wrap);
+        }
+        refrescarOpciones();
+      }
+
+      function renderSelectoresGenericos(detailEl, cantidad, opcionesRaw, stateRef, saveFn, labelBase) {
+        const total = Math.max(0, Number(cantidad) || 0);
+        const disponibles = normalizarOpcionesSimple(opcionesRaw);
+        if (total <= 0) {
+          detailEl.textContent = `Sin ${labelBase.toLowerCase()} a elegir.`;
+          return;
+        }
+        if (!disponibles.length) {
+          const msg = document.createElement('p');
+          msg.className = 'crear-personaje-side-panel__meta-row';
+          msg.textContent = `No hay opciones disponibles para elegir ${labelBase.toLowerCase()}.`;
+          detailEl.appendChild(msg);
+          return;
+        }
+
+        stateRef.value = stateRef.value.slice(0, total);
+        while (stateRef.value.length < total) stateRef.value.push('');
+        saveFn();
+
+        const intro = document.createElement('p');
+        intro.className = 'crear-personaje-side-panel__meta-row';
+        intro.textContent = `Elige ${total} ${labelBase.toLowerCase()}${total > 1 ? 's' : ''}:`;
+        detailEl.appendChild(intro);
+
+        const selects = [];
+        function refrescarOpciones() {
+          selects.forEach((select, idx) => {
+            const current = String(stateRef.value[idx] || '').trim();
+            const opcionesFiltradas = construirOpcionesGenericas(disponibles, current, idx, stateRef.value);
+            select.innerHTML = '';
+            const firstOpt = document.createElement('option');
+            firstOpt.value = '';
+            firstOpt.textContent = `Selecciona ${labelBase.toLowerCase()}`;
+            select.appendChild(firstOpt);
+            opcionesFiltradas.forEach((opcion) => {
+              const opt = document.createElement('option');
+              opt.value = String(opcion.value || '');
+              opt.textContent = String(opcion.label || opcion.value || '');
+              if (textoNormalizado(opt.value) === textoNormalizado(current)) {
+                opt.selected = true;
+              }
+              select.appendChild(opt);
+            });
+            const existeActual = opcionesFiltradas.some((op) => textoNormalizado(op.value) === textoNormalizado(current));
+            if (current && !existeActual) stateRef.value[idx] = '';
+          });
+          saveFn();
+        }
+
+        for (let i = 0; i < total; i += 1) {
+          const wrap = document.createElement('div');
+          wrap.className = 'crear-paso3-field';
+          const label = document.createElement('label');
+          label.textContent = `${labelBase} ${i + 1}`;
+          const select = document.createElement('select');
+          select.className = 'crear-paso3-select';
+          selects.push(select);
+          select.addEventListener('change', () => {
+            stateRef.value[i] = String(select.value || '');
+            saveFn();
+            refrescarOpciones();
+            actualizarAvisosPendientesPaso3();
+            actualizarMarcadoresPendientesTrasfondo();
+          });
           wrap.appendChild(label);
           wrap.appendChild(select);
           detailEl.appendChild(wrap);
@@ -1247,32 +1578,35 @@
         const idiomas = normalizarBloqueEleccion(trasfondo.idiomas_opciones);
         const rasgo = parsearJsonFlexible(trasfondo.rasgo, trasfondo.rasgo) || {};
         const opciones = [];
-        const descripcionTrasfondo = String(trasfondo?.descripcion || '').trim();
-        if (descripcionTrasfondo) {
-          opciones.push({
-            nombre: 'Descripción',
-            descripcion: descripcionTrasfondo
-          });
-        }
 
-        if (competencias.rawList.length) {
-          opciones.push({
-            nombre: 'Competencias',
-            descripcion: formatearListaTexto(competencias.rawList)
-          });
-        } else {
-          const partesComp = [];
-          const compFijas = formatearListaTexto(competencias.skills.fixed);
-          if (compFijas !== '—') partesComp.push(`Fijas: ${compFijas}`);
-          if (Number(competencias.skills.choose) > 0) {
-            const opcionesSkills = formatearListaTexto(competencias.skills.options);
-            partesComp.push(`A elegir: ${Number(competencias.skills.choose)}${opcionesSkills !== '—' ? ` (${opcionesSkills})` : ''}`);
+        const compFijas = formatearListaTexto(competencias.skills.fixed);
+        const elegirSkills = Math.max(0, Number(competencias.skills.choose) || 0);
+        opciones.push({
+          nombre: 'Competencias',
+          descripcionRender: (detail) => {
+            if (compFijas !== '—') {
+              const fijas = document.createElement('p');
+              fijas.className = 'crear-personaje-side-panel__meta-row';
+              fijas.textContent = `Fijas: ${compFijas}`;
+              detail.appendChild(fijas);
+            }
+            if (elegirSkills > 0) {
+              renderSelectoresGenericos(
+                detail,
+                elegirSkills,
+                competencias.skills.options,
+                { get value() { return skillsTrasfondoState; }, set value(v) { skillsTrasfondoState = v; } },
+                guardarSkillsTrasfondo,
+                'Competencia'
+              );
+            } else if (compFijas === '—') {
+              const empty = document.createElement('p');
+              empty.className = 'crear-personaje-side-panel__meta-row';
+              empty.textContent = 'Sin competencias.';
+              detail.appendChild(empty);
+            }
           }
-          opciones.push({
-            nombre: 'Competencias',
-            descripcion: partesComp.length ? partesComp.join(' | ') : 'Sin competencias.'
-          });
-        }
+        });
 
         const idiomasTieneFijos = Array.isArray(idiomas.fixed) && idiomas.fixed.length > 0;
         const idiomasElige = Number(idiomas.choose) || 0;
@@ -1293,11 +1627,29 @@
           });
         }
 
-        const herramientasTexto = formatearListaTexto(competencias.tools);
-        if (herramientasTexto !== '—') {
+        const herramientasTexto = formatearListaTexto(competencias.tools.fixed);
+        const herramientasElige = Math.max(0, Number(competencias.tools.choose) || 0);
+        if (herramientasTexto !== '—' || herramientasElige > 0) {
           opciones.push({
             nombre: 'Herramientas',
-            descripcion: herramientasTexto
+            descripcionRender: (detail) => {
+              if (herramientasTexto !== '—') {
+                const fijas = document.createElement('p');
+                fijas.className = 'crear-personaje-side-panel__meta-row';
+                fijas.textContent = `Fijas: ${herramientasTexto}`;
+                detail.appendChild(fijas);
+              }
+              if (herramientasElige > 0) {
+                renderSelectoresGenericos(
+                  detail,
+                  herramientasElige,
+                  competencias.tools.options,
+                  { get value() { return toolsTrasfondoState; }, set value(v) { toolsTrasfondoState = v; } },
+                  guardarToolsTrasfondo,
+                  'Herramienta'
+                );
+              }
+            }
           });
         }
 
@@ -1325,14 +1677,100 @@
         });
       }
 
+      function obtenerSelectsPendientesPaso3() {
+        const selects = [bgSelect, ...Array.from(bgDetails.querySelectorAll('select'))];
+        return selects
+          .filter(Boolean)
+          .filter((el) => !el.disabled)
+          .filter((el) => el.classList.contains('crear-paso3-select'))
+          .filter((el) => String(el.value || '').trim() === '');
+      }
+
+      function contarPendientesIdiomasNoRenderizados() {
+        const slug = String(bgSelect?.value || '').trim();
+        const trasfondo = trasfondoBySlug.get(slug);
+        if (!trasfondo) return 0;
+        const idiomas = normalizarBloqueEleccion(trasfondo.idiomas_opciones);
+        const totalIdiomasElegir = Math.max(0, Number(idiomas?.choose) || 0);
+        if (totalIdiomasElegir <= 0) return 0;
+        let pendientes = 0;
+        for (let i = 0; i < totalIdiomasElegir; i += 1) {
+          const v = String(idiomasTrasfondoState[i] || '').trim();
+          if (!v) pendientes += 1;
+        }
+        return pendientes;
+      }
+
+      function contarPendientesSkillsNoRenderizados() {
+        const slug = String(bgSelect?.value || '').trim();
+        const trasfondo = trasfondoBySlug.get(slug);
+        if (!trasfondo) return 0;
+        const competencias = normalizarCompetencias(trasfondo.competencias);
+        const total = Math.max(0, Number(competencias?.skills?.choose) || 0);
+        if (total <= 0) return 0;
+        if (!Array.isArray(competencias?.skills?.options) || !competencias.skills.options.length) return 0;
+        let pendientes = 0;
+        for (let i = 0; i < total; i += 1) {
+          const v = String(skillsTrasfondoState[i] || '').trim();
+          if (!v) pendientes += 1;
+        }
+        return pendientes;
+      }
+
+      function contarPendientesToolsNoRenderizados() {
+        const slug = String(bgSelect?.value || '').trim();
+        const trasfondo = trasfondoBySlug.get(slug);
+        if (!trasfondo) return 0;
+        const competencias = normalizarCompetencias(trasfondo.competencias);
+        const total = Math.max(0, Number(competencias?.tools?.choose) || 0);
+        if (total <= 0) return 0;
+        if (!Array.isArray(competencias?.tools?.options) || !competencias.tools.options.length) return 0;
+        let pendientes = 0;
+        for (let i = 0; i < total; i += 1) {
+          const v = String(toolsTrasfondoState[i] || '').trim();
+          if (!v) pendientes += 1;
+        }
+        return pendientes;
+      }
+
+      function validarPaso3AntesDeAvanzar() {
+        const pendientes = obtenerSelectsPendientesPaso3();
+        const pendientesNoRender =
+          contarPendientesIdiomasNoRenderizados() +
+          contarPendientesSkillsNoRenderizados() +
+          contarPendientesToolsNoRenderizados();
+        if (!pendientes.length && pendientesNoRender <= 0) return true;
+        window.alert('Te faltan desplegables por seleccionar en el paso 3.');
+        if (pendientes.length) pendientes[0].focus();
+        else bgSelect.focus();
+        return false;
+      }
+
+      function actualizarAvisosPendientesPaso3() {
+        const pendientes = obtenerSelectsPendientesPaso3();
+        const pendientesNoRender =
+          contarPendientesIdiomasNoRenderizados() +
+          contarPendientesSkillsNoRenderizados() +
+          contarPendientesToolsNoRenderizados();
+        const hayPendientes = pendientes.length > 0 || pendientesNoRender > 0;
+        if (nextStepLink) nextStepLink.classList.toggle('is-pending', hayPendientes);
+        if (nextPendingBadge) nextPendingBadge.hidden = !hayPendientes;
+        actualizarMarcadoresPendientesTrasfondo();
+      }
+
       bgSelect.addEventListener('change', () => {
         const slug = String(bgSelect.value || '').trim();
         storage.setItem(STORAGE_BG_KEY, slug);
         idiomasTrasfondoState = [];
         guardarIdiomasTrasfondo();
+        skillsTrasfondoState = [];
+        guardarSkillsTrasfondo();
+        toolsTrasfondoState = [];
+        guardarToolsTrasfondo();
         const trasfondo = trasfondoBySlug.get(slug);
         bgDesc.textContent = String(trasfondo?.descripcion || 'Elige un trasfondo para ver su descripción.');
         renderDetallesTrasfondo(trasfondo);
+        actualizarAvisosPendientesPaso3();
       });
 
       textInputs.forEach((input) => {
@@ -1380,17 +1818,37 @@
           const method = String(btn.dataset.method || '').trim().toLowerCase();
           if (!['standard', 'puntos'].includes(method)) return;
           if (method === metodoAtributos) return;
+          guardarBaseScores();
           metodoAtributos = method;
+          baseScores = cargarBaseScoresPorMetodo(metodoAtributos);
           normalizarBaseScoresSegunMetodo();
           guardarMetodoAtributos();
+          guardarBaseScores();
           renderAtributos();
         });
       });
+      if (nextStepLink) {
+        nextStepLink.addEventListener('click', (event) => {
+          actualizarAvisosPendientesPaso3();
+          if (!validarPaso3AntesDeAvanzar()) {
+            event.preventDefault();
+          }
+        });
+        nextStepLink.addEventListener('auxclick', (event) => {
+          actualizarAvisosPendientesPaso3();
+          if (!validarPaso3AntesDeAvanzar()) {
+            event.preventDefault();
+          }
+        });
+      }
 
       normalizarBaseScoresSegunMetodo();
+      guardarBaseScores();
       renderAtributos();
       renderTrasfondo();
       renderTextos();
+      actualizarAvisosPendientesPaso3();
+      bgDetails.addEventListener('change', actualizarAvisosPendientesPaso3);
     })();
   </script>
 </body>

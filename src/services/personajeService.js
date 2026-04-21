@@ -27,32 +27,17 @@ function calcularIniciativa(destreza, nivel) {
   return calcularModificadorEstadistica(destreza) + calcularProficiencyBonus(nivel);
 }
 
-//Los valores del dado de vida, se gestionan mediante estructuras en memoria en lugar de consultas a la base de datos, ya que se trata de información estática.
-function obtenerPuntosVida(nivel, claseId, constitucion){
+// Usamos el dado de vida que llega desde la clase (BD/API), evitando mapeos hardcodeados por id.
+function obtenerPuntosVida(nivel, dadoVidaClase, constitucion) {
+  const dadoVida = Number(dadoVidaClase);
+  const d = Number.isFinite(dadoVida) && dadoVida > 0 ? dadoVida : 8;
+  const nivelSeguro = Math.max(1, Number(nivel) || 1);
+  const modificadorConstitucion = calcularModificadorEstadistica(constitucion);
 
-const dadosVida = {
-    1: 12, // Barbaro
-    2: 8,  // Bardo
-    3: 8,  // Clerigo
-    4: 8,  // Druida
-    5: 10, // Guerrero
-    6: 6,  // Hechicero
-    7: 8,  // Monje
-    8: 8,  // Paladin
-    9: 8,  // Explorador
-    10: 8, // Picaro
-    11: 8, // Brujo
-    12: 6  // Mago
-};
+  let puntosVida = d + modificadorConstitucion; // Vida en nivel 1
+  puntosVida += (nivelSeguro - 1) * (Math.floor(d / 2) + 1 + modificadorConstitucion); // Vida adicional por niveles superiores
 
-const dadoVida = dadosVida[claseId] || 8; // Valor por defecto si no se encuentra la clase
-const modificadorConstitucion = calcularModificadorEstadistica(constitucion);
-
-let puntosVida = dadoVida + modificadorConstitucion; // Vida en nivel 1
-
-puntosVida += (nivel - 1) * (Math.floor(dadoVida / 2) + 1 + modificadorConstitucion); // Vida adicional por niveles superiores
-
-return puntosVida;
+  return puntosVida;
 }
 
 function calcularCA(tipo, armaduraBase, destreza, escudo, bonus = []) {

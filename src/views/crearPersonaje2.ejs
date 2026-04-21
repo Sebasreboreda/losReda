@@ -100,6 +100,7 @@
   <script id="cp2-subrazas-data" type="application/json"><%- JSON.stringify(subrazas).replace(/</g, '\\u003c') %></script>
   <script id="cp2-clase-niveles-data" type="application/json"><%- JSON.stringify(claseNiveles || []).replace(/</g, '\\u003c') %></script>
   <script id="cp2-raza-niveles-data" type="application/json"><%- JSON.stringify(razaNiveles || []).replace(/</g, '\\u003c') %></script>
+  <script id="cp2-idiomas-data" type="application/json"><%- JSON.stringify(idiomasCatalogo || []).replace(/</g, '\\u003c') %></script>
   <script id="cp2-rasgos-raciales-trad-data" type="application/json"><%- JSON.stringify(mapaRasgoRacial || {}).replace(/</g, '\\u003c') %></script>
   <script id="cp2-textos-directos-data" type="application/json"><%- JSON.stringify(textosDirectos || {}).replace(/</g, '\\u003c') %></script>
   <script id="cp2-feats-data" type="application/json"><%- JSON.stringify(featsCatalogo || []).replace(/</g, '\\u003c') %></script>
@@ -175,6 +176,26 @@
           )) ||
           '';
         if (traducido) return String(traducido).trim();
+        const idiomaSlug = normalizarIdiomaSlug(sinPrefijo || keyRaw);
+        const idiomaFallback = {
+          common: 'Común',
+          dwarvish: 'Enano',
+          elvish: 'Élfico',
+          giant: 'Gigante',
+          gnomish: 'Gnomo',
+          goblin: 'Góblin',
+          halfling: 'Mediano',
+          orc: 'Orco',
+          abyssal: 'Abisal',
+          celestial: 'Celestial',
+          draconic: 'Dracónico',
+          'deep-speech': 'Lengua profunda',
+          infernal: 'Infernal',
+          primordial: 'Primordial',
+          sylvan: 'Silvano',
+          undercommon: 'Infracomún'
+        };
+        if (idiomaFallback[idiomaSlug]) return idiomaFallback[idiomaSlug];
         return sinPrefijo || keyRaw;
       }
 
@@ -488,9 +509,10 @@
         const lista = Array.isArray(parsearJsonFlexible(idiomas, idiomas)) ? parsearJsonFlexible(idiomas, idiomas) : [];
         if (!lista.length) return 'Sin datos de idiomas.';
         return lista.map((i) => {
-          const idx = String(i?.index || '').trim().toLowerCase();
-          const name = String(i?.name || '').trim();
-          return name || idx;
+          const idx = String(typeof i === 'string' ? i : (i?.index || '')).trim().toLowerCase();
+          const name = String(typeof i === 'string' ? '' : (i?.name || '')).trim();
+          const base = name || idx;
+          return traducirNombreProficiencia(base);
         }).filter(Boolean).join(', ');
       }
 
@@ -526,26 +548,112 @@
         };
         return mapa[t] || t.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       }
+      function normalizarIdiomaSlug(valor = '') {
+        return slugIdiomaDesdeTexto(valor);
+      }
 
       function preguardarIdiomasConocidos(razaSeleccionada, subrazaSeleccionada) {
         const conocidos = new Set();
-        // Base de 5e: todas las razas manejan común
-        conocidos.add('common');
-        const idiomaPropioPorRaza = {
-          dragonborn: 'draconic',
-          dwarf: 'dwarvish',
-          elf: 'elvish',
-          gnome: 'gnomish',
-          'half-elf': 'elvish',
-          'half-orc': 'orc',
-          halfling: 'halfling',
-          human: null,
-          tiefling: 'infernal'
-        };
-        const slugRaza = String(razaSeleccionada?.slug || '').trim().toLowerCase();
-        const idiomaRaza = slugRaza ? idiomaPropioPorRaza[slugRaza] : null;
-        if (idiomaRaza) conocidos.add(idiomaRaza);
+        const fuentes = [razaSeleccionada?.idiomas, subrazaSeleccionada?.idiomas];
+        fuentes.forEach((fuente) => {
+          const lista = parsearJsonFlexible(fuente, fuente);
+          if (!Array.isArray(lista)) return;
+          lista.forEach((item) => {
+            const raw = typeof item === 'string'
+              ? item
+              : (item?.index || item?.name || item?.slug || item?.nombre || '');
+            const idioma = normalizarIdiomaSlug(raw);
+            if (idioma) conocidos.add(idioma);
+          });
+        });
+        const idiomasRacialesElegidos = Array.isArray(seleccion?.idiomas_raciales_elegidos)
+          ? seleccion.idiomas_raciales_elegidos
+          : [];
+        idiomasRacialesElegidos.forEach((item) => {
+          const idioma = normalizarIdiomaSlug(item);
+          if (idioma) conocidos.add(idioma);
+        });
+        if (!conocidos.size) conocidos.add('common');
         storage.setItem(STORAGE_KNOWN_LANG_KEY, JSON.stringify(Array.from(conocidos)));
+      }
+
+      function obtenerEstadoIdiomasRaciales() {
+        const actual = seleccion?.idiomas_raciales_elegidos;
+        if (Array.isArray(actual)) return actual;
+        seleccion.idiomas_raciales_elegidos = [];
+        return seleccion.idiomas_raciales_elegidos;
+      }
+
+      function normalizarIdiomasRacialesConfig(rawIdiomas, razaSlug = '') {
+        const data = parsearJsonFlexible(rawIdiomas, rawIdiomas);
+        const fixed = [];
+        let choose = 0;
+        let options = [];
+        if (Array.isArray(data)) {
+          data.forEach((item) => {
+            const txt = String(item?.name || item?.index || item || '').trim();
+            if (txt) fixed.push(txt);
+          });
+        } else if (data && typeof data === 'object') {
+          const fixedRaw = Array.isArray(data.fixed) ? data.fixed : [];
+          fixedRaw.forEach((item) => {
+            const txt = String(item?.name || item?.index || item || '').trim();
+            if (txt) fixed.push(txt);
+          });
+          choose = Math.max(0, Number(data.choose || data.count || 0) || 0);
+          const optionsRaw = Array.isArray(data.options) ? data.options : [];
+          options = optionsRaw.map((item) => String(item?.name || item?.index || item || '').trim()).filter(Boolean);
+        }
+        if (choose <= 0 && String(razaSlug || '').trim().toLowerCase() === 'human') {
+          choose = 1;
+        }
+        if (String(razaSlug || '').trim().toLowerCase() === 'human' && !fixed.length) {
+          fixed.push('common');
+        }
+        if (!options.length && choose > 0) {
+          options = (Array.isArray(idiomasCatalogo) ? idiomasCatalogo : [])
+            .map((i) => String(i?.slug || i?.nombre || '').trim())
+            .filter(Boolean)
+            .filter((txt) => normalizarIdiomaSlug(txt) !== 'common');
+        }
+        return { fixed, choose, options };
+      }
+
+      function renderSelectorIdiomaRacial({ key, opciones, cantidad, descripcion = '' }) {
+        const estado = obtenerEstadoIdiomasRaciales();
+        const total = Math.max(0, Number(cantidad) || 0);
+        if (total <= 0) return descripcion ? `<p>${escapeHtml(descripcion)}</p>` : '';
+        const filas = Array.from({ length: total }, (_, idx) => {
+          const selected = String(estado[idx] || '').trim();
+          const seleccionadosOtros = new Set(
+            estado
+              .map((v, i) => (i === idx ? '' : String(v || '').trim()))
+              .filter(Boolean)
+          );
+          const opts = opciones
+            .filter((op) => op === selected || !seleccionadosOtros.has(op))
+            .map((op) => `<option value="${escapeHtml(op)}" ${op === selected ? 'selected' : ''}>${escapeHtml(traducirNombreProficiencia(op))}</option>`)
+            .join('');
+          return `
+            <div class="crear-paso2-ancestor-choice-row">
+              <label class="crear-paso2-ancestor-label" for="cp2-race-language-choice-${escapeHtml(key)}-${idx}">Idioma ${idx + 1}</label>
+              <select
+                id="cp2-race-language-choice-${escapeHtml(key)}-${idx}"
+                class="crear-paso2-panel__title-select cp2-race-choice-select"
+                data-race-language-choice-key="${escapeHtml(key)}"
+                data-choice-idx="${idx}"
+              >
+                <option value="">Selecciona idioma</option>
+                ${opts}
+              </select>
+            </div>
+          `;
+        }).join('');
+        return `
+          <p>${escapeHtml(String(descripcion || 'Elige idioma racial.'))}</p>
+          <p class="crear-paso2-ancestor-label">Elige ${total} idioma${total > 1 ? 's' : ''}:</p>
+          ${filas}
+        `;
       }
 
       const clases = parseJsonScript('cp2-clases-data');
@@ -555,6 +663,7 @@
       const subrazas = parseJsonScript('cp2-subrazas-data');
       const claseNiveles = parseJsonScript('cp2-clase-niveles-data');
       const razaNiveles = parseJsonScript('cp2-raza-niveles-data');
+      const idiomasCatalogo = parseJsonScript('cp2-idiomas-data');
       const mapaRasgoRacialRaw = parseJsonScript('cp2-rasgos-raciales-trad-data');
       const textosDirectos = parseJsonScript('cp2-textos-directos-data');
       const featsCatalogo = parseJsonScript('cp2-feats-data');
@@ -1359,7 +1468,7 @@
         }
 
         // Race bonuses (tarjeta "Bonificadores" del paso 2)
-        if (razaSeleccionadaActual && String(slugRazaActual) !== 'human') {
+        if (razaSeleccionadaActual) {
           const filaRaza1 = Array.isArray(razaNiveles)
             ? razaNiveles.find((f) => Number(f?.RazaId) === Number(razaSeleccionadaActual.id) && Number(f?.nivel) === 1)
             : null;
@@ -1619,36 +1728,49 @@
         if (Number(nivelRasgo) !== Number(nivelDesbloqueoSubclase)) return false;
         const opcionesSub = obtenerSubclasesDeClase(claseSeleccionada);
         if (!opcionesSub.length) return false;
-
-        const slugsCanonicos = new Set([
-          'arcane-tradition',
-          'bard-college',
-          'divine-domain',
-          'druid-circle',
-          'martial-archetype',
-          'monastic-tradition',
-          'otherworldly-patron',
-          'primal-path',
-          'ranger-archetype',
-          'roguish-archetype',
-          'sacred-oath',
-          'sorcerous-origin'
-        ]);
-
         const idx = slugificarTexto(rasgo?.index || '');
-        if (idx && slugsCanonicos.has(idx)) return true;
-
         const nombre = slugificarTexto(rasgo?.name || '');
-        if (nombre && slugsCanonicos.has(nombre)) return true;
-
         const tiposSubclase = new Set(
           opcionesSub
             .map((s) => slugificarTexto(s?.tipo_subclase || ''))
             .filter(Boolean)
         );
+        const mencionaEleccionSubclase = (txt = '') => {
+          const t = String(txt || '');
+          if (!t) return false;
+          return t.includes('subclass') || t.includes('subclase') || t.includes('arquetipo') || t.includes('tradicion') || t.includes('tradición') || t.includes('dominio') || t.includes('senda');
+        };
         if (idx && tiposSubclase.has(idx)) return true;
         if (nombre && tiposSubclase.has(nombre)) return true;
+        if (mencionaEleccionSubclase(idx) || mencionaEleccionSubclase(nombre)) return true;
         return false;
+      }
+
+      function esRasgoMejoraSubclaseGenerica(rasgo, claseSeleccionada) {
+        if (!claseSeleccionada) return false;
+        const opcionesSub = obtenerSubclasesDeClase(claseSeleccionada);
+        if (!opcionesSub.length) return false;
+        const idx = slugificarTexto(rasgo?.index || '');
+        const nombre = slugificarTexto(rasgo?.name || '');
+        const slugsBase = new Set();
+        opcionesSub.forEach((s) => {
+          const tipo = slugificarTexto(s?.tipo_subclase || '');
+          if (tipo) slugsBase.add(tipo);
+        });
+        const esMejoraPorTexto = (txt = '') => {
+          const t = String(txt || '');
+          if (!t) return false;
+          const mencionaMejora = t.includes('improvement') || t.includes('mejora');
+          if (!mencionaMejora) return false;
+          const mencionaSubclase = t.includes('subclass') || t.includes('subclase') || t.includes('arquetipo') || t.includes('tradicion') || t.includes('tradición') || t.includes('dominio') || t.includes('senda');
+          return mencionaSubclase;
+        };
+        const esMejora = (txt) => {
+          if (!txt) return false;
+          if (Array.from(slugsBase).some((base) => txt.startsWith(`${base}-improvement`) || txt.startsWith(`${base}-mejora`))) return true;
+          return esMejoraPorTexto(txt);
+        };
+        return esMejora(idx) || esMejora(nombre);
       }
 
       function renderSelectorSubclaseHtml(claseSeleccionada, nivelClase, subclaseSeleccionadaSlug = '') {
@@ -1705,6 +1827,12 @@
         let tarjetaEleccionSubclase = null;
         const etiquetaTipoSubclase = obtenerEtiquetaTipoSubclase(claseSeleccionada);
         const nivelDesbloqueoSubclase = obtenerNivelDesbloqueoSubclase(claseSeleccionada);
+        const subclaseSeleccionadaValida = (() => {
+          const slug = String(subclaseSeleccionadaSlug || '').trim();
+          if (!slug) return false;
+          const sub = subclaseBySlug.get(slug);
+          return !!sub && Number(sub?.ClaseId) === Number(claseSeleccionada?.id);
+        })();
         if (nivelDesbloqueoSubclase && Number(nivelElegido) >= Number(nivelDesbloqueoSubclase)) {
           tarjetaEleccionSubclase = {
             titulo: `Elección de ${String(etiquetaTipoSubclase || 'Subclase').toLowerCase()}`,
@@ -1720,6 +1848,7 @@
 
           rasgos.forEach((rasgo) => {
             if (esRasgoEleccionSubclase(rasgo, claseSeleccionada, nivel, nivelDesbloqueoSubclase)) return;
+            if (subclaseSeleccionadaValida && esRasgoMejoraSubclaseGenerica(rasgo, claseSeleccionada)) return;
             const slug = String(rasgo?.index || '').trim();
             const nombre = String(rasgo?.name || slug).trim();
             if (!nombre) return;
@@ -1807,10 +1936,20 @@
         filasFuente.forEach((fila) => {
           const nivel = Number(fila?.nivel) || 1;
           if (nivel === 1) {
+            const idiomasCfg = normalizarIdiomasRacialesConfig(fila?.idiomas || razaSeleccionada?.idiomas, slugRaza);
             tarjetas.push({
               titulo: 'Idiomas',
               nivel,
-              detalle: formatearIdiomas(fila?.idiomas || razaSeleccionada?.idiomas)
+              ...(idiomasCfg.choose > 0
+                ? {
+                    detalleHtml: renderSelectorIdiomaRacial({
+                      key: `raza:${slugRaza}:idiomas:nivel:${nivel}`,
+                      opciones: idiomasCfg.options,
+                      cantidad: idiomasCfg.choose,
+                      descripcion: `Fijos: ${formatearIdiomas(idiomasCfg.fixed)}`
+                    })
+                  }
+                : { detalle: formatearIdiomas(idiomasCfg.fixed) })
             });
 
             const velocidad = Number(fila?.velocidad) || Number(razaSeleccionada?.velocidad) || 0;
@@ -1822,9 +1961,9 @@
               });
             }
 
-            if (slugRaza !== 'human') {
-              const bonosBase = obtenerBonificadoresRazaPaso2({ fila, razaSeleccionada, subrazaSeleccionada });
-              const analisis = analizarBonificadoresRaciales(bonosBase);
+            const bonosBase = obtenerBonificadoresRazaPaso2({ fila, razaSeleccionada, subrazaSeleccionada });
+            const analisis = analizarBonificadoresRaciales(bonosBase);
+            if (Array.isArray(bonosBase) && bonosBase.length) {
               const detalleBase = analisis.fijos.length
                 ? analisis.fijos.join(', ')
                 : (analisis.elecciones.length ? 'Bonificadores a elección.' : formatearBonificadores(bonosBase));
@@ -1851,14 +1990,13 @@
             const local = slug ? mapaRasgos.get(slug) : null;
             const titulo = (local?.nombre || nombreApi || slug || 'Rasgo racial').trim();
             const detalle = String(local?.descripcion || '').trim() || 'Sin descripción disponible.';
-            const esDraconido = String(razaSeleccionada?.slug || '').trim().toLowerCase() === 'dragonborn';
             const esAscendenciaDraconica = slug === 'draconic-ancestry';
             const esArmaAliento = slug === 'breath-weapon';
             const esResistencia = slug === 'damage-resistance';
             const eleccionComp = extraerOpcionesCompetenciaRacial(local?.modificadores, slug);
-            if (esDraconido && esAscendenciaDraconica) {
+            if (esAscendenciaDraconica) {
               tarjetas.push({ titulo, nivel, detalleHtml: renderTablaAncestrosDraconidos() });
-            } else if (esDraconido && esArmaAliento) {
+            } else if (esArmaAliento) {
               const ancestro = getAncestroDraconidoActual();
               if (!ancestro) {
                 tarjetas.push({
@@ -1873,7 +2011,7 @@
                 nivel: nivelEscaladoArmaAliento(nivelElegido),
                 detalle: `Ascendencia elegida: ${ancestro.nombre}\nArma de aliento: ${ancestro.aliento}\nDaño actual: ${danoArmaAlientoPorNivel(nivelElegido)} (${ancestro.dano})\n\nProgresión de daño:\n${resumenMejorasArmaAlientoPorNivel(nivelElegido)}`
               });
-            } else if (esDraconido && esResistencia) {
+            } else if (esResistencia) {
               const ancestro = getAncestroDraconidoActual();
               if (!ancestro) {
                 tarjetas.push({
@@ -2095,9 +2233,25 @@
           selectsCompetencia.forEach((selectEl) => {
             selectEl.addEventListener('click', (event) => event.stopPropagation());
             selectEl.addEventListener('change', () => {
+              const raceLanguageKey = String(selectEl.dataset.raceLanguageChoiceKey || '').trim();
               const bonusKey = String(selectEl.dataset.bonusKey || '').trim();
               const rasgo = String(selectEl.dataset.rasgo || '').trim();
               const idxChoice = Math.max(0, Number(selectEl.dataset.choiceIdx) || 0);
+              if (raceLanguageKey) {
+                const estadoIdiomas = obtenerEstadoIdiomasRaciales();
+                const valorNuevo = normalizarIdiomaSlug(selectEl.value || '');
+                if (valorNuevo) {
+                  for (let i = 0; i < estadoIdiomas.length; i += 1) {
+                    if (i === idxChoice) continue;
+                    if (normalizarIdiomaSlug(estadoIdiomas[i]) === valorNuevo) estadoIdiomas[i] = '';
+                  }
+                }
+                estadoIdiomas[idxChoice] = valorNuevo;
+                seleccion.idiomas_raciales_elegidos = estadoIdiomas;
+                guardarSeleccion();
+                render();
+                return;
+              }
               if (!rasgo && !bonusKey) return;
               if (bonusKey) {
                 const estadoBonos = obtenerEstadoBonificadoresRaciales();
@@ -2232,6 +2386,20 @@
           const subclaseSeleccionada = String(filaClase?.subclase || '').trim();
           const cards = construirTarjetasClase(clase, nivelClase, subclaseSeleccionada);
           renderTarjetas(cardsWrap, cards, 'No hay datos de clase para ese nivel.', `clase:${filaClase.slug}`);
+          const actualizarAvisoBotonSeccion = () => {
+            const pendientes = cardsWrap.querySelectorAll('.crear-paso2-card.is-pending').length > 0;
+            toggleBtn.classList.toggle('is-pending', pendientes);
+            let badge = toggleBtn.querySelector('.crear-paso2-class-section__pending');
+            if (pendientes && !badge) {
+              badge = document.createElement('span');
+              badge.className = 'crear-paso2-class-section__pending';
+              badge.textContent = ' !';
+              toggleBtn.appendChild(badge);
+            } else if (!pendientes && badge) {
+              badge.remove();
+            }
+          };
+          actualizarAvisoBotonSeccion();
 
           toggleBtn.addEventListener('click', () => {
             const estaColapsada = cardsWrap.hasAttribute('hidden');
@@ -2247,6 +2415,7 @@
               toggleBtn.textContent = 'Mostrar características';
               toggleBtn.setAttribute('aria-pressed', 'true');
             }
+            actualizarAvisoBotonSeccion();
           });
 
           claseCardsEl.appendChild(section);
@@ -2268,6 +2437,7 @@
 
         const razaSeleccionada = razaBySlug.get(razaSlug);
         const subrazaSeleccionada = subrazaBySlug.get(subrazaSlug);
+        const claseSeleccionada = claseBySlug.get(claseSlug);
         const nivelElegido = Math.max(1, nivelTotalPersonaje());
         seleccion.multiclases = obtenerMulticlases().map((filaClase) => {
           const clase = claseBySlug.get(String(filaClase?.slug || '').trim());
@@ -2282,6 +2452,69 @@
           }
           return { ...filaClase, subclase: valida ? subclaseSlug : '' };
         });
+        // Rasgos activos (clase + subclase) hasta el nivel elegido: base para aplicar modificadores en paso 3.
+        const rasgosActivosClase = [];
+        const vistosRasgoActivo = new Set();
+        const filasActivas = obtenerMulticlases();
+        filasActivas.forEach((filaClase) => {
+          const slugClase = String(filaClase?.slug || '').trim();
+          if (!slugClase) return;
+          const clase = claseBySlug.get(slugClase);
+          if (!clase) return;
+          const maxNivelClase = Number(filaClase?.nivel) || 1;
+          const filasClase = (Array.isArray(claseNiveles) ? claseNiveles : [])
+            .filter((f) => Number(f?.ClaseId) === Number(clase.id) && Number(f?.nivel) <= maxNivelClase)
+            .sort((a, b) => Number(a?.nivel) - Number(b?.nivel));
+          filasClase.forEach((filaNivel) => {
+            const nivelRasgo = Number(filaNivel?.nivel) || 1;
+            const rasgos = Array.isArray(filaNivel?.rasgos) ? filaNivel.rasgos : [];
+            rasgos.forEach((rasgo) => {
+              const slugRasgo = String(rasgo?.index || rasgo?.slug || '').trim();
+              const nombreRasgo = String(rasgo?.name || rasgo?.nombre || slugRasgo).trim();
+              const key = `clase:${slugClase}:${nivelRasgo}:${slugRasgo || nombreRasgo}`;
+              if (!nombreRasgo || vistosRasgoActivo.has(key)) return;
+              vistosRasgoActivo.add(key);
+              rasgosActivosClase.push({
+                source: 'clase',
+                claseSlug: slugClase,
+                nivel: nivelRasgo,
+                slug: slugRasgo,
+                nombre: nombreRasgo,
+                descripcion: String(rasgo?.descripcion || '').trim(),
+                modificadores: rasgo?.modificadores ?? null
+              });
+            });
+          });
+
+          const subclaseSlugActiva = String(filaClase?.subclase || '').trim();
+          const subclaseActiva = subclaseBySlug.get(subclaseSlugActiva);
+          if (!subclaseActiva || Number(subclaseActiva?.ClaseId) !== Number(clase.id)) return;
+          const filasSub = (Array.isArray(subclaseNiveles) ? subclaseNiveles : [])
+            .filter((f) => Number(f?.SubclaseId) === Number(subclaseActiva.id) && Number(f?.nivel) <= maxNivelClase)
+            .sort((a, b) => Number(a?.nivel) - Number(b?.nivel));
+          filasSub.forEach((filaNivelSub) => {
+            const nivelRasgo = Number(filaNivelSub?.nivel) || 1;
+            const rasgosSub = Array.isArray(filaNivelSub?.rasgos) ? filaNivelSub.rasgos : [];
+            rasgosSub.forEach((rasgo) => {
+              const slugRasgo = String(rasgo?.index || rasgo?.slug || '').trim();
+              const nombreRasgo = String(rasgo?.name || rasgo?.nombre || slugRasgo).trim();
+              const key = `subclase:${subclaseSlugActiva}:${nivelRasgo}:${slugRasgo || nombreRasgo}`;
+              if (!nombreRasgo || vistosRasgoActivo.has(key)) return;
+              vistosRasgoActivo.add(key);
+              rasgosActivosClase.push({
+                source: 'subclase',
+                claseSlug: slugClase,
+                subclaseSlug: subclaseSlugActiva,
+                nivel: nivelRasgo,
+                slug: slugRasgo,
+                nombre: nombreRasgo,
+                descripcion: String(rasgo?.descripcion || '').trim(),
+                modificadores: rasgo?.modificadores ?? null
+              });
+            });
+          });
+        });
+        seleccion.rasgos_activos_clase = rasgosActivosClase;
         // Mantén la selección de mejoras (ASI) coherente cuando cambie la clase / multiclase.
         if (seleccion.asi_mejoras && typeof seleccion.asi_mejoras === 'object') {
           const asiKeysActivos = new Set();
@@ -2306,11 +2539,17 @@
           );
           recalcularFeatsDesdeASI();
         }
-        if (String(razaSlug || '').trim().toLowerCase() === 'dragonborn' && ancestroDraconido) {
-          seleccion.ascendencia_draconida = ancestroDraconido;
-        } else {
-          delete seleccion.ascendencia_draconida;
-        }
+        const tieneAscendenciaDraconica = (() => {
+          const filaRaza1 = Array.isArray(razaNiveles)
+            ? razaNiveles.find((f) => Number(f?.RazaId) === Number(razaSeleccionada?.id) && Number(f?.nivel) === 1)
+            : null;
+          const rasgosNivel1 = Array.isArray(parsearJsonFlexible(filaRaza1?.rasgos, []))
+            ? parsearJsonFlexible(filaRaza1?.rasgos, [])
+            : [];
+          return rasgosNivel1.some((r) => String(r?.index || r?.name || '').trim().toLowerCase() === 'draconic-ancestry');
+        })();
+        if (tieneAscendenciaDraconica && ancestroDraconido) seleccion.ascendencia_draconida = ancestroDraconido;
+        else delete seleccion.ascendencia_draconida;
         if (!seleccion.competencias_raciales_elegidas || typeof seleccion.competencias_raciales_elegidas !== 'object') {
           seleccion.competencias_raciales_elegidas = {};
         }
@@ -2320,6 +2559,77 @@
         if (!seleccion.bonificadores_raciales_elegidos || typeof seleccion.bonificadores_raciales_elegidos !== 'object') {
           seleccion.bonificadores_raciales_elegidos = {};
         }
+
+        // Snapshot estable para paso 4: evita pérdidas por variaciones
+        // de formato al reconstruir habilidades/salvaciones.
+        (function actualizarResumenCompetenciasPaso2() {
+          const resumen = {
+            clase: String(claseSlug || '').trim(),
+            salvaciones: [],
+            habilidades: []
+          };
+          const habilidadesSet = new Set();
+          const salvacionesSet = new Set();
+          function normalizarSkillSlug(raw = '') {
+            return String(raw || '')
+              .trim()
+              .toLowerCase()
+              .replace(/^skills?[-_:]*/, '')
+              .replace(/\s+/g, '-')
+              .replace(/[^a-z0-9-]+/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-+|-+$/g, '');
+          }
+          function pushSkill(raw) {
+            const slug = normalizarSkillSlug(raw);
+            if (slug) habilidadesSet.add(slug);
+          }
+          function pushSalvacion(raw) {
+            const txt = String(raw || '').trim().toLowerCase();
+            if (!txt) return;
+            if (txt.includes('str') || txt.includes('strength') || txt.includes('fuerza')) salvacionesSet.add('fuerza');
+            else if (txt.includes('dex') || txt.includes('dexterity') || txt.includes('destreza')) salvacionesSet.add('destreza');
+            else if (txt.includes('con') || txt.includes('constitution') || txt.includes('constitucion')) salvacionesSet.add('constitucion');
+            else if (txt.includes('int') || txt.includes('intelligence') || txt.includes('inteligencia')) salvacionesSet.add('inteligencia');
+            else if (txt.includes('wis') || txt.includes('wisdom') || txt.includes('sabiduria')) salvacionesSet.add('sabiduria');
+            else if (txt.includes('cha') || txt.includes('charisma') || txt.includes('carisma')) salvacionesSet.add('carisma');
+          }
+          const salvacionesClase = Array.isArray(claseSeleccionada?.tirada_salvacion) ? claseSeleccionada.tirada_salvacion : [];
+          salvacionesClase.forEach((item) => {
+            pushSalvacion(String(item?.index || item?.name || item || ''));
+          });
+          const compClase = parsearJsonFlexible(claseSeleccionada?.competencia, {});
+          const profsClase = Array.isArray(compClase?.proficiencies) ? compClase.proficiencies : [];
+          profsClase.forEach((p) => {
+            const tipo = String(p?.tipo || '').trim().toLowerCase();
+            const ref = String(p?.index || p?.slug || p?.name || '').trim();
+            if (tipo === 'habilidad' || tipo === 'skill' || tipo === 'skills' || ref.toLowerCase().includes('skill')) {
+              pushSkill(ref);
+            }
+          });
+          const elegidasClase = seleccion?.competencias_clase_elegidas && typeof seleccion.competencias_clase_elegidas === 'object'
+            ? Object.values(seleccion.competencias_clase_elegidas)
+            : [];
+          const elegidasRaza = seleccion?.competencias_raciales_elegidas && typeof seleccion.competencias_raciales_elegidas === 'object'
+            ? Object.values(seleccion.competencias_raciales_elegidas)
+            : [];
+          [...elegidasClase, ...elegidasRaza].forEach((v) => {
+            const lista = Array.isArray(v) ? v : [v];
+            lista.forEach((item) => {
+              const raw = String(item || '').trim();
+              if (!raw) return;
+              if (raw.toLowerCase().includes('saving throw') || raw.toLowerCase().includes('salvacion') || raw.toLowerCase().includes('salvación')) {
+                pushSalvacion(raw);
+              } else {
+                pushSkill(raw);
+              }
+            });
+          });
+          resumen.salvaciones = Array.from(salvacionesSet);
+          resumen.habilidades = Array.from(habilidadesSet);
+          seleccion.resumen_competencias_paso2 = resumen;
+        })();
+
         if (subrazaSeleccionada && razaSeleccionada && Number(subrazaSeleccionada.RazaId) !== Number(razaSeleccionada.id)) {
           delete seleccion.subraza;
           subrazaSelect.value = '';

@@ -97,8 +97,15 @@ exports.editarPersonaje = async (req, res) => {
       }
     }
 
+    const claseSeleccionada = await Clase.findByPk(claseId, { attributes: ['id', 'dado_vida'] });
+    if (!claseSeleccionada) {
+      req.session.mensajes = req.session.mensajes || {};
+      req.session.mensajes.mensajeSesion = 'La clase seleccionada no existe.';
+      return res.redirect('/');
+    }
+
     const nivelTotal = Number(req.body.nivel) || 1;
-    const vida = obtenerPuntosVida(nivelTotal, claseId, Number(req.body.constitucion) || 8);
+    const vida = obtenerPuntosVida(nivelTotal, claseSeleccionada.dado_vida, Number(req.body.constitucion) || 8);
 
     const [modificado] = await Personaje.update(
       {

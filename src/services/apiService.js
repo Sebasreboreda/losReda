@@ -1130,9 +1130,22 @@ function extraerDescripcionTexto(desc) {
   return null;
 }
 
-function extraerModificadoresRasgo(data) {
+function extraerModificadoresRasgo(data, rasgoSlug = '') {
   if (!data || typeof data !== 'object') return null;
-  return data.trait_specific || null;
+  const traitSpecific = data.trait_specific || null;
+  if (traitSpecific) return traitSpecific;
+
+  const slug = String(rasgoSlug || data.index || '').trim().toLowerCase();
+  // Fallback manual para rasgos cuyo trait_specific no llega en API.
+  if (slug === 'primal-champion') {
+    return {
+      ability_bonuses: [
+        { ability_score: { index: 'str', name: 'STR' }, bonus: 4, max: 24 },
+        { ability_score: { index: 'con', name: 'CON' }, bonus: 4, max: 24 }
+      ]
+    };
+  }
+  return null;
 }
 
 async function upsertRasgoDesdeRef(ref) {
@@ -1154,7 +1167,7 @@ async function upsertRasgoDesdeRef(ref) {
         await rasgo.update({
           nombre: detailData.name || nombre,
           descripcion: extraerDescripcionTexto(detailData.desc),
-          modificadores: extraerModificadoresRasgo(detailData),
+          modificadores: extraerModificadoresRasgo(detailData, slug),
           url_api
         });
       }

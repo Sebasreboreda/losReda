@@ -8,6 +8,11 @@ const PersonajeCompetencia = sequelize.define("PersonajeCompetencia", {
         defaultValue: true
     },
 
+    media_competencia:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+
     experto: {
         type: DataTypes.BOOLEAN,
         defaultValue: false

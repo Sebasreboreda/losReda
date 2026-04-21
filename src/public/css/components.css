@@ -1569,6 +1569,15 @@
   color: #fff;
 }
 
+.crear-personaje-trait-item.is-pending {
+  border-color: var(--dnd-red-dark);
+}
+
+.crear-paso3-inline-pending {
+  color: var(--dnd-red);
+  font-weight: 900;
+}
+
 .crear-personaje-trait-detail {
   margin-top: 0.1rem;
   border: 1px solid var(--dnd-red-alpha-25);
@@ -1990,6 +1999,29 @@
   font-size: 0.74rem;
 }
 
+.crear-paso2-class-section__toggle.is-pending {
+  border-color: var(--dnd-red-dark);
+}
+
+.crear-paso2-class-section__pending {
+  color: var(--dnd-red);
+  font-weight: 900;
+}
+
+.crear-paso3-pending-badge,
+.crear-paso3-next-pending {
+  color: var(--dnd-red);
+  font-weight: 900;
+}
+
+#cp3-trasfondo-card.is-pending {
+  border-color: rgba(194, 31, 47, 0.65);
+}
+
+#cp3-next-step.is-pending {
+  border-color: var(--dnd-red-dark);
+}
+
 .crear-paso2-class-section .crear-paso2-card-list {
   margin-top: 0.45rem;
 }
@@ -2351,6 +2383,12 @@
   gap: 0.34rem;
 }
 
+.crear-paso4-card__body--spaced {
+  margin-top: 0.45rem;
+  padding-top: 0.35rem;
+  border-top: 1px dashed var(--dnd-red-alpha-12);
+}
+
 .crear-paso4-line {
   margin: 0;
   font-size: 0.86rem;
@@ -2371,6 +2409,11 @@
   padding: 0.16rem 0;
   border-bottom: 1px solid var(--dnd-red-alpha-12);
   font-size: 0.88rem;
+}
+
+.crear-paso4-attr-item > span {
+  color: var(--dnd-muted);
+  font-weight: 700;
 }
 
 .crear-paso4-attr-item strong {
@@ -2401,6 +2444,76 @@
   width: 28%;
   color: var(--dnd-red-dark);
   font-weight: 700;
+}
+
+.crear-paso4-skills-table th {
+  width: auto;
+}
+
+.crear-paso4-skills-table th:first-child,
+.crear-paso4-skills-table td:first-child {
+  width: 12%;
+  text-align: center;
+}
+
+.crear-paso4-skills-table th:nth-child(2),
+.crear-paso4-skills-table td:nth-child(2) {
+  width: 26%;
+}
+
+.crear-paso4-skills-table td:nth-child(2) {
+  color: var(--dnd-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.crear-paso4-skills-table th:last-child,
+.crear-paso4-skills-table td:last-child {
+  width: 14%;
+  text-align: right;
+}
+
+.crear-paso4-table--salvaciones th {
+  width: auto;
+}
+
+.crear-paso4-table--salvaciones thead th:nth-child(1),
+.crear-paso4-table--salvaciones tbody td:nth-child(1) {
+  width: 16%;
+  text-align: center;
+}
+
+.crear-paso4-table--salvaciones thead th:nth-child(2),
+.crear-paso4-table--salvaciones tbody th:nth-child(2) {
+  width: 64%;
+  text-align: left;
+}
+
+.crear-paso4-table--salvaciones tbody th:nth-child(2) {
+  color: var(--dnd-muted);
+}
+
+.crear-paso4-table--salvaciones thead th:nth-child(3),
+.crear-paso4-table--salvaciones tbody td:nth-child(3) {
+  width: 20%;
+  text-align: right;
+}
+
+.cp4-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.cp4-dot--filled {
+  background: var(--dnd-red-dark);
+}
+
+.cp4-dot--empty {
+  border: 1px solid var(--dnd-red-alpha-35);
+  background: transparent;
 }
 
 .crear-paso3-card {
@@ -2447,6 +2560,37 @@
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--dnd-red-dark);
+}
+
+.crear-paso3-standard-pool {
+  margin: 0 0 0.45rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.crear-paso3-standard-pool__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--dnd-ink);
+}
+
+.crear-paso3-standard-pool__value {
+  min-width: 2rem;
+  text-align: center;
+  padding: 0.16rem 0.38rem;
+  border-radius: 999px;
+  border: 1px solid var(--dnd-red-alpha-35);
+  background: #fff;
+  color: var(--dnd-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.crear-paso3-standard-pool__value.is-used {
+  opacity: 0.45;
 }
 
 .crear-paso3-bonus-summary {
@@ -2813,94 +2957,4 @@
   margin: 0.15rem 0 0;
   font-size: 0.85rem;
   color: var(--dnd-muted);
-}
-
-@media (min-width: 2048px) {
-  .form-panel {
-    max-width: 40rem;
-    padding: 2.1rem;
-  }
-
-  .form-panel--wide {
-    max-width: 52rem;
-  }
-
-  .crear-personaje-panel--wide {
-    width: 72%;
-    max-width: 90rem;
-  }
-
-  .crear-personaje-card,
-  .crear-paso3-card {
-    padding: 1.35rem 1.5rem;
-  }
-
-  .crear-personaje-page-header .page-title {
-    font-size: 2.15rem;
-  }
-
-  .crear-personaje-steps-nav__item {
-    font-size: 1.02rem;
-    padding: 0.5rem 1.05rem;
-  }
-
-  /* En 2K+, mantenemos tamaños base en la tarjeta de atributos
-     para que no se rompa la alineación de números (+2/+1 y valores). */
-  .crear-paso3-bonus-head__label {
-    font-size: 0.78rem;
-  }
-
-  .crear-paso3-bonus-head__value {
-    font-size: 0.76rem;
-  }
-
-  .crear-paso3-attr-values {
-    font-size: 0.83rem;
-  }
-
-  .crear-paso3-bonus-selectors,
-  .crear-paso3-bonus-head__values {
-    grid-template-columns: 1.8rem 1.8rem;
-    gap: 0.45rem;
-  }
-
-  .crear-paso3-bonus-box {
-    width: 1.05rem;
-    height: 1.05rem;
-  }
-
-  .character-grid {
-    gap: 1.65rem;
-  }
-
-  .character-card {
-    min-height: 210px;
-  }
-
-  .character-card > div:first-of-type {
-    max-width: 180px;
-    min-width: 130px;
-  }
-
-  .character-card > div:first-of-type img {
-    min-height: 180px;
-  }
-
-  .character-card > div:last-of-type {
-    padding: 1rem 1.15rem 0.95rem;
-  }
-
-  .character-card > div:last-of-type > h2 {
-    font-size: clamp(1.2rem, 1.6vw, 1.5rem);
-  }
-
-  .character-card dl {
-    font-size: 0.95rem;
-    gap: 0.35rem 0.65rem;
-  }
-
-  .character-card footer {
-    gap: 0.65rem;
-    padding-top: 0.9rem;
-  }
 }

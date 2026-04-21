@@ -7,7 +7,6 @@ function resolveSqliteStorage() {
   const envValue = process.env.DATABASE_PATH;
 
   if (envValue && String(envValue).trim()) {
-    // In pkg, resolve relative paths next to the executable (never in snapshot).
     if (runningAsPkg && !path.isAbsolute(envValue)) {
       return path.join(execDir, envValue);
     }

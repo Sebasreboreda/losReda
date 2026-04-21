@@ -20,18 +20,23 @@
           </article>
 
           <article class="crear-personaje-card crear-paso4-card">
-            <h2 class="crear-paso4-card__title">Atributos</h2>
-            <div id="cp4-resumen-atributos" class="crear-paso4-card__body"></div>
-          </article>
-
-          <article class="crear-personaje-card crear-paso4-card">
-            <h2 class="crear-paso4-card__title">Trasfondo y detalles</h2>
+            <h2 class="crear-paso4-card__title">Trasfondo</h2>
             <div id="cp4-resumen-detalles" class="crear-paso4-card__body"></div>
           </article>
 
           <article class="crear-personaje-card crear-paso4-card">
-            <h2 class="crear-paso4-card__title">Competencias</h2>
-            <div id="cp4-resumen-competencias" class="crear-paso4-card__body"></div>
+            <h2 class="crear-paso4-card__title">Atributos y competencias</h2>
+            <div id="cp4-resumen-atributos" class="crear-paso4-card__body"></div>
+            <div id="cp4-resumen-competencias" class="crear-paso4-card__body crear-paso4-card__body--spaced"></div>
+            <div class="crear-paso4-card__body crear-paso4-card__body--spaced">
+              <p class="crear-paso4-line"><strong>Tiradas de salvación</strong></p>
+              <div id="cp4-resumen-salvaciones">—</div>
+            </div>
+          </article>
+
+          <article class="crear-personaje-card crear-paso4-card">
+            <h2 class="crear-paso4-card__title">Habilidades</h2>
+            <div id="cp4-resumen-habilidades" class="crear-paso4-card__body"></div>
           </article>
         </section>
 
@@ -53,11 +58,18 @@
   <script id="cp4-atributos-data" type="application/json"><%- JSON.stringify(atributos || []).replace(/</g, '\\u003c') %></script>
   <script id="cp4-competencias-catalogo-data" type="application/json"><%- JSON.stringify(competenciasCatalogo || []).replace(/</g, '\\u003c') %></script>
   <script id="cp4-textos-directos-data" type="application/json"><%- JSON.stringify(textosDirectos || {}).replace(/</g, '\\u003c') %></script>
+  <script id="cp4-rules-data" type="application/json"><%- JSON.stringify(reglasCreacion || {}).replace(/</g, '\\u003c') %></script>
+  <script src="/js/crearPersonajeRules.js"></script>
   <script>
     (function () {
       const storage = window.sessionStorage;
       const STORAGE_SELECTION_KEY = 'crearPersonaje.seleccionPaso1';
       const STORAGE_ATTRS_KEY = 'crearPersonaje.atributosPaso3';
+      const STORAGE_ATTRS_STANDARD_KEY = 'crearPersonaje.atributosPaso3.standard';
+      const STORAGE_ATTRS_PUNTOS_KEY = 'crearPersonaje.atributosPaso3.puntos';
+      const STORAGE_ATTRS_TOTAL_STANDARD_KEY = 'crearPersonaje.atributosPaso3.total.standard';
+      const STORAGE_ATTRS_TOTAL_PUNTOS_KEY = 'crearPersonaje.atributosPaso3.total.puntos';
+      const STORAGE_ATTR_METHOD_KEY = 'crearPersonaje.metodoAtributosPaso3';
       const STORAGE_BG_KEY = 'crearPersonaje.trasfondoPaso3';
       const STORAGE_TEXTS_KEY = 'crearPersonaje.textosPaso3';
       const STORAGE_KNOWN_LANG_KEY = 'crearPersonaje.idiomasConocidosPaso2';
@@ -114,6 +126,12 @@
         }
         return valor;
       }
+      function aArraySeguro(valor) {
+        const parsed = parsearJsonFlexible(valor, valor);
+        if (Array.isArray(parsed)) return parsed;
+        if (parsed && typeof parsed === 'object') return [parsed];
+        return [];
+      }
 
       function normalizarRef(item) {
         if (!item) return '';
@@ -168,8 +186,17 @@
       const atributosDef = parseJsonScript('cp4-atributos-data');
       const competenciasCatalogo = parseJsonScript('cp4-competencias-catalogo-data');
       const textosDirectos = parseJsonScript('cp4-textos-directos-data');
+      const rulesData = parseJsonScript('cp4-rules-data');
+      const attrRules = rulesData && typeof rulesData === 'object' && rulesData.atributos && typeof rulesData.atributos === 'object'
+        ? rulesData.atributos
+        : {};
+      const ATRIBUTOS_VALIDOS = Array.isArray(attrRules.atributosValidos) && attrRules.atributosValidos.length
+        ? attrRules.atributosValidos.map((a) => String(a || '').trim()).filter(Boolean)
+        : ['fuerza', 'destreza', 'constitucion', 'inteligencia', 'sabiduria', 'carisma'];
+      const rulesHelper = window.CrearPersonajeRules || {};
 
       const claseBySlug = new Map(clases.map((c) => [String(c?.slug || '').trim(), c]));
+      const claseBySlugLower = new Map(clases.map((c) => [String(c?.slug || '').trim().toLowerCase(), c]));
       const razaBySlug = new Map(razas.map((r) => [String(r?.slug || '').trim(), r]));
       const subrazaBySlug = new Map(subrazas.map((s) => [String(s?.slug || '').trim(), s]));
       const subclaseBySlug = new Map(subclases.map((s) => [String(s?.slug || '').trim(), s]));
@@ -182,9 +209,27 @@
         (Array.isArray(competenciasCatalogo) ? competenciasCatalogo : [])
           .map((c) => [String(c?.nombre || '').trim().toLowerCase(), c])
       );
+      const competenciaSkillByNombreNorm = new Map(
+        (Array.isArray(competenciasCatalogo) ? competenciasCatalogo : [])
+          .filter((c) => ['habilidad', 'skill', 'skills', 'habilidades'].includes(String(c?.tipo || '').trim().toLowerCase()))
+          .map((c) => [
+            String(c?.nombre || '')
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .toLowerCase()
+              .trim(),
+            c
+          ])
+      );
 
       const seleccion = leerStorageJson(STORAGE_SELECTION_KEY, {});
-      const attrs = leerStorageJson(STORAGE_ATTRS_KEY, {});
+      const resumenCompetenciasPaso2 = seleccion?.resumen_competencias_paso2 && typeof seleccion.resumen_competencias_paso2 === 'object'
+        ? seleccion.resumen_competencias_paso2
+        : {};
+      const metodoAtributos = String(storage.getItem(STORAGE_ATTR_METHOD_KEY) || 'standard').trim().toLowerCase();
+      const attrsKey = metodoAtributos === 'puntos' ? STORAGE_ATTRS_PUNTOS_KEY : STORAGE_ATTRS_STANDARD_KEY;
+      const attrsTotalKey = metodoAtributos === 'puntos' ? STORAGE_ATTRS_TOTAL_PUNTOS_KEY : STORAGE_ATTRS_TOTAL_STANDARD_KEY;
+      const attrs = leerStorageJson(attrsTotalKey, leerStorageJson(attrsKey, leerStorageJson(STORAGE_ATTRS_KEY, {})));
       const textos = leerStorageJson(STORAGE_TEXTS_KEY, {});
       const idiomasConocidos = leerStorageJson(STORAGE_KNOWN_LANG_KEY, []);
       const idiomasTrasfondo = leerStorageJson(STORAGE_BG_LANG_KEY, []);
@@ -194,19 +239,22 @@
       const atributosEl = document.getElementById('cp4-resumen-atributos');
       const detallesEl = document.getElementById('cp4-resumen-detalles');
       const competenciasEl = document.getElementById('cp4-resumen-competencias');
-      if (!identidadEl || !atributosEl || !detallesEl || !competenciasEl) return;
+      const habilidadesEl = document.getElementById('cp4-resumen-habilidades');
+      const salvacionesEl = document.getElementById('cp4-resumen-salvaciones');
+      if (!identidadEl || !atributosEl || !detallesEl || !competenciasEl || !habilidadesEl || !salvacionesEl) return;
 
-      const claseSlug = String(seleccion?.clase || '').trim();
+      const claseSlugSeleccion = String(seleccion?.clase || '').trim();
       const razaSlug = String(seleccion?.raza || '').trim();
       const subrazaSlug = String(seleccion?.subraza || '').trim();
       const filasClase = Array.isArray(seleccion?.multiclases) ? seleccion.multiclases : [];
-      const filaPrincipal = filasClase.find((f) => String(f?.slug || '') === claseSlug) || filasClase[0] || null;
+      const filaPrincipal = filasClase.find((f) => String(f?.slug || '') === claseSlugSeleccion) || filasClase[0] || null;
+      const claseSlug = claseSlugSeleccion || String(filaPrincipal?.slug || '').trim();
       const subclaseSlug = String(filaPrincipal?.subclase || '').trim();
       const nivelTotal = filasClase.length
         ? filasClase.reduce((acc, f) => acc + (Number(f?.nivel) || 0), 0)
         : (Number(seleccion?.nivel) || 1);
 
-      const clase = claseBySlug.get(claseSlug);
+      const clase = claseBySlug.get(claseSlug) || claseBySlugLower.get(String(claseSlug || '').toLowerCase());
       const raza = razaBySlug.get(razaSlug);
       const subraza = subrazaBySlug.get(subrazaSlug);
       const subclase = subclaseBySlug.get(subclaseSlug);
@@ -219,6 +267,7 @@
 
       identidadEl.innerHTML = `
         <p class="crear-paso4-line"><strong>Nivel:</strong> ${esc(String(nivelTotal || 1))}</p>
+        <p class="crear-paso4-line"><strong>Método de atributos:</strong> ${esc(metodoAtributos === 'puntos' ? 'Método por puntos' : 'Método standard')}</p>
         <p class="crear-paso4-line"><strong>Clase:</strong> ${esc(nombreClase)}</p>
         <p class="crear-paso4-line"><strong>Subclase:</strong> ${esc(nombreSubclase || 'Sin subclase')}</p>
         <p class="crear-paso4-line"><strong>Raza:</strong> ${esc(nombreRaza)}</p>
@@ -231,7 +280,12 @@
         const nombre = String(a?.nombre || campo).trim();
         const valor = Number(attrs?.[campo]);
         const valorTxt = Number.isFinite(valor) ? String(valor) : '—';
-        return `<div class="crear-paso4-attr-item"><span>${esc(nombre)}</span><strong>${esc(valorTxt)}</strong></div>`;
+        return `
+          <div class="crear-paso4-attr-item">
+            <span>${esc(nombre)}</span>
+            <strong>${esc(valorTxt)}</strong>
+          </div>
+        `;
       }).filter(Boolean);
       atributosEl.innerHTML = filasAtributos.length
         ? `<div class="crear-paso4-attr-list">${filasAtributos.join('')}</div>`
@@ -256,6 +310,8 @@
         idioma: new Set(),
         otros: new Set()
       };
+      const habilidadesCompetentesPorSlug = new Set();
+      const habilidadesCompetentesPorNombre = new Set();
 
       function agregarCompetencia(raw) {
         const base = normalizarRef(raw);
@@ -275,12 +331,26 @@
           competenciaByNombre.get(baseLower) ||
           competenciaByNombre.get(String(nombre || '').toLowerCase());
         const tipo = fromCatalogo?.tipo ? String(fromCatalogo.tipo).toLowerCase() : categorizarCompetencia(base);
+        if (tipo === 'habilidad' || tipo === 'skill' || tipo === 'skills' || tipo === 'habilidades') {
+          const slugHab = resolverSkillSlug(String(fromCatalogo?.slug || slug || nombre || ''));
+          if (slugHab) habilidadesCompetentesPorSlug.add(slugHab);
+          if (nombre) habilidadesCompetentesPorNombre.add(normalizarTextoComparacion(nombre));
+        }
         if (!competenciasPorTipo[tipo]) competenciasPorTipo.otros.add(nombre);
         else competenciasPorTipo[tipo].add(nombre);
       }
 
-      const claseFijas = Array.isArray(clase?.competencia?.proficiencies) ? clase.competencia.proficiencies : [];
+      const competenciaClaseRaw = parsearJsonFlexible(clase?.competencia, {});
+      const claseFijas = Array.isArray(competenciaClaseRaw?.proficiencies)
+        ? competenciaClaseRaw.proficiencies
+        : [];
+      const claseSkillsFijas = Array.isArray(competenciaClaseRaw?.skills?.fixed)
+        ? competenciaClaseRaw.skills.fixed
+        : [];
       claseFijas.forEach(agregarCompetencia);
+      claseSkillsFijas.forEach((s) => agregarCompetencia(`skill:${s}`));
+      const skillsPaso2 = Array.isArray(resumenCompetenciasPaso2?.habilidades) ? resumenCompetenciasPaso2.habilidades : [];
+      skillsPaso2.forEach((s) => agregarCompetencia(`skill:${s}`));
 
       const elegidasClase = seleccion?.competencias_clase_elegidas && typeof seleccion.competencias_clase_elegidas === 'object'
         ? Object.values(seleccion.competencias_clase_elegidas)
@@ -308,8 +378,6 @@
       if (Array.isArray(idiomasTrasfondo)) idiomasTrasfondo.forEach((i) => competenciasPorTipo.idioma.add(traducirNombreProficiencia(normalizarRef(i))));
 
       const filasCompetencias = [
-        ['Tiradas de salvación', [...competenciasPorTipo.salvacion]],
-        ['Habilidades', [...competenciasPorTipo.habilidad]],
         ['Armas', [...competenciasPorTipo.arma]],
         ['Armaduras', [...competenciasPorTipo.armadura]],
         ['Herramientas', [...competenciasPorTipo.herramienta]],
@@ -334,6 +402,227 @@
       competenciasEl.innerHTML = filasHtml
         ? `<table class="crear-paso4-table"><tbody>${filasHtml}</tbody></table>`
         : '<p class="crear-paso4-muted">Sin competencias registradas.</p>';
+      function mod(valor) {
+        if (typeof rulesHelper.calcularModificador === 'function') {
+          return rulesHelper.calcularModificador(valor);
+        }
+        const n = Number(valor);
+        if (!Number.isFinite(n)) return 0;
+        return Math.floor((n - 10) / 2);
+      }
+
+      function fmtMod(n) {
+        const v = Number(n) || 0;
+        return `${v >= 0 ? '+' : ''}${v}`;
+      }
+      function normalizarTextoComparacion(txt = '') {
+        return String(txt || '')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .trim();
+      }
+      function normalizarSlugSkill(raw = '') {
+        return String(raw || '')
+          .trim()
+          .toLowerCase()
+          .replace(/^skills?[-_:]*/, '')
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+      function resolverSkillSlug(raw = '') {
+        const txt = String(raw || '').trim();
+        if (!txt) return '';
+        const bySlug = normalizarSlugSkill(txt);
+        if (competenciaBySlug.has(bySlug)) return bySlug;
+        const sinPrefijo = txt.replace(/^(skill|skills|habilidad|habilidades)\s*[:\-]\s*/i, '').trim();
+        const bySlugSinPrefijo = normalizarSlugSkill(sinPrefijo);
+        if (competenciaBySlug.has(bySlugSinPrefijo)) return bySlugSinPrefijo;
+        const normNombre = String(sinPrefijo || txt)
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .trim();
+        const fromNombre = competenciaSkillByNombreNorm.get(normNombre);
+        return normalizarSlugSkill(fromNombre?.slug || bySlugSinPrefijo || bySlug);
+      }
+
+      function proficiencyBonus(nivel = 1) {
+        if (typeof rulesHelper.calcularProficiencyBonus === 'function') {
+          return rulesHelper.calcularProficiencyBonus(nivel);
+        }
+        const n = Math.max(1, Number(nivel) || 1);
+        return 2 + Math.floor((n - 1) / 4);
+      }
+
+      const pb = proficiencyBonus(nivelTotal || 1);
+      const SKILL_ATTR_BY_SLUG = {
+        acrobatics: 'destreza',
+        'animal-handling': 'sabiduria',
+        arcana: 'inteligencia',
+        athletics: 'fuerza',
+        deception: 'carisma',
+        history: 'inteligencia',
+        insight: 'sabiduria',
+        intimidation: 'carisma',
+        investigation: 'inteligencia',
+        medicine: 'sabiduria',
+        nature: 'inteligencia',
+        perception: 'sabiduria',
+        performance: 'carisma',
+        persuasion: 'carisma',
+        religion: 'inteligencia',
+        'sleight-of-hand': 'destreza',
+        stealth: 'destreza',
+        survival: 'sabiduria'
+      };
+      function normalizarAtributoSeguro(raw = '') {
+        if (typeof rulesHelper.normalizarAtributo === 'function') {
+          return rulesHelper.normalizarAtributo(raw);
+        }
+        const key = String(raw || '').trim().toLowerCase();
+        const mapa = {
+          str: 'fuerza',
+          strength: 'fuerza',
+          fuerza: 'fuerza',
+          dex: 'destreza',
+          dexterity: 'destreza',
+          destreza: 'destreza',
+          con: 'constitucion',
+          constitution: 'constitucion',
+          constitucion: 'constitucion',
+          int: 'inteligencia',
+          intelligence: 'inteligencia',
+          inteligencia: 'inteligencia',
+          wis: 'sabiduria',
+          wisdom: 'sabiduria',
+          sabiduria: 'sabiduria',
+          cha: 'carisma',
+          charisma: 'carisma',
+          carisma: 'carisma'
+        };
+        return mapa[key] || '';
+      }
+      try {
+        const skillsCatalogo = (Array.isArray(competenciasCatalogo) ? competenciasCatalogo : [])
+          .filter((c) => {
+            const tipo = String(c?.tipo || '').trim().toLowerCase();
+            if (!['habilidad', 'skill', 'skills', 'habilidades'].includes(tipo)) return false;
+            const slugSkill = resolverSkillSlug(c?.slug || c?.nombre);
+            const atr = normalizarAtributoSeguro(c?.atributo) || SKILL_ATTR_BY_SLUG[slugSkill] || '';
+            return ATRIBUTOS_VALIDOS.includes(atr);
+          })
+          .sort((a, b) => String(a?.nombre || '').localeCompare(String(b?.nombre || ''), 'es'));
+
+        if (!skillsCatalogo.length) {
+          habilidadesEl.innerHTML = '<p class="crear-paso4-muted">Sin catálogo de habilidades.</p>';
+        } else {
+          const rows = skillsCatalogo.map((s) => {
+            const nombre = String(s?.nombre || '').trim();
+            const slug = resolverSkillSlug(s?.slug || s?.nombre);
+            const atr = normalizarAtributoSeguro(s?.atributo) || SKILL_ATTR_BY_SLUG[slug] || '';
+            const base = mod(attrs?.[atr]);
+            const competente = (slug && habilidadesCompetentesPorSlug.has(slug)) || habilidadesCompetentesPorNombre.has(normalizarTextoComparacion(nombre));
+            const total = base + (competente ? pb : 0);
+            const atrAbrev = (textosDirectos && atr ? (textosDirectos[`${atr}_abrev`] || atr) : '—');
+            return `
+              <tr>
+                <td><span class="cp4-dot ${competente ? 'cp4-dot--filled' : 'cp4-dot--empty'}" aria-hidden="true"></span></td>
+                <td>${esc(String(atrAbrev || '—'))}</td>
+                <td>${esc(nombre || '—')}</td>
+                <td>${esc(fmtMod(total))}</td>
+              </tr>
+            `;
+          }).join('');
+          habilidadesEl.innerHTML = `
+            <table class="crear-paso4-table crear-paso4-skills-table">
+              <thead>
+                <tr>
+                  <th>Comp.</th>
+                  <th>Atributo</th>
+                  <th>Habilidad</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          `;
+        }
+      } catch (error) {
+        habilidadesEl.innerHTML = '<p class="crear-paso4-muted">No se pudieron calcular las habilidades.</p>';
+      }
+
+      function extraerAtributoDesdeSalvacion(raw = '') {
+        const s = String(raw || '').trim().toLowerCase();
+        if (!s) return '';
+        if (s.includes('str') || s.includes('strength') || s.includes('fuerza')) return 'fuerza';
+        if (s.includes('dex') || s.includes('dexterity') || s.includes('destreza')) return 'destreza';
+        if (s.includes('con') || s.includes('constitution') || s.includes('constitucion')) return 'constitucion';
+        if (s.includes('int') || s.includes('intelligence') || s.includes('inteligencia')) return 'inteligencia';
+        if (s.includes('wis') || s.includes('wisdom') || s.includes('sabiduria')) return 'sabiduria';
+        if (s.includes('cha') || s.includes('charisma') || s.includes('carisma')) return 'carisma';
+        return '';
+      }
+
+      const salvacionesClaseRaw = aArraySeguro(clase?.tirada_salvacion);
+      const salvacionesSet = new Set(
+        salvacionesClaseRaw
+          .map((item) => {
+            const ref = String(item?.index || item?.name || item || '').trim();
+            return extraerAtributoDesdeSalvacion(ref);
+          })
+          .filter(Boolean)
+      );
+      const salvacionesPaso2 = Array.isArray(resumenCompetenciasPaso2?.salvaciones) ? resumenCompetenciasPaso2.salvaciones : [];
+      salvacionesPaso2.forEach((s) => {
+        const atr = extraerAtributoDesdeSalvacion(s);
+        if (atr) salvacionesSet.add(atr);
+      });
+
+      if (!salvacionesSet.size && competenciasPorTipo.salvacion.size) {
+        [...competenciasPorTipo.salvacion].forEach((s) => {
+          const atr = extraerAtributoDesdeSalvacion(s);
+          if (atr) salvacionesSet.add(atr);
+        });
+      }
+
+      try {
+        const filasSalvacion = ATRIBUTOS_VALIDOS
+          .map((atr) => {
+            const nombre = textosDirectos?.[atr] || atr;
+            const ok = salvacionesSet.has(atr);
+            const total = mod(attrs?.[atr]) + (ok ? pb : 0);
+            return `
+              <tr>
+                <td><span class="cp4-dot ${ok ? 'cp4-dot--filled' : 'cp4-dot--empty'}" aria-hidden="true"></span></td>
+                <th scope="row">${esc(String(nombre))}</th>
+                <td>${esc(fmtMod(total))}</td>
+              </tr>
+            `;
+          })
+          .join('');
+        salvacionesEl.innerHTML = `
+          <table class="crear-paso4-table crear-paso4-table--salvaciones">
+            <colgroup>
+              <col style="width:16%">
+              <col style="width:64%">
+              <col style="width:20%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Comp.</th>
+                <th>Salvación</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>${filasSalvacion}</tbody>
+          </table>
+        `;
+      } catch (error) {
+        salvacionesEl.innerHTML = '<p class="crear-paso4-muted">No se pudieron calcular las tiradas de salvación.</p>';
+      }
     })();
   </script>
 </body>

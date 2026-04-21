@@ -2,6 +2,7 @@ const { Personaje, Clase, ClaseNivel, RazaNivel, Raza, Subraza, Trasfondo, Compe
 const { listarImagenesPersonaje } = require('../utils/personajeImages');
 const { obtenerPuntosVida, calcularCA } = require('../services/personajeService');
 const { obtenerMapaTraducciones, aplicarTraduccionesEnLista } = require('../services/traduccionService');
+const { CREACION_PERSONAJE_RULES } = require('../services/creacionPersonajeRules');
 
 const IMAGEN_POR_DEFECTO = '/images/personajesDefecto/imagenPorDefecto.avif';
 
@@ -275,7 +276,7 @@ async function cargarContextoCreacion() {
     });
   });
 
-  const atributos = [
+  const atributosBase = [
     { nombre: 'Fuerza', campo: 'fuerza' },
     { nombre: 'Destreza', campo: 'destreza' },
     { nombre: 'Constitución', campo: 'constitucion' },
@@ -287,6 +288,16 @@ async function cargarContextoCreacion() {
   const trasfondos = trasfondosDb.map((trasfondo) => trasfondo.toJSON());
   const idiomasCatalogo = idiomasDb.map((idioma) => idioma.toJSON());
   const textosDirectos = mapaTraduccionesAObjeto(traduccionesTextosDirectos);
+  const slugsAbrevAtributos = atributosBase.map((attr) => `${attr.campo}_abrev`);
+  const mapaAbrevAtributos = await obtenerMapaTraducciones({
+    entidad: 'TextoDirecto',
+    campos: ['nombre'],
+    slugs: slugsAbrevAtributos
+  });
+  const atributos = atributosBase.map((attr) => ({
+    ...attr,
+    abrev: String(mapaAbrevAtributos.get(`${attr.campo}_abrev:nombre`) || '').trim()
+  }));
   return { imagenesDisponibles, clases, razas, subrazas: subrazasJson, trasfondos, idiomasCatalogo, atributos, textosDirectos };
 }
 
@@ -539,7 +550,7 @@ exports.renderCrearPaso2 = async (req, res) => {
 exports.renderCrearPaso3 = async (req, res) => {
   try {
     const ctx = await cargarContextoCreacion();
-    return res.render('crearPersonaje3', { title: 'Crear personaje · Paso 3', ...ctx });
+    return res.render('crearPersonaje3', { title: 'Crear personaje · Paso 3', ...ctx, reglasCreacion: CREACION_PERSONAJE_RULES });
   } catch (error) {
     console.error(error);
     return res.status(500).send('Error al cargar el paso 3');
@@ -562,7 +573,7 @@ exports.renderCrearPaso4 = async (req, res) => {
     const subclases = subclasesDb.map((s) => (typeof s.toJSON === 'function' ? s.toJSON() : s));
 
     const competenciasDb = await Competencia.findAll({
-      attributes: ['slug', 'nombre', 'tipo', 'categoria'],
+      attributes: ['slug', 'nombre', 'tipo', 'categoria', 'atributo'],
       order: [['nombre', 'ASC']]
     });
     const traduccionesCompetencias = await obtenerMapaTraducciones({
@@ -573,7 +584,7 @@ exports.renderCrearPaso4 = async (req, res) => {
     aplicarTraduccionesEnLista(competenciasDb, traduccionesCompetencias, ['nombre']);
     const competenciasCatalogo = competenciasDb.map((c) => (typeof c.toJSON === 'function' ? c.toJSON() : c));
 
-    return res.render('crearPersonaje4', { title: 'Crear personaje · Paso 4', ...ctx, subclases, competenciasCatalogo });
+    return res.render('crearPersonaje4', { title: 'Crear personaje · Paso 4', ...ctx, subclases, competenciasCatalogo, reglasCreacion: CREACION_PERSONAJE_RULES });
   } catch (error) {
     console.error(error);
     return res.status(500).send('Error al cargar el paso 4');
@@ -630,7 +641,7 @@ exports.crearPersonaje = async (req, res) => {
 
     const usuarioId = req.session.user.id;
     const nivelTotal = Number(req.body.nivel) || 1;
-    const vida = obtenerPuntosVida(nivelTotal, clase.id, Number(req.body.constitucion) || 8);
+    const vida = obtenerPuntosVida(nivelTotal, clase.dado_vida, Number(req.body.constitucion) || 8);
     const CA = calcularCA("sin armadura", 0, Number(req.body.destreza) || 8, 0 , 0);
 
     const personaje = await Personaje.create({

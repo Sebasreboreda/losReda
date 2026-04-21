@@ -234,6 +234,7 @@ async function seedPersonajesPrueba() {
       if (!clase) continue;
       clasesResueltas.push({
         claseId: clase.id,
+        dadoVida: Number(clase?.dado_vida) || null,
         subclaseId: subclase?.id || null,
         nivel: fila.nivel,
         orden: fila.orden
@@ -251,8 +252,8 @@ async function seedPersonajesPrueba() {
     const trasfondo = await Trasfondo.findOne({ where: { slug: seed.trasfondoSlug } }) || trasfondoDefault;
 
     // Para el seed usamos la primera clase como referencia de dado de vida
-    const clasePrincipalId = clasesResueltas[0].claseId;
-    const vida = obtenerPuntosVida(nivelPersonaje, clasePrincipalId, seed.atributos.constitucion);
+    const dadoVidaPrincipal = Number(clasesResueltas[0]?.dadoVida) || 8;
+    const vida = obtenerPuntosVida(nivelPersonaje, dadoVidaPrincipal, seed.atributos.constitucion);
     const ca = calcularCA('sin armadura', 0, seed.atributos.destreza, 0, 0);
 
     const [personaje] = await Personaje.findOrCreate({
